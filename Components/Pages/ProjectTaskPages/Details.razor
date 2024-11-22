@@ -1,0 +1,58 @@
+﻿@page "/projecttasks/details"
+@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Data
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>ProjectTask</h2>
+    <hr />
+    @if (projecttask is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ProjectId</dt>
+            <dd class="col-sm-10">@projecttask.ProjectId</dd>
+            <dt class="col-sm-2">TaskName</dt>
+            <dd class="col-sm-10">@projecttask.TaskName</dd>
+            <dt class="col-sm-2">TaskDescription</dt>
+            <dd class="col-sm-10">@projecttask.TaskDescription</dd>
+            <dt class="col-sm-2">StartDate</dt>
+            <dd class="col-sm-10">@projecttask.StartDate</dd>
+            <dt class="col-sm-2">DueDate</dt>
+            <dd class="col-sm-10">@projecttask.DueDate</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@projecttask.Status</dd>
+            <dt class="col-sm-2">Priority</dt>
+            <dd class="col-sm-10">@projecttask.Priority</dd>
+        </dl>
+        <div>
+            <a href="@($"/projecttasks/edit?taskid={projecttask.TaskId}")">Edit</a> |
+            <a href="@($"/projecttasks")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private ProjectTask? projecttask;
+
+    [SupplyParameterFromQuery]
+    private int TaskId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+
+        if (projecttask is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

@@ -1,0 +1,109 @@
+﻿@page "/projects/edit"
+@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Data
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Project</h2>
+<hr />
+@if (Project is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Project" OnValidSubmit="UpdateProject" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Project.ProjectId" value="@Project.ProjectId" />
+                <div class="mb-3">
+                    <label for="projectname" class="form-label">ProjectName:</label>
+                    <InputText id="projectname" @bind-Value="Project.ProjectName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Project.Description" class="form-control" />
+                    <ValidationMessage For="() => Project.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="startdate" class="form-label">Startdate:</label>
+                    <InputDate id="startdate" @bind-Value="Project.Startdate" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Project.Startdate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="enddate" class="form-label">Enddate:</label>
+                    <InputDate id="enddate" @bind-Value="Project.Enddate" class="form-control" />
+                    <ValidationMessage For="() => Project.Enddate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status:</label>
+                    <InputText id="status" @bind-Value="Project.Status" class="form-control" />
+                    <ValidationMessage For="() => Project.Status" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/projects">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int ProjectId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Project? Project { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Project ??= await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+
+        if (Project is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateProject()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Project!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ProjectExists(Project!.ProjectId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/projects");
+    }
+
+    private bool ProjectExists(int projectid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Project.Any(e => e.ProjectId == projectid);
+    }
+}
