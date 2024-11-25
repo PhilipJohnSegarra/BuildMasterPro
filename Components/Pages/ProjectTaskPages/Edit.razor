@@ -1,0 +1,119 @@
+﻿@page "/projecttasks/edit"
+@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Data
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>ProjectTask</h2>
+<hr />
+@if (ProjectTask is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="ProjectTask" OnValidSubmit="UpdateProjectTask" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="ProjectTask.TaskId" value="@ProjectTask.TaskId" />
+                <div class="mb-3">
+                    <label for="projectid" class="form-label">ProjectId:</label>
+                    <InputNumber id="projectid" @bind-Value="ProjectTask.ProjectId" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => ProjectTask.ProjectId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="taskname" class="form-label">TaskName:</label>
+                    <InputText id="taskname" @bind-Value="ProjectTask.TaskName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => ProjectTask.TaskName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="taskdescription" class="form-label">TaskDescription:</label>
+                    <InputText id="taskdescription" @bind-Value="ProjectTask.TaskDescription" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => ProjectTask.TaskDescription" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="startdate" class="form-label">StartDate:</label>
+                    <InputDate id="startdate" @bind-Value="ProjectTask.StartDate" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.StartDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="duedate" class="form-label">DueDate:</label>
+                    <InputDate id="duedate" @bind-Value="ProjectTask.DueDate" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.DueDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status:</label>
+                    <InputText id="status" @bind-Value="ProjectTask.Status" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.Status" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="priority" class="form-label">Priority:</label>
+                    <InputText id="priority" @bind-Value="ProjectTask.Priority" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.Priority" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/projecttasks">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int TaskId { get; set; }
+
+    [SupplyParameterFromForm]
+    private ProjectTask? ProjectTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        ProjectTask ??= await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+
+        if (ProjectTask is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateProjectTask()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(ProjectTask!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ProjectTaskExists(ProjectTask!.TaskId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/projecttasks");
+    }
+
+    private bool ProjectTaskExists(int taskid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.ProjectTask.Any(e => e.TaskId == taskid);
+    }
+}

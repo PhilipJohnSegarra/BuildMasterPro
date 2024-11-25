@@ -1,0 +1,54 @@
+﻿@page "/projects/details"
+@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Data
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Project</h2>
+    <hr />
+    @if (project is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ProjectName</dt>
+            <dd class="col-sm-10">@project.ProjectName</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@project.Description</dd>
+            <dt class="col-sm-2">Startdate</dt>
+            <dd class="col-sm-10">@project.Startdate</dd>
+            <dt class="col-sm-2">Enddate</dt>
+            <dd class="col-sm-10">@project.Enddate</dd>
+            <dt class="col-sm-2">Status</dt>
+            <dd class="col-sm-10">@project.Status</dd>
+        </dl>
+        <div>
+            <a href="@($"/projects/edit?projectid={project.ProjectId}")">Edit</a> |
+            <a href="@($"/projects")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Project? project;
+
+    [SupplyParameterFromQuery]
+    private int ProjectId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+
+        if (project is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

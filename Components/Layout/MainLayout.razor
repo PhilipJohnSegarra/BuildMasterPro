@@ -1,23 +1,68 @@
 ﻿@inherits LayoutComponentBase
+@using Syncfusion.Blazor.Navigations
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="@_dense" class="SecondaryBG">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" class="PrimaryText" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Breakpoint="@_breakpoint" Elevation="1" Variant="@DrawerVariant.Mini">
+        <MudNavMenu>
+            <!--Use the property ActiveClass="" to change the appearance when clicked-->
+            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/dashboard" Href="/" @ref="_link">Home</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Group" Href="/projecttasks" @ref="_link3">Tasks</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private bool _open = false;
+    private bool _dense = false;
+    private Breakpoint _breakpoint = Breakpoint.Md;
+    private DrawerClipMode _clipMode = DrawerClipMode.Always;
+    private MudNavLink _link;
+    private MudNavLink _link2;
+    private MudNavLink _link3;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && _link != null || _link2 != null || _link3 != null)
+        {
+            _link.ActiveClass = "PrimaryText";
+            _link2.ActiveClass = "PrimaryText";
+            _link3.ActiveClass = "PrimaryText";
+            StateHasChanged(); // Refresh the UI to apply changes
+        }
+    }
+
+    private void HoveredState()
+    {
+        _link.ActiveClass = "ContrastText";
+        _link2.ActiveClass = "ContrastText";
+        _link3.ActiveClass = "ContrastText";
+    }
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+        StateHasChanged();
+    }
+}
+
+

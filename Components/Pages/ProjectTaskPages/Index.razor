@@ -1,0 +1,42 @@
+﻿@page "/projecttasks"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BuildMasterPro.Data
+@using BuildMasterPro.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="projecttasks/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.ProjectTask">
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.StartDate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.DueDate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Status" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Priority" />
+
+    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="projecttask">
+        <a href="@($"projecttasks/edit?taskid={projecttask.TaskId}")">Edit</a> |
+        <a href="@($"projecttasks/details?taskid={projecttask.TaskId}")">Details</a> |
+        <a href="@($"projecttasks/delete?taskid={projecttask.TaskId}")">Delete</a>
+    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+</QuickGrid>
+
+@code {
+    private ApplicationDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
