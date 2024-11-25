@@ -15,19 +15,19 @@
 </p>
 
 <QuickGrid Class="table" Items="context.ProjectTask">
-    <PropertyColumn Property="projecttask => projecttask.ProjectId" />
-    <PropertyColumn Property="projecttask => projecttask.TaskName" />
-    <PropertyColumn Property="projecttask => projecttask.TaskDescription" />
-    <PropertyColumn Property="projecttask => projecttask.StartDate" />
-    <PropertyColumn Property="projecttask => projecttask.DueDate" />
-    <PropertyColumn Property="projecttask => projecttask.Status" />
-    <PropertyColumn Property="projecttask => projecttask.Priority" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.StartDate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.DueDate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Status" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Priority" />
 
-    <TemplateColumn Context="projecttask">
+    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="projecttask">
         <a href="@($"projecttasks/edit?taskid={projecttask.TaskId}")">Edit</a> |
         <a href="@($"projecttasks/details?taskid={projecttask.TaskId}")">Details</a> |
         <a href="@($"projecttasks/delete?taskid={projecttask.TaskId}")">Delete</a>
-    </TemplateColumn>
+    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
 </QuickGrid>
 
 @code {

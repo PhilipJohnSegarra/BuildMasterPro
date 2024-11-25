@@ -1,8 +1,10 @@
 ﻿@implements IDisposable
-
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Buttons
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
-<div class="top-row ps-3 navbar navbar-dark">
+@* <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BuildMasterPro</a>
     </div>
@@ -17,7 +19,7 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        @* <div class="nav-item px-3">
+        <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
@@ -39,7 +41,7 @@
             <NavLink class="nav-link" href="auth">
                 <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth Required
             </NavLink>
-        </div> *@
+        </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="projects">
                 <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Projects
@@ -52,7 +54,7 @@
             </NavLink>
         </div>
 
-        @* <AuthorizeView>
+        <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="Account/Manage">
@@ -81,9 +83,21 @@
                     </NavLink>
                 </div>
             </NotAuthorized>
-        </AuthorizeView> *@
+        </AuthorizeView>
     </nav>
-</div>
+</div> *@
+<MudAppBar Elevation="1" Dense="@_dense">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+    <MudSpacer />
+    <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+</MudAppBar>
+<MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Breakpoint="@_breakpoint" Elevation="1" Variant="@DrawerVariant.Mini">
+    <MudNavMenu>
+        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Store">Store</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LibraryBooks">Library</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Group">Community</MudNavLink>
+    </MudNavMenu>
+</MudDrawer>
 
 @code {
     private string? currentUrl;
@@ -103,6 +117,16 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private bool _open = false;
+    private bool _dense = false;
+    private Breakpoint _breakpoint = Breakpoint.Lg;
+    private DrawerClipMode _clipMode = DrawerClipMode.Never;
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
     }
 }
 

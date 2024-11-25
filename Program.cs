@@ -8,6 +8,8 @@ using Syncfusion.Blazor;
 using Syncfusion.Blazor.Core;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using MudBlazor.Services;
+using BuildMasterPro.Components.Layout;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +47,7 @@ Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQx
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSyncfusionBlazor();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 

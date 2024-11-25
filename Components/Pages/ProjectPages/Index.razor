@@ -13,7 +13,7 @@
     <a href="projects/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Project">
+@* <QuickGrid Class="table" Items="context.Project">
     <PropertyColumn Property="project => project.ProjectName" />
     <PropertyColumn Property="project => project.Description" />
     <PropertyColumn Property="project => project.Startdate" />
@@ -25,7 +25,18 @@
         <a href="@($"projects/details?projectid={project.ProjectId}")">Details</a> |
         <a href="@($"projects/delete?projectid={project.ProjectId}")">Delete</a>
     </TemplateColumn>
-</QuickGrid>
+</QuickGrid> *@
+
+<MudDataGrid Items="context.Project">
+    <Columns>
+        <MudBlazor.PropertyColumn Property="project => project.ProjectName" />
+        <MudBlazor.PropertyColumn Property="project => project.Description" />
+        <MudBlazor.PropertyColumn Property="project => project.Startdate" />
+        <MudBlazor.PropertyColumn Property="project => project.Enddate" />
+        <MudBlazor.PropertyColumn Property="project => project.Status" />
+    </Columns>
+</MudDataGrid>
+
 
 @code {
     private ApplicationDbContext context = default!;

@@ -25,7 +25,7 @@ namespace BuildMasterPro.Data
         [AllowNull]
         public string Priority { get; set; }
 
-        [ForeignKey("ProjectId")]
+        [ForeignKey(nameof(ProjectId))]
         public Project Project { get; set; } = default!;
     }
 }
