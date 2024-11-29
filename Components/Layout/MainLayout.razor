@@ -17,17 +17,17 @@
     </MudAppBar>
     <MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Breakpoint="@_breakpoint" Elevation="1" Variant="@DrawerVariant.Mini">
         <MudNavMenu>
-            
+
             <!--Use the property ActiveClass="" to change the appearance when clicked-->
             <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" Href="/" @ref="_link" Style="margin:1rem 0 0 0">Home</MudNavLink>
-            <hr style="display:@displayP;"/>
+            <hr style="display:@displayP;" />
             @* <p style="margin:0 0 0 1rem;display:@displayP;">Choose workspace</p> *@
             @* <span style="display:@displayP;">
-                <MudExpansionPanels Elevation="0">
-                    <MudExpansionPanel Text="Workspaces">
-                        <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
-                    </MudExpansionPanel>
-                </MudExpansionPanels>
+            <MudExpansionPanels Elevation="0">
+            <MudExpansionPanel Text="Workspaces">
+            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
+            </MudExpansionPanel>
+            </MudExpansionPanels>
             </span> *@
             <span style="display:@displayP;">
                 <MudNavGroup Title="Workspaces" Icon="@Icons.Material.Outlined.Work" Expanded="true">
@@ -41,14 +41,14 @@
                     }
                 </MudNavGroup>
             </span>
-            
+
             @* <span style="display:@displayMD;">
-                <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
             </span> *@
             <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Add" Href="/projects/create" @ref="_link2"
-                        Style="border:1px solid black;border-radius:5px;width:95%;margin:1rem auto 1rem auto;" >
+                        Style="border:1px solid black;border-radius:5px;width:95%;margin:1rem auto 1rem auto;">
                 New Workspace
             </MudNavLink>
         </MudNavMenu>
@@ -100,7 +100,7 @@
     private void ToggleDrawer()
     {
         _open = !_open;
-        if(_open == true)
+        if (_open == true)
         {
             displayP = "block";
             displayMD = "none";
@@ -113,5 +113,3 @@
         StateHasChanged();
     }
 }
-
-
