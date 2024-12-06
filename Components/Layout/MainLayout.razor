@@ -20,6 +20,7 @@
 
             <!--Use the property ActiveClass="" to change the appearance when clicked-->
             <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home" Href="/" @ref="_link" Style="margin:1rem 0 0 0">Home</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Warehouse" Href="/resources" @ref="_link" Style="margin:1rem 0 0 0">Resources</MudNavLink>
             <hr style="display:@displayP;" />
             @* <p style="margin:0 0 0 1rem;display:@displayP;">Choose workspace</p> *@
             @* <span style="display:@displayP;">
@@ -51,6 +52,7 @@
                         Style="border:1px solid black;border-radius:5px;width:95%;margin:1rem auto 1rem auto;">
                 New Workspace
             </MudNavLink>
+            
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent>

@@ -47,6 +47,8 @@
 @code {
     private Project? project;
 
+    private List<ProjectTask> Tasks { get; set; } = new();
+
     [SupplyParameterFromQuery]
     private int ProjectId { get; set; }
 
@@ -54,6 +56,8 @@
     {
         using var context = DbFactory.CreateDbContext();
         project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+        Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
+
 
         if (project is null)
         {
@@ -64,6 +68,14 @@
     private async Task DeleteProject()
     {
         using var context = DbFactory.CreateDbContext();
+        if(Tasks != null)
+        {
+            foreach (ProjectTask task in Tasks)
+            {
+                context.ProjectTask.Remove(task!);
+            }
+        }
+        
         context.Project.Remove(project!);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/projects");
