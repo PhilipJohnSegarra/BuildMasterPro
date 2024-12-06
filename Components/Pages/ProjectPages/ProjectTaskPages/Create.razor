@@ -63,6 +63,14 @@
     [SupplyParameterFromForm]
     private ProjectTask ProjectTask { get; set; } = new();
 
+    [Parameter]
+    public Project Project { get; set; } = new();
+
+    protected override void OnParametersSet()
+    {
+        ProjectTask.ProjectId = Project.ProjectId;
+    }
+
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddProjectTask()
     {

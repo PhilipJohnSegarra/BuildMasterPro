@@ -35,8 +35,10 @@
     }
 </div>
 
+<BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Create Project="project" />
+
 @code {
-    private Project? project;
+    private Project? project = new();
 
     [SupplyParameterFromQuery]
     private int ProjectId { get; set; }
