@@ -10,12 +10,12 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Elevation="1" Dense="@_dense" class="SecondaryBG">
+    <MudAppBar Elevation="0" Dense="@_dense" class="TransparentBG">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" class="PrimaryText" Edge="Edge.Start" OnClick="@ToggleDrawer" />
         <MudSpacer />
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
     </MudAppBar>
-    <MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Breakpoint="@_breakpoint" Elevation="1" Variant="@DrawerVariant.Mini">
+    <MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Breakpoint="@_breakpoint" Elevation="0" Variant="@DrawerVariant.Mini" class="TransparentBG">
         <MudNavMenu>
 
             <!--Use the property ActiveClass="" to change the appearance when clicked-->
@@ -55,7 +55,7 @@
             
         </MudNavMenu>
     </MudDrawer>
-    <MudMainContent>
+    <MudMainContent Class="TransparentBG">
         @Body
     </MudMainContent>
 </MudLayout>
@@ -68,7 +68,7 @@
 
 
 @code {
-    private bool _open = false;
+    private bool _open = true;
     private bool _dense = false;
     private Breakpoint _breakpoint = Breakpoint.Md;
     private DrawerClipMode _clipMode = DrawerClipMode.Always;
@@ -77,6 +77,7 @@
     private string displayP = "none";
     private string displayMD = "block";
     private List<Project> Projects { get; set; } = new();
+    private Project? Project { get; set; } = new();
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -91,6 +92,8 @@
     protected async override Task OnInitializedAsync()
     {
         Projects = await context.Project.ToListAsync();
+        displayP = "block";
+        displayMD = "none";
     }
 
     private void HoveredState()
