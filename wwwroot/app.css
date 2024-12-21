@@ -50,6 +50,12 @@ h1:focus {
     border-color: #929292;
 }*/
 
+body{
+    background-image: url("bodyBG.svg");
+    background-position:center;
+    background-size:cover;
+}
+
 .PrimaryBG {
     background-color: #5A3E9F;
 }
@@ -79,4 +85,8 @@ h1:focus {
 
 .MainText {
     color: #F8F8F8;
+}
+
+.TransparentBG{
+    background-color:transparent;
 }

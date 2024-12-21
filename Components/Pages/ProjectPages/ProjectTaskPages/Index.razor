@@ -35,10 +35,12 @@
     [Parameter]
     public Project Project { get; set; } = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        context = await DbFactory.CreateDbContextAsync();
     }
+
+  
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }
