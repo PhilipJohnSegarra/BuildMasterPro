@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
 using BuildMasterPro.Components.Layout;
+using BuildMasterPro.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,8 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddMudServices();
+//builder.Services.AddScoped<UserService>();
+//builder.Services.AddScoped<RoleService>();
 
 var app = builder.Build();
 

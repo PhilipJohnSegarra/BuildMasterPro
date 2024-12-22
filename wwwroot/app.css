@@ -51,7 +51,7 @@ h1:focus {
 }*/
 
 body{
-    background-image: url("bodyBG.svg");
+    background-image: url("bodyBG.png");
     background-position:center;
     background-size:cover;
     height: 100vh;
@@ -90,4 +90,14 @@ body{
 
 .TransparentBG{
     background-color:transparent;
+}
+
+.NavLink {
+    border-width: 0 0 0 5px;
+    border-color: transparent;
+}
+
+.NavLinkActive {
+    border-width: 0 0 0 5px;
+    border-color: #5A3E9F;
 }
