@@ -1,0 +1,17 @@
+﻿
+<MudAppBar Elevation="0" Dense="@_dense" class="TransparentBG">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" class="SecondaryText" Edge="Edge.Start" OnClick="@HandleClick" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+</MudAppBar>
+
+@code {
+    private bool _dense = false;
+
+    [Parameter] public EventCallback OnToggle { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnToggle.InvokeAsync();
+    }
+}

@@ -9,54 +9,19 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
-    <MudAppBar Elevation="0" Dense="@_dense" class="TransparentBG">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" class="SecondaryText" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
-    </MudAppBar>
-    <MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Breakpoint="@_breakpoint" Elevation="0" Variant="@DrawerVariant.Mini" class="TransparentBG" Style="padding:0 8px 0 8px;" MiniWidth="70px">
-        <MudNavMenu>
-
-            <!--Use the property ActiveClass="" to change the appearance when clicked-->
-            <MudNavLink Match="NavLinkMatch.All" Icon="@HomeIcon" Href="/" @ref="_link" Style="margin:2rem 0 0 0;margin:1rem 0 1rem 0;height:25px;border-width: 0 0 0 5px" Class="NavLink" ActiveClass="NavLinkActive">
-               Home
-                </MudNavLink>
-
-                <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Warehouse" Href="/resources" @ref="_link" Style="margin:1rem 0 1rem 0;height:25px;" Class="NavLink" ActiveClass="NavLinkActive">Resources</MudNavLink>
-
-            
-            
-            <span style="display:@displayP;">
-                <MudNavGroup Title="Workspaces" Icon="@Icons.Material.Outlined.Work" Expanded="true">
-                    @* <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink> *@
-                    @foreach (Project project in Projects)
-                    {
-
-                        <a href="/projects/details?projectid=@(project.ProjectId.ToString())">
-                            <MudNavLink Match="NavLinkMatch.All" Icon="" @ref="_link2">@project.ProjectName</MudNavLink>
-                        </a>
-                    }
-                </MudNavGroup>
-            </span>
-
-            
-            <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Add" Href="/projects/create" @ref="_link2"
-                        Style="border:1px solid black;border-radius:5px;width:95%;margin:1rem auto 1rem auto;">
-                New Workspace
-            </MudNavLink>
-            <hr style="width:85%;margin:0 auto 0 auto;" />
-            @* <span style="display:@displayAdditionalNavs;">
-            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="material-symbols-outlined/square_foot" Href="/projects" @ref="_link2">Projects</MudNavLink>
-            </span> *@
-        </MudNavMenu>
-    </MudDrawer>
-    <MudMainContent Class="TransparentBG" Style="padding: 3rem 0 0 0;">
+<div class="mainlayout">
+    <div class="mainlayout-sidebar-container">
+        <NavMenu/>
+    </div>
+    <div class="mainlayout-navbar-container">
+        <div style="height:70px;"></div>
+    </div>
+    
+    <div class="mainlayout-maincontent">
         @Body
-    </MudMainContent>
-</MudLayout>
+    </div>
+</div>
+
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
@@ -74,8 +39,8 @@
     private MudNavLink _link2;
     private string displayP = "none";
     private string displayAdditionalNavs = "block";
-    private List<Project> Projects { get; set; } = new();
-    private Project? Project { get; set; } = new();
+    // private List<Project> Projects { get; set; } = new();
+    // private Project? Project { get; set; } = new();
 
     private string DrawerWidth = "";
 
@@ -91,7 +56,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        Projects = await context.Project.ToListAsync();
+        //Projects = await context.Project.ToListAsync();
         displayP = "block";
         displayAdditionalNavs = "none";
     }
@@ -105,6 +70,7 @@
     private void ToggleDrawer()
     {
         _open = !_open;
+        StateHasChanged();
         if (_open == true)
         {
             displayP = "block";

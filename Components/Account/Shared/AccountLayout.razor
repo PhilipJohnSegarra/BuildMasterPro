@@ -1,8 +1,8 @@
 ﻿@inherits LayoutComponentBase
-@layout BuildMasterPro.Components.Layout.MainLayout
 @inject NavigationManager NavigationManager
 
-@if (HttpContext is null)
+
+@if (HttpContext is null && !hasRefreshed)
 {
     <p>Loading...</p>
 }
@@ -14,6 +14,8 @@ else
 @code {
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
+
+    private bool hasRefreshed = false;
 
     protected override void OnParametersSet()
     {
