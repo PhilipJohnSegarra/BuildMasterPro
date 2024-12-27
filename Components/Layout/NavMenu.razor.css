@@ -1,8 +1,9 @@
-*{
+﻿*{
     transition:all .5s;
 }
 
 .Sidebar {
+    height:100%;
     display: flex;
     flex-direction: column;
     justify-content: start;

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace BuildMasterPro.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole, string>(options)
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
 
         public DbSet<BuildMasterPro.Data.Project> Project { get; set; } = default!;
