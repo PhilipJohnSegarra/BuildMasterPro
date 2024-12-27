@@ -8,6 +8,7 @@
 @inject ApplicationDbContext context
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <PageTitle>Details</PageTitle>
 
@@ -39,12 +40,13 @@
         </div>
     }
 </div>
-@* <button class="btn-outline-primary" @onclick="DisplayTaskCreate">@TCButtonText</button>
+<button class="btn-outline-primary" @onclick="DisplayTaskCreate">@TCButtonText</button>
 <span style="display:@displayTaskCreate;">
-    <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Create Project="project" />
-</span> *@
+    <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Create />
+</span>
+<BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Index />
 
-<QuickGrid Class="table" TGridItem="ProjectTask" Items="Tasks.AsQueryable()">
+@* <QuickGrid Class="table" TGridItem="ProjectTask" Items="@(Tasks == null? null : Tasks.AsQueryable())">
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
@@ -58,7 +60,7 @@
         <a href="@($"projecttasks/details?taskid={projecttask.TaskId}")">Details</a> |
         <a href="@($"projecttasks/delete?taskid={projecttask.TaskId}")">Delete</a>
     </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</QuickGrid>
+</QuickGrid> *@
 
 
 @code {
@@ -78,6 +80,7 @@
         // project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
         // Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
         project = ProjectService.CurrentProject;
+        Tasks = TaskService.CurrentProjectTasks;
 
         if (project is null)
         {

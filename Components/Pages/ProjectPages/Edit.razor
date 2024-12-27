@@ -1,8 +1,9 @@
-﻿@page "/projects/edit"
+﻿﻿
+@page "/projects/edit"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
-@inject BuildMasterPro.Services.ProjectService ProjectService
 
 <PageTitle>Edit</PageTitle>
 
@@ -66,9 +67,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-
-        //Project ??= await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
-        Project = await ProjectService.GetProjectAsync(ProjectId);
+        using var context = DbFactory.CreateDbContext();
+        Project ??= await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
 
         if (Project is null)
         {
@@ -80,11 +80,12 @@ else
     // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task UpdateProject()
     {
-
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Project!).State = EntityState.Modified;
 
         try
         {
-            await ProjectService.UpdateProjectAsync(ProjectId, Project!);
+            await context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -103,11 +104,7 @@ else
 
     private bool ProjectExists(int projectid)
     {
-        var project = ProjectService.GetProjectAsync(projectid);
-        if(project == null)
-        {
-            return false;
-        }
-        return true;
+        using var context = DbFactory.CreateDbContext();
+        return context.Project.Any(e => e.ProjectId == projectid);
     }
 }

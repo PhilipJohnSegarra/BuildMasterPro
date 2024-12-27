@@ -38,6 +38,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Tasks = await TaskService.GetCurrentProjtasks();
+        Tasks = await TaskService.GetCurrentProjtasksAsync();
     }
 }

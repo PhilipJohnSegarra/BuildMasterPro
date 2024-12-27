@@ -3,12 +3,14 @@
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <PageTitle>Delete</PageTitle>
 
 <h1>Delete</h1>
 
-@* <p>Are you sure you want to delete this?</p>
+<p>Are you sure you want to delete this?</p>
 <div>
     <h2>ProjectTask</h2>
     <hr />
@@ -51,29 +53,29 @@
         </EditForm>
     }
 </div>
- *@
+
 @code {
-    // private ProjectTask? projecttask;
+    private ProjectTask? projecttask;
 
-    // [SupplyParameterFromQuery]
-    // private int TaskId { get; set; }
+    [SupplyParameterFromQuery]
+    private int TaskId { get; set; }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     using var context = DbFactory.CreateDbContext();
-    //     projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+    protected override async Task OnInitializedAsync()
+    {
+        projecttask = await TaskService.GetTaskAsync(TaskId);
 
-    //     if (projecttask is null)
-    //     {
-    //         NavigationManager.NavigateTo("notfound");
-    //     }
-    // }
+        if (projecttask is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
 
-    // private async Task DeleteProjectTask()
-    // {
-    //     using var context = DbFactory.CreateDbContext();
-    //     context.ProjectTask.Remove(projecttask!);
-    //     await context.SaveChangesAsync();
-    //     NavigationManager.NavigateTo("/projecttasks");
-    // }
+    private async Task DeleteProjectTask()
+    {
+        // using var context = DbFactory.CreateDbContext();
+        // context.ProjectTask.Remove(projecttask!);
+        // await context.SaveChangesAsync();
+        await TaskService.DeleteProjectTaskAsync(TaskId);
+        NavigationManager.NavigateTo("/projecttasks");
+    }
 }

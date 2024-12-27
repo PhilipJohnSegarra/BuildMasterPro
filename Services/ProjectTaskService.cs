@@ -20,7 +20,7 @@ namespace BuildMasterPro.Services
             this.CurrentProject = _projectService.CurrentProject;
         }
 
-        public async Task<ProjectTask> GetTask(int id)
+        public async Task<ProjectTask> GetTaskAsync(int id)
         {
             using var context = _context.CreateDbContext();
             var task = await context.ProjectTask.FindAsync(id);
@@ -31,28 +31,28 @@ namespace BuildMasterPro.Services
             return task;
         }
 
-        public async Task<List<ProjectTask>> GetAllProjtask()
+        public async Task<List<ProjectTask>> GetAllProjtaskAsync()
         {
             using var context = _context.CreateDbContext();
             this.AllProjectTasks = await context.ProjectTask.ToListAsync();
             return this.AllProjectTasks;
         }
 
-        public async Task<List<ProjectTask>> GetCurrentProjtasks()
+        public async Task<List<ProjectTask>> GetCurrentProjtasksAsync()
         {
             using var context = _context.CreateDbContext();
-            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == this.CurrentProject!.ProjectId).ToListAsync();
+            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == _projectService.CurrentProject!.ProjectId).ToListAsync();
             return this.CurrentProjectTasks;
         }
 
-        public async Task<ProjectTask> CreateProjectTask(ProjectTask task)
+        public async Task<ProjectTask> CreateProjectTaskAsync(ProjectTask task)
         {
             using var context = _context.CreateDbContext();
             await context.ProjectTask.AddAsync(task);
             return task;
         }
 
-        public async Task<ProjectTask> UpdateProjectTask(int id, ProjectTask projecttask)
+        public async Task<ProjectTask> UpdateProjectTaskAsync(int id, ProjectTask projecttask)
         {
             using var context = _context.CreateDbContext();
             var task = await context.ProjectTask.FindAsync(id);
@@ -72,7 +72,7 @@ namespace BuildMasterPro.Services
             return task;
 
         }
-        public async Task<bool> DeleteProjectTask(int id)
+        public async Task<bool> DeleteProjectTaskAsync(int id)
         {
             using var context = _context.CreateDbContext();
             var task = await context.ProjectTask.FindAsync(id);

@@ -8,7 +8,7 @@
 
 <h1>Edit</h1>
 
-@* <h2>ProjectTask</h2>
+<h2>ProjectTask</h2>
 <hr />
 @if (ProjectTask is null)
 {
@@ -65,55 +65,55 @@ else
 
 <div>
     <a href="/projecttasks">Back to List</a>
-</div> *@
+</div>
 
 @code {
-    // [SupplyParameterFromQuery]
-    // private int TaskId { get; set; }
+    [SupplyParameterFromQuery]
+    private int TaskId { get; set; }
 
-    // [SupplyParameterFromForm]
-    // private ProjectTask? ProjectTask { get; set; }
+    [SupplyParameterFromForm]
+    private ProjectTask? ProjectTask { get; set; }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     using var context = DbFactory.CreateDbContext();
-    //     ProjectTask ??= await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        ProjectTask ??= await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
 
-    //     if (ProjectTask is null)
-    //     {
-    //         NavigationManager.NavigateTo("notfound");
-    //     }
-    // }
+        if (ProjectTask is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
 
-    // // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
-    // private async Task UpdateProjectTask()
-    // {
-    //     using var context = DbFactory.CreateDbContext();
-    //     context.Attach(ProjectTask!).State = EntityState.Modified;
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateProjectTask()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(ProjectTask!).State = EntityState.Modified;
 
-    //     try
-    //     {
-    //         await context.SaveChangesAsync();
-    //     }
-    //     catch (DbUpdateConcurrencyException)
-    //     {
-    //         if (!ProjectTaskExists(ProjectTask!.TaskId))
-    //         {
-    //             NavigationManager.NavigateTo("notfound");
-    //         }
-    //         else
-    //         {
-    //             throw;
-    //         }
-    //     }
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ProjectTaskExists(ProjectTask!.TaskId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
 
-    //     NavigationManager.NavigateTo("/projecttasks");
-    // }
+        NavigationManager.NavigateTo("/projecttasks");
+    }
 
-    // private bool ProjectTaskExists(int taskid)
-    // {
-    //     using var context = DbFactory.CreateDbContext();
-    //     return context.ProjectTask.Any(e => e.TaskId == taskid);
-    // }
+    private bool ProjectTaskExists(int taskid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.ProjectTask.Any(e => e.TaskId == taskid);
+    }
 }

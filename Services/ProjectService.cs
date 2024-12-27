@@ -41,7 +41,7 @@ namespace BuildMasterPro.Services
         public async Task<Project?> UpdateProjectAsync(int id, Project UpdatedProject)
         {
             using var _context = context.CreateDbContext();
-            var project = await _context.Project.FindAsync(id);
+            var project = await _context.Project.FirstOrDefaultAsync(i => i.ProjectId == id);
             if(project == null)
             {
                 return null;
@@ -51,8 +51,7 @@ namespace BuildMasterPro.Services
             project.Startdate = UpdatedProject.Startdate;
             project.Enddate = UpdatedProject.Enddate;
             project.Status = UpdatedProject.Status;
-
-            _context.Project.Update(project);
+            _context.Entry(project).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return project;
         }
