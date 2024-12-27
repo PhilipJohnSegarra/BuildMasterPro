@@ -2,8 +2,8 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
-@implements IAsyncDisposable
-@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <PageTitle>Index</PageTitle>
 
@@ -13,7 +13,7 @@
     <a href="projecttasks/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.ProjectTask.Where(i => i.ProjectId == Project.ProjectId)">
+<QuickGrid Class="table" Items="Tasks.AsQueryable()">
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
@@ -30,17 +30,14 @@
 </QuickGrid>
 
 @code {
-    private ApplicationDbContext context = default!;
 
     [Parameter]
     public Project Project { get; set; } = new();
 
+    public List<ProjectTask> Tasks { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
-        context = await DbFactory.CreateDbContextAsync();
+        Tasks = await TaskService.GetCurrentProjtasks();
     }
-
-  
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

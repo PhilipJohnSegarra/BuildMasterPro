@@ -2,8 +2,10 @@
 @inherits LayoutComponentBase
 @using Syncfusion.Blazor.Navigations
 @using BuildMasterPro.Data
-@inject BuildMasterPro.Data.ApplicationDbContext context
 @using Microsoft.EntityFrameworkCore
+@inject BuildMasterPro.Data.ApplicationDbContext context
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject BuildMasterPro.Services.ProjectService PS
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -12,7 +14,7 @@
 
 <div class="mainlayout">
     <div class="mainlayout-sidebar-container">
-        <NavMenu/>
+        <NavMenu Projects="Projects"/>
     </div>
     <div class="mainlayout-navbar-container">
         <div style="height:70px;"></div>
@@ -32,62 +34,21 @@
 
 
 @code {
-    private bool _open = true;
-    private bool _dense = false;
-    private Breakpoint _breakpoint = Breakpoint.Md;
-    private DrawerClipMode _clipMode = DrawerClipMode.Always;
-    private MudNavLink _link;
-    private MudNavLink _link2;
-    private string displayP = "none";
-    private string displayAdditionalNavs = "block";
-    // private List<Project> Projects { get; set; } = new();
-    // private Project? Project { get; set; } = new();
 
-    private string DrawerWidth = "";
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender && _link != null || _link2 != null)
-        {
-            _link.ActiveClass = "PrimaryText";
-            _link2.ActiveClass = "PrimaryText";
-            StateHasChanged(); // Refresh the UI to apply changes
-        }
-    }
+    private List<Project> Projects { get; set; } = new();
 
     protected async override Task OnInitializedAsync()
     {
-        //Projects = await context.Project.ToListAsync();
-        displayP = "block";
-        displayAdditionalNavs = "none";
+        Projects = await PS.GetProjectsAsync();
     }
 
     private void HoveredState()
     {
-        _link.ActiveClass = "ContrastText";
-        _link2.ActiveClass = "ContrastText";
+        
     }
 
     private void ToggleDrawer()
     {
-        _open = !_open;
-        StateHasChanged();
-        if (_open == true)
-        {
-            displayP = "block";
-            displayAdditionalNavs = "none";
-        }
-        else
-        {
-            displayP = "none";
-            displayAdditionalNavs = "block";
-            DrawerWidth = "50px";
-        }
-        StateHasChanged();
+        
     }
-
-    const string HomeIcon = @"
-            <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
-                <path d='M3 18C1.34315 18 0 16.6569 0 15V7.60555C0 6.60249 0.501303 5.6658 1.3359 5.1094L7.3359 1.1094C8.3436 0.437602 9.6564 0.437602 10.6641 1.1094L16.6641 5.1094C17.4987 5.6658 18 6.60249 18 7.60555V15C18 16.6569 16.6569 18 15 18H14.25C12.5931 18 11.25 16.6569 11.25 15V13.25C11.25 12.0074 10.2426 11 9 11C7.75736 11 6.75 12.0074 6.75 13.25V15C6.75 16.6569 5.40685 18 3.75 18H3Z' fill='#5A3E9F' />
-            </svg>";
 }

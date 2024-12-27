@@ -3,12 +3,13 @@
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject Blazored.LocalStorage.ILocalStorageService LS
 
 <PageTitle>Create</PageTitle>
 
 <h1>Create</h1>
 
-<h2>ProjectTask</h2>
+@* <h2>ProjectTask</h2>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -57,26 +58,31 @@
 
 <div>
     <a href="/projecttasks">Back to List</a>
-</div>
+</div> *@
 
 @code {
-    [SupplyParameterFromForm]
-    private ProjectTask ProjectTask { get; set; } = new();
+    // [SupplyParameterFromForm]
+    // private ProjectTask ProjectTask { get; set; } = new();
 
-    [Parameter]
-    public Project Project { get; set; } = new();
+    // [Parameter]
+    // public Project Project { get; set; } = new();
 
-    protected override void OnParametersSet()
-    {
-        ProjectTask.ProjectId = Project.ProjectId;
-    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     Project = await LS.GetItemAsync<Project>("CurrentProjectKey");
+    // }
 
-    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
-    private async Task AddProjectTask()
-    {
-        using var context = DbFactory.CreateDbContext();
-        context.ProjectTask.Add(ProjectTask);
-        await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/projecttasks");
-    }
+    // protected override void OnParametersSet()
+    // {
+    //     ProjectTask.ProjectId = Project.ProjectId;
+    // }
+
+    // // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    // private async Task AddProjectTask()
+    // {
+    //     using var context = DbFactory.CreateDbContext();
+    //     context.ProjectTask.Add(ProjectTask);
+    //     await context.SaveChangesAsync();
+    //     NavigationManager.NavigateTo("/projecttasks");
+    // }
 }

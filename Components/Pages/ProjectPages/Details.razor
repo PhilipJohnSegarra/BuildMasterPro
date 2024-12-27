@@ -1,10 +1,13 @@
 ﻿@page "/projects/details"
+@rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @inject ApplicationDbContext context
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject BuildMasterPro.Services.ProjectService ProjectService
 
 <PageTitle>Details</PageTitle>
 
@@ -36,10 +39,10 @@
         </div>
     }
 </div>
-<button class="btn-outline-primary" @onclick="DisplayTaskCreate">@TCButtonText</button>
+@* <button class="btn-outline-primary" @onclick="DisplayTaskCreate">@TCButtonText</button>
 <span style="display:@displayTaskCreate;">
     <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Create Project="project" />
-</span>
+</span> *@
 
 <QuickGrid Class="table" TGridItem="ProjectTask" Items="Tasks.AsQueryable()">
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
@@ -72,14 +75,21 @@
     protected override async Task OnInitializedAsync()
     {
         //using var context = DbFactory.CreateDbContext();
-        project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
-        Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
+        // project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+        // Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
+        project = ProjectService.CurrentProject;
 
         if (project is null)
         {
             NavigationManager.NavigateTo("notfound");
         }
     }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     project = await LocalStorage.GetItemAsync<Project>("CurrentProjectKey");
+    //     Tasks = await LocalStorage.GetItemAsync<List<ProjectTask>>("ProjectTasksKey");
+        
+    // }
 
     private void DisplayTaskCreate()
     {

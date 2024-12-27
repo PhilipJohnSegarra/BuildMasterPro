@@ -9,7 +9,7 @@
 <h1>Delete</h1>
 
 <p>Are you sure you want to delete this?</p>
-<div>
+@* <div>
     <h2>Project</h2>
     <hr />
     @if (project is null)
@@ -42,42 +42,42 @@
             <a href="/projects">Back to List</a>
         </EditForm>
     }
-</div>
+</div> *@
 
 @code {
-    private Project? project;
+    // private Project? project;
 
-    private List<ProjectTask> Tasks { get; set; } = new();
+    // private List<ProjectTask> Tasks { get; set; } = new();
 
-    [SupplyParameterFromQuery]
-    private int ProjectId { get; set; }
+    // [SupplyParameterFromQuery]
+    // private int ProjectId { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        using var context = DbFactory.CreateDbContext();
-        project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
-        Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     using var context = DbFactory.CreateDbContext();
+    //     project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+    //     Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
 
 
-        if (project is null)
-        {
-            NavigationManager.NavigateTo("notfound");
-        }
-    }
+    //     if (project is null)
+    //     {
+    //         NavigationManager.NavigateTo("notfound");
+    //     }
+    // }
 
-    private async Task DeleteProject()
-    {
-        using var context = DbFactory.CreateDbContext();
-        if(Tasks != null)
-        {
-            foreach (ProjectTask task in Tasks)
-            {
-                context.ProjectTask.Remove(task!);
-            }
-        }
+    // private async Task DeleteProject()
+    // {
+    //     using var context = DbFactory.CreateDbContext();
+    //     if(Tasks != null)
+    //     {
+    //         foreach (ProjectTask task in Tasks)
+    //         {
+    //             context.ProjectTask.Remove(task!);
+    //         }
+    //     }
         
-        context.Project.Remove(project!);
-        await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/projects");
-    }
+    //     context.Project.Remove(project!);
+    //     await context.SaveChangesAsync();
+    //     NavigationManager.NavigateTo("/projects");
+    // }
 }
