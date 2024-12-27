@@ -1,111 +1,259 @@
-﻿@implements IDisposable
-@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Buttons
+﻿
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
+@using BuildMasterPro.Data
+@inject BuildMasterPro.Data.ApplicationDbContext context
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components
+@inject BuildMasterPro.Services.ProjectService ProjectService
 
-@* <div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">BuildMasterPro</a>
-    </div>
-</div>
+<nav class="Sidebar" style="">
+    <!--Burger-->
+    <button class="MenuLink" style="border-color:transparent;margin:1rem 0 100px 0;" @onclick="@(() => collapsed = collapsed != true? true : false)">
+        <div class="Navlink-Container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="12" viewBox="0 0 18 12" fill="none">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M0 1.21875C0 0.994974 0.0888948 0.780362 0.247129 0.622129C0.405362 0.463895 0.619974 0.375 0.84375 0.375H17.1562C17.38 0.375 17.5946 0.463895 17.7529 0.622129C17.9111 0.780362 18 0.994974 18 1.21875C18 1.44253 17.9111 1.65714 17.7529 1.81537C17.5946 1.97361 17.38 2.0625 17.1562 2.0625H0.84375C0.619974 2.0625 0.405362 1.97361 0.247129 1.81537C0.0888948 1.65714 0 1.44253 0 1.21875ZM0 6C0 5.77622 0.0888948 5.56161 0.247129 5.40338C0.405362 5.24514 0.619974 5.15625 0.84375 5.15625H17.1562C17.38 5.15625 17.5946 5.24514 17.7529 5.40338C17.9111 5.56161 18 5.77622 18 6C18 6.22378 17.9111 6.43839 17.7529 6.59662C17.5946 6.75485 17.38 6.84375 17.1562 6.84375H0.84375C0.619974 6.84375 0.405362 6.75485 0.247129 6.59662C0.0888948 6.43839 0 6.22378 0 6ZM0.84375 9.9375C0.619974 9.9375 0.405362 10.0264 0.247129 10.1846C0.0888948 10.3429 0 10.5575 0 10.7812C0 11.005 0.0888948 11.2196 0.247129 11.3779C0.405362 11.5361 0.619974 11.625 0.84375 11.625H17.1562C17.38 11.625 17.5946 11.5361 17.7529 11.3779C17.9111 11.2196 18 11.005 18 10.7812C18 10.5575 17.9111 10.3429 17.7529 10.1846C17.5946 10.0264 17.38 9.9375 17.1562 9.9375H0.84375Z" fill="#121114" />
+            </svg>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+    </button>
+    <!--Home-->
+    <a class="MenuLink" href="" @onclick="@(()=>NavActive("Home"))" style="@(IsActive("/")? NavLinkBorder["Home"]:NavLinkBorder["Home"])">
+        <div class="Navlink-Container">
+            <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
+                <path d='M3 18C1.34315 18 0 16.6569 0 15V7.60555C0 6.60249 0.501303 5.6658 1.3359 5.1094L7.3359 1.1094C8.3436 0.437602 9.6564 0.437602 10.6641 1.1094L16.6641 5.1094C17.4987 5.6658 18 6.60249 18 7.60555V15C18 16.6569 16.6569 18 15 18H14.25C12.5931 18 11.25 16.6569 11.25 15V13.25C11.25 12.0074 10.2426 11 9 11C7.75736 11 6.75 12.0074 6.75 13.25V15C6.75 16.6569 5.40685 18 3.75 18H3Z' fill='@(IsActive("/")? NavLinkIcon["Home"]:NavLinkIcon["Home"])' />
+            </svg>
+            @if (!collapsed)
+            {
+                <p style="margin:0 0 0 1rem;@(IsActive("/")? NavLinkFont["Home"]:NavLinkFont["Home"])">Home</p>
+            }
+            
+            
         </div>
+    </a>
+    <!--All Messages-->
+    <a class="MenuLink" href="" @onclick="@(()=>NavActive("AllMessages"))" style="@(IsActive("/")? NavLinkBorder["AllMessages"]:NavLinkBorder["AllMessages"])">
+        <div class="Navlink-Container" style="">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 20 16" style="margin:3px 0 0 0;" fill="none">
+                <path d="M1.79556 15.5556C1.2837 15.5556 0.856667 15.3844 0.514445 15.0422C0.172222 14.7 0.000740741 14.2726 0 13.76V1.79556C0 1.2837 0.171482 0.856666 0.514445 0.514444C0.857408 0.172222 1.28407 0.000740741 1.79444 0H18.2056C18.7167 0 19.1433 0.171481 19.4856 0.514444C19.8278 0.857407 19.9993 1.28444 20 1.79556V13.7611C20 14.2722 19.8285 14.6993 19.4856 15.0422C19.1426 15.3852 18.7159 15.5563 18.2056 15.5556H1.79556ZM10 7.90667L18.8889 2.09444L18.5467 1.11111L10 6.66667L1.45333 1.11111L1.11111 2.09444L10 7.90667Z" fill="@(IsActive("/")? NavLinkIcon["AllMessages"]:NavLinkIcon["AllMessages"])" />
+            </svg>
+            @if (!collapsed)
+            {
+                <p style="margin:0 0 0 1rem;@(IsActive("/")? NavLinkFont["AllMessages"]:NavLinkFont["AllMessages"])">All Messages</p>
+            }
+            
+        </div>
+    </a>
+    <!--All Resources-->
+    <a class="MenuLink" href="resources" @onclick="@(()=>NavActive("AllResources"))" style="@(IsActive("/")? NavLinkBorder["AllResources"]:NavLinkBorder["AllResources"])">
+        <div class="Navlink-Container" style="">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <mask id="path-1-inside-1_179_263" fill="white">
+                    <path d="M2.616 18C2.168 18 1.78667 17.8427 1.472 17.528C1.15733 17.2133 1 16.8323 1 16.385V5.263C0.713333 5.14433 0.475 4.952 0.285 4.686C0.0950001 4.41933 0 4.11367 0 3.769V1.615C0 1.16833 0.157333 0.787333 0.472 0.472C0.786667 0.157333 1.168 0 1.616 0H16.385C16.8317 0 17.2127 0.157333 17.528 0.472C17.8427 0.786667 18 1.168 18 1.616V3.769C18 4.11367 17.905 4.419 17.715 4.685C17.5257 4.95167 17.2873 5.14433 17 5.263V16.385C17 16.8317 16.8427 17.2127 16.528 17.528C16.2133 17.8427 15.8323 18 15.385 18H2.616ZM1.616 4.385H16.385C16.5643 4.385 16.7117 4.327 16.827 4.211C16.9423 4.09567 17 3.94867 17 3.77V1.615C17 1.43567 16.9423 1.28833 16.827 1.173C16.7117 1.05767 16.5643 1 16.385 1H1.615C1.43567 1 1.28833 1.05767 1.173 1.173C1.05767 1.28833 1 1.436 1 1.616V3.769C1 3.949 1.05767 4.09633 1.173 4.211C1.28833 4.32633 1.436 4.384 1.616 4.384M6.827 9.866H11.192C11.322 9.866 11.425 9.82433 11.501 9.741C11.5777 9.65833 11.616 9.55233 11.616 9.423C11.616 9.29367 11.5777 9.191 11.501 9.115C11.4243 9.039 11.3213 9.00067 11.192 9H6.808C6.67867 9 6.57567 9.03833 6.499 9.115C6.423 9.191 6.385 9.29367 6.385 9.423C6.385 9.55233 6.42633 9.65833 6.509 9.741C6.59167 9.82367 6.69767 9.86533 6.827 9.866Z" />
+                </mask>
+                <path d="M2.616 18C2.168 18 1.78667 17.8427 1.472 17.528C1.15733 17.2133 1 16.8323 1 16.385V5.263C0.713333 5.14433 0.475 4.952 0.285 4.686C0.0950001 4.41933 0 4.11367 0 3.769V1.615C0 1.16833 0.157333 0.787333 0.472 0.472C0.786667 0.157333 1.168 0 1.616 0H16.385C16.8317 0 17.2127 0.157333 17.528 0.472C17.8427 0.786667 18 1.168 18 1.616V3.769C18 4.11367 17.905 4.419 17.715 4.685C17.5257 4.95167 17.2873 5.14433 17 5.263V16.385C17 16.8317 16.8427 17.2127 16.528 17.528C16.2133 17.8427 15.8323 18 15.385 18H2.616ZM1.616 4.385H16.385C16.5643 4.385 16.7117 4.327 16.827 4.211C16.9423 4.09567 17 3.94867 17 3.77V1.615C17 1.43567 16.9423 1.28833 16.827 1.173C16.7117 1.05767 16.5643 1 16.385 1H1.615C1.43567 1 1.28833 1.05767 1.173 1.173C1.05767 1.28833 1 1.436 1 1.616V3.769C1 3.949 1.05767 4.09633 1.173 4.211C1.28833 4.32633 1.436 4.384 1.616 4.384M6.827 9.866H11.192C11.322 9.866 11.425 9.82433 11.501 9.741C11.5777 9.65833 11.616 9.55233 11.616 9.423C11.616 9.29367 11.5777 9.191 11.501 9.115C11.4243 9.039 11.3213 9.00067 11.192 9H6.808C6.67867 9 6.57567 9.03833 6.499 9.115C6.423 9.191 6.385 9.29367 6.385 9.423C6.385 9.55233 6.42633 9.65833 6.509 9.741C6.59167 9.82367 6.69767 9.86533 6.827 9.866Z" fill="@NavLinkIcon["AllResources"]" />
+                <path d="M1 16.385H2H1ZM1 5.263H2V4.59466L1.38248 4.33904L1 5.263ZM0.285 4.686L-0.529421 5.26628L-0.528733 5.26724L0.285 4.686ZM0.472 0.472L-0.235107 -0.235107L-0.235855 -0.234358L0.472 0.472ZM17.528 0.472L18.2351 -0.235107L18.2344 -0.235855L17.528 0.472ZM17.715 4.685L16.9013 4.10376L16.8996 4.10608L17.715 4.685ZM17 5.263L16.6183 4.33872L16 4.59407V5.263H17ZM16.528 17.528L17.2351 18.2351L17.2359 18.2344L16.528 17.528ZM16.827 4.211L16.1199 3.50389L16.1179 3.50593L16.827 4.211ZM1.173 4.211L1.88011 3.50389L1.87805 3.50185L1.173 4.211ZM6.827 9.866L6.82185 10.866H6.827V9.866ZM11.501 9.741L10.7678 9.06098L10.7621 9.06715L11.501 9.741ZM11.192 9L11.1972 8H11.192V9ZM2.616 17C2.43121 17 2.30482 16.9466 2.17911 16.8209L0.764893 18.2351C1.26851 18.7387 1.90479 19 2.616 19V17ZM2.17911 16.8209C2.05308 16.6949 2 16.5687 2 16.385H0C0 17.096 0.26159 17.7318 0.764893 18.2351L2.17911 16.8209ZM2 16.385V5.263H0V16.385H2ZM1.38248 4.33904C1.27827 4.2959 1.18601 4.22695 1.09873 4.10476L-0.528733 5.26724C-0.236009 5.67705 0.148395 5.99277 0.617522 6.18696L1.38248 4.33904ZM1.09942 4.10573C1.03671 4.0177 1 3.91728 1 3.769H-1C-1 4.31006 -0.846705 4.82096 -0.529421 5.26627L1.09942 4.10573ZM1 3.769V1.615H-1V3.769H1ZM1 1.615C1 1.43239 1.05283 1.30565 1.17985 1.17836L-0.235855 -0.234358C-0.738162 0.269013 -1 0.90428 -1 1.615H1ZM1.17911 1.17911C1.30482 1.05339 1.43121 1 1.616 1V-1C0.904792 -1 0.268511 -0.738725 -0.235107 -0.235107L1.17911 1.17911ZM1.616 1H16.385V-1H1.616V1ZM16.385 1C16.5676 1 16.6943 1.05283 16.8216 1.17985L18.2344 -0.235855C17.731 -0.738162 17.0957 -1 16.385 -1V1ZM16.8209 1.17911C16.9466 1.30482 17 1.43121 17 1.616H19C19 0.904791 18.7387 0.268511 18.2351 -0.235107L16.8209 1.17911ZM17 1.616V3.769H19V1.616H17ZM17 3.769C17 3.91728 16.9633 4.0169 16.9013 4.10376L18.5287 5.26624C18.8467 4.8211 19 4.31005 19 3.769H17ZM16.8996 4.10608C16.8135 4.22744 16.7221 4.29583 16.6183 4.33872L17.3817 6.18728C17.8525 5.99284 18.2379 5.6759 18.5304 5.26392L16.8996 4.10608ZM16 5.263V16.385H18V5.263H16ZM16 16.385C16 16.5676 15.9472 16.6943 15.8201 16.8216L17.2359 18.2344C17.7382 17.731 18 17.0957 18 16.385H16ZM15.8209 16.8209C15.6949 16.9469 15.5687 17 15.385 17V19C16.096 19 16.7318 18.7384 17.2351 18.2351L15.8209 16.8209ZM15.385 17H2.616V19H15.385V17ZM1.616 5.385H16.385V3.385H1.616V5.385ZM16.385 5.385C16.8023 5.385 17.2141 5.23996 17.5361 4.91607L16.1179 3.50593C16.1544 3.46923 16.2044 3.43433 16.2637 3.41101C16.3211 3.3884 16.3658 3.385 16.385 3.385V5.385ZM17.5341 4.91811C17.8558 4.59643 18 4.18605 18 3.77H16C16 3.75067 16.0034 3.70618 16.0258 3.64905C16.0489 3.59014 16.0835 3.54029 16.1199 3.50389L17.5341 4.91811ZM18 3.77V1.615H16V3.77H18ZM18 1.615C18 1.19944 17.8565 0.788314 17.5341 0.465893L16.1199 1.88011C16.0831 1.84333 16.0485 1.79326 16.0255 1.73448C16.0033 1.67756 16 1.63353 16 1.615H18ZM17.5341 0.465893C17.2117 0.143472 16.8006 0 16.385 0V2C16.3665 2 16.3224 1.99674 16.2655 1.97446C16.2067 1.95145 16.1567 1.91688 16.1199 1.88011L17.5341 0.465893ZM16.385 0H1.615V2H16.385V0ZM1.615 0C1.19944 0 0.788315 0.143471 0.465893 0.465893L1.88011 1.88011C1.84333 1.91688 1.79326 1.95145 1.73448 1.97446C1.67755 1.99674 1.63353 2 1.615 2V0ZM0.465893 0.465893C0.142727 0.78906 0 1.20094 0 1.616H2C2 1.63374 1.99689 1.6773 1.97474 1.73401C1.95184 1.79266 1.91726 1.84295 1.88011 1.88011L0.465893 0.465893ZM0 1.616V3.769H2V1.616H0ZM0 3.769C0 4.18402 0.142786 4.59687 0.467946 4.92015L1.87805 3.50185C1.91607 3.53965 1.95124 3.59068 1.97446 3.65002C1.9969 3.70736 2 3.7513 2 3.769H0ZM0.465893 4.91811C0.789061 5.24128 1.20094 5.384 1.616 5.384V3.384C1.63374 3.384 1.67729 3.38711 1.73401 3.40926C1.79266 3.43216 1.84295 3.46674 1.88011 3.50389L0.465893 4.91811ZM6.827 10.866H11.192V8.866H6.827V10.866ZM11.192 10.866C11.556 10.866 11.9448 10.7384 12.2399 10.4148L10.7621 9.06715C10.8234 9 10.9024 8.94387 10.9917 8.90773C11.0778 8.8729 11.15 8.866 11.192 8.866V10.866ZM12.2342 10.421C12.5077 10.1262 12.616 9.76472 12.616 9.423H10.616C10.616 9.38855 10.6212 9.33026 10.6469 9.25942C10.6733 9.18634 10.715 9.11792 10.7678 9.061L12.2342 10.421ZM12.616 9.423C12.616 9.08359 12.5079 8.70504 12.205 8.40481L10.797 9.82519C10.731 9.75973 10.6811 9.68089 10.6504 9.59879C10.621 9.52007 10.616 9.45671 10.616 9.423H12.616ZM12.205 8.40481C11.9064 8.10878 11.533 8.00174 11.1972 8.00001L11.1868 9.99999C11.1545 9.99982 11.0935 9.99474 11.0175 9.96645C10.9382 9.93697 10.8614 9.88908 10.797 9.82519L12.205 8.40481ZM11.192 8H6.808V10H11.192V8ZM6.808 8C6.4683 8 6.09162 8.10817 5.79189 8.40789L7.20611 9.82211C7.14149 9.88673 7.06372 9.93574 6.98254 9.96595C6.90463 9.99494 6.84179 10 6.808 10V8ZM5.79189 8.40789C5.49117 8.70862 5.385 9.08613 5.385 9.423H7.385C7.385 9.45579 7.38016 9.5182 7.35133 9.59611C7.32123 9.67742 7.272 9.75621 7.20611 9.82211L5.79189 8.40789ZM5.385 9.423C5.385 9.78663 5.5109 10.1571 5.80189 10.4481L7.21611 9.03389C7.26984 9.08763 7.31667 9.15671 7.34767 9.23621C7.37791 9.31373 7.385 9.38023 7.385 9.423H5.385ZM5.80189 10.4481C6.09145 10.7377 6.45975 10.8641 6.82185 10.866L6.83215 8.86601C6.87437 8.86623 6.93992 8.87353 7.01633 8.90357C7.09467 8.93436 7.16289 8.98068 7.21611 9.03389L5.80189 10.4481Z" fill="black" mask="url(#path-1-inside-1_179_263)" />
+            </svg>
+            @if (!collapsed)
+            {
+                <p style="margin:0 0 0 1rem;@NavLinkFont["AllResources"]">All Resources</p>
+            }
+            
+        </div>
+    </a>
+    <!--New Project-->
+    <a class="MenuLink" href="projects/create" @onclick="@(()=>NavActive("newProject"))" style="@NavLinkBorder["newProject"]">
+        <div class="Navlink-Container" style="">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 0C7.35779 0.0320595 4.83284 1.09592 2.96438 2.96438C1.09592 4.83284 0.0320595 7.35779 0 10C0.0320595 12.6422 1.09592 15.1672 2.96438 17.0356C4.83284 18.9041 7.35779 19.9679 10 20C12.6422 19.9679 15.1672 18.9041 17.0356 17.0356C18.9041 15.1672 19.9679 12.6422 20 10C19.9679 7.35779 18.9041 4.83284 17.0356 2.96438C15.1672 1.09592 12.6422 0.0320595 10 0ZM15.7143 10.7143H10.7143V15.7143H9.28571V10.7143H4.28571V9.28571H9.28571V4.28571H10.7143V9.28571H15.7143V10.7143Z" fill="url(#paint0_linear_182_356)" />
+                <defs>
+                    <linearGradient id="paint0_linear_182_356" x1="4.5" y1="2" x2="15" y2="18.5" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#5A3E9F" />
+                        <stop offset="1" stop-color="#9747FF" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            @if (!collapsed)
+            {
+                <p style="margin:0 0 0 1rem;@NavLinkFont["newProject"]">New Project</p>
+            }
+            
+        </div>
+    </a>
+    @if(Projects != null && !collapsed)
+    {
+        <MudList T="string">
+            <MudListItem Text="@(Project == null? "Select a project":Project.ProjectName)" Style="height:25px;max-width:200px;" @bind-Expanded="_expanded">
+                <NestedList>
+                    @foreach(var project in Projects)
+                    {
+                <MudListItem Style="font-size:12px;padding:5px 5px 5px 1.5rem;" @onclick="@(async ()=>{
+                        Project = project;
+                        _expanded = false;
+                        await SetCurrentProject(project);
+                        })">@project.ProjectName</MudListItem>
+                    }
+                </NestedList>
+            </MudListItem>
+        </MudList>
+    }
+    @if(Project != null)
+    {
+        <!--PER PROJECT NAVIGATIONS-->
+        <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1rem 1rem;background-color:#aaaaaa;" />
+        <!--Dashboard-->
+        <a class="MenuLink" href="@($"projects/details?projectid={Project.ProjectId}")" @onclick="@(()=>NavActive("Dashboard"))" style="@NavLinkBorder["Dashboard"]">
+            <div class="Navlink-Container" style="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M17.5 0.998821V1V5C17.5 5.15715 17.4522 5.26566 17.3584 5.35945C17.2647 5.45317 17.1569 5.50037 17.0012 5.5H17H11C10.8429 5.5 10.735 5.45227 10.6422 5.35906C10.5484 5.26499 10.5005 5.15619 10.5 4.9995V1C10.5 0.842866 10.5477 0.735051 10.6409 0.642168C10.735 0.54839 10.8439 0.500475 11.0007 0.5H17C17.1571 0.5 17.2657 0.54777 17.3594 0.641553C17.4532 0.735276 17.5004 0.843081 17.5 0.998821ZM18 1V5C18 5.28333 17.904 5.521 17.712 5.713C17.52 5.905 17.2827 6.00067 17 6H11C10.7167 6 10.4793 5.904 10.288 5.712C10.0967 5.52 10.0007 5.28267 10 5L18 1ZM7.5 0.998821V1V9C7.5 9.15715 7.45223 9.26566 7.35844 9.35944C7.26472 9.45317 7.15692 9.50037 7.00118 9.5H7H1C0.842866 9.5 0.735051 9.45227 0.642168 9.35906C0.54839 9.26495 0.500475 9.15612 0.5 8.99934V1C0.5 0.842866 0.547731 0.735051 0.640938 0.642168C0.735043 0.54839 0.84388 0.500475 1.00066 0.5H7C7.15715 0.5 7.26566 0.54777 7.35945 0.641553C7.45317 0.735275 7.50037 0.84308 7.5 0.998821ZM17.0012 17.5H17H11C10.8429 17.5 10.735 17.4523 10.6422 17.3591C10.5484 17.265 10.5005 17.1562 10.5 16.9995V9C10.5 8.84286 10.5477 8.73505 10.6409 8.64217C10.7351 8.54836 10.8439 8.50044 11.0008 8.5C11.0009 8.5 11.0011 8.5 11.0012 8.5L17 8.5C17.1571 8.5 17.2657 8.54777 17.3594 8.64155C17.4532 8.73527 17.5004 8.84308 17.5 8.99882V9V17C17.5 17.1571 17.4522 17.2657 17.3584 17.3594C17.2647 17.4532 17.1569 17.5004 17.0012 17.5ZM7.5 12.9988V13V17C7.5 17.1571 7.45223 17.2657 7.35844 17.3594C7.26472 17.4532 7.15692 17.5004 7.00118 17.5H7H1C0.842866 17.5 0.735051 17.4523 0.642168 17.3591C0.54839 17.265 0.500475 17.1561 0.5 16.9993V13C0.5 12.8429 0.547731 12.735 0.640938 12.6422C0.735073 12.5484 0.84395 12.5004 1.00081 12.5C1.00093 12.5 1.00106 12.5 1.00118 12.5L7 12.5C7.15715 12.5 7.26566 12.5478 7.35945 12.6416C7.45317 12.7353 7.50037 12.8431 7.5 12.9988Z" fill="@NavLinkIcon["Dashboard"]" stroke="black" />
+                </svg>
+                @if (!collapsed)
+                {
+                    <p style="margin:0 0 0 1rem;@NavLinkFont["Dashboard"]">Dashboard</p>
+                }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+            </div>
+        </a>
+        <!--Gantt Chart-->
+        <a class="MenuLink" href="@($"/gantt?projectid={Project.ProjectId}")" @onclick="@(()=>NavActive("Gantt"))" style="@NavLinkBorder["Gantt"]">
+            <div class="Navlink-Container" style="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" viewBox="0 0 20 16" fill="none">
+                    <path d="M0.5 3.25C0.5 2.52065 0.789731 1.82118 1.30546 1.30546C1.82118 0.789731 2.52065 0.5 3.25 0.5H5.75V2.5H4C3.33696 2.5 2.70107 2.76339 2.23223 3.23223C1.76339 3.70107 1.5 4.33696 1.5 5C1.5 5.66304 1.76339 6.29893 2.23223 6.76777C2.70107 7.23661 3.33696 7.5 4 7.5H5.75V15.5H3.25C2.52065 15.5 1.82118 15.2103 1.30546 14.6945C0.789731 14.1788 0.5 13.4793 0.5 12.75V3.25ZM7.75 15.5V9.08973C7.87062 9.33878 8.03285 9.56838 8.23223 9.76777C8.70107 10.2366 9.33696 10.5 10 10.5H10.5V10.9998C10.5 10.9999 10.5 10.9999 10.5 11C10.4998 11.609 10.722 12.1971 11.1247 12.654C11.428 12.9979 11.8179 13.2497 12.25 13.3855V15.5H7.75ZM12.25 0.5V5.5H10.5V5C10.5 4.33696 10.2366 3.70107 9.76777 3.23223C9.29893 2.76339 8.66304 2.5 8 2.5H7.75V0.5H12.25ZM14.25 13.5H16C16.663 13.5 17.2989 13.2366 17.7678 12.7678C18.2366 12.2989 18.5 11.663 18.5 11C18.5 10.337 18.2366 9.70107 17.7678 9.23223C17.4186 8.88304 16.9767 8.64782 16.5 8.5505V8C16.5 7.33696 16.2366 6.70107 15.7678 6.23223C15.3582 5.82269 14.8212 5.56991 14.25 5.51252V0.5H16.75C17.1111 0.5 17.4687 0.571131 17.8024 0.709331C18.136 0.847532 18.4392 1.0501 18.6945 1.30546C18.9499 1.56082 19.1525 1.86398 19.2907 2.19762C19.4289 2.53127 19.5 2.88886 19.5 3.25V12.75C19.5 13.1111 19.4289 13.4687 19.2907 13.8024C19.1525 14.136 18.9499 14.4392 18.6945 14.6945C18.4392 14.9499 18.136 15.1525 17.8024 15.2907C17.4687 15.4289 17.1111 15.5 16.75 15.5H14.25V13.5ZM3.64645 4.64645C3.74022 4.55268 3.86739 4.5 4 4.5H8C8.13261 4.5 8.25978 4.55268 8.35355 4.64645C8.44732 4.74022 8.5 4.86739 8.5 5C8.5 5.13261 8.44732 5.25978 8.35355 5.35355C8.25978 5.44732 8.13261 5.5 8 5.5H4C3.86739 5.5 3.74022 5.44732 3.64645 5.35355C3.55268 5.25978 3.5 5.13261 3.5 5C3.5 4.86739 3.55268 4.74022 3.64645 4.64645ZM9.5 8C9.5 7.86739 9.55268 7.74022 9.64645 7.64645C9.74022 7.55268 9.86739 7.5 10 7.5H14C14.1326 7.5 14.2598 7.55268 14.3536 7.64645C14.4473 7.74021 14.5 7.86739 14.5 8C14.5 8.13261 14.4473 8.25979 14.3536 8.35355C14.2598 8.44732 14.1326 8.5 14 8.5H10C9.86739 8.5 9.74022 8.44732 9.64645 8.35355C9.55268 8.25978 9.5 8.13261 9.5 8ZM12.6464 10.6464C12.7402 10.5527 12.8674 10.5 13 10.5H16C16.1326 10.5 16.2598 10.5527 16.3536 10.6464C16.4473 10.7402 16.5 10.8674 16.5 11C16.5 11.1326 16.4473 11.2598 16.3536 11.3536C16.2598 11.4473 16.1326 11.5 16 11.5H13C12.8674 11.5 12.7402 11.4473 12.6464 11.3536C12.5527 11.2598 12.5 11.1326 12.5 11C12.5 10.8674 12.5527 10.7402 12.6464 10.6464Z" fill="@NavLinkIcon["Gantt"]" stroke="black" />
+                </svg>
+                @if (!collapsed)
+                {
+                    <p style="margin:0 0 0 1rem;@NavLinkFont["Gantt"]">Gantt Chart</p>
+                }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+            </div>
+        </a>
+        <!--Tasks-->
+        <a class="MenuLink" href="/projecttasks" @onclick="@(()=>NavActive("Tasks"))" style="@NavLinkBorder["Tasks"]">
+            <div class="Navlink-Container" style="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M17.3623 10.9542C17.3618 10.9543 17.3602 10.9545 17.3571 10.9545H0.642857C0.638455 10.9545 0.63709 10.9541 0.637618 10.9542C0.638189 10.9544 0.63786 10.9544 0.635953 10.9534C0.632335 10.9514 0.613584 10.9404 0.584007 10.9027C0.531409 10.8358 0.5 10.755 0.5 10.6364V7.36364C0.5 7.24498 0.531409 7.16421 0.584007 7.09726C0.613584 7.05962 0.632335 7.04856 0.635953 7.04661C0.63786 7.04559 0.638189 7.04564 0.637618 7.04579C0.63709 7.04592 0.638455 7.04545 0.642857 7.04545H17.3571C17.3615 7.04545 17.3629 7.04592 17.3624 7.04579C17.3621 7.04571 17.362 7.04565 17.3624 7.04581C17.3627 7.04593 17.3632 7.04617 17.364 7.04661C17.3677 7.04856 17.3864 7.05962 17.416 7.09726C17.4686 7.16421 17.5 7.24498 17.5 7.36364V10.6364C17.5 10.755 17.4686 10.8358 17.416 10.9027C17.3864 10.9404 17.3677 10.9514 17.364 10.9534C17.3631 10.9539 17.3626 10.9541 17.3623 10.9542ZM17.3623 10.9542C17.3624 10.9542 17.3625 10.9542 17.3625 10.9542C17.3625 10.9542 17.3625 10.9542 17.3624 10.9542C17.3621 10.9543 17.362 10.9543 17.3623 10.9542ZM17.3623 4.40878C17.3618 4.40887 17.3602 4.40909 17.3571 4.40909H0.642857C0.638455 4.40909 0.63709 4.40863 0.637618 4.40876C0.638189 4.4089 0.63786 4.40896 0.635953 4.40793C0.632335 4.40599 0.613584 4.39493 0.584007 4.35728C0.531409 4.29034 0.5 4.20956 0.5 4.09091V0.818182C0.5 0.699527 0.531409 0.618752 0.584007 0.551808C0.613584 0.514166 0.632335 0.503104 0.635953 0.50116C0.636878 0.500663 0.637432 0.50042 0.637692 0.500317C0.638197 0.500225 0.63979 0.5 0.642857 0.5H17.3571C17.3615 0.5 17.3629 0.500464 17.3624 0.500332C17.3618 0.50019 17.3621 0.500135 17.364 0.50116C17.3677 0.503104 17.3864 0.514166 17.416 0.551808C17.4686 0.618752 17.5 0.699527 17.5 0.818182V4.09091C17.5 4.20956 17.4686 4.29034 17.416 4.35728C17.3864 4.39493 17.3677 4.40599 17.364 4.40793C17.3631 4.40844 17.3625 4.40868 17.3623 4.40878ZM17.3623 4.40878C17.3625 4.40874 17.3625 4.40872 17.3624 4.40876C17.3621 4.40883 17.362 4.40888 17.3623 4.40878ZM9.78571 16.3636V16.8636H10.2857H16.7143H17.2143V16.3636V14.7273V14.2273H16.7143H10.2857H9.78571V14.7273V16.3636ZM5.92857 9.81818V10.3182H6.42857H16.7143H17.2143V9.81818V8.18182V7.68182H16.7143H6.42857H5.92857V8.18182V9.81818ZM12.3571 3.27273V3.77273H12.8571H16.7143H17.2143V3.27273V1.63636V1.13636H16.7143H12.8571H12.3571V1.63636V3.27273ZM17.5 13.9091V17.1818C17.5 17.3005 17.4686 17.3812 17.416 17.4482C17.3864 17.4858 17.3677 17.4969 17.364 17.4988C17.3621 17.4999 17.3618 17.4998 17.3624 17.4997C17.3629 17.4995 17.3615 17.5 17.3571 17.5H0.642857C0.638455 17.5 0.63709 17.4995 0.637618 17.4997C0.638189 17.4998 0.63786 17.4999 0.635953 17.4988C0.632335 17.4969 0.613584 17.4858 0.584007 17.4482C0.531409 17.3812 0.5 17.3005 0.5 17.1818V13.9091C0.5 13.7904 0.531409 13.7097 0.584007 13.6427C0.613584 13.6051 0.632335 13.594 0.635953 13.5921C0.63786 13.591 0.638189 13.5911 0.637618 13.5912C0.63709 13.5914 0.638455 13.5909 0.642857 13.5909H17.3571C17.3584 13.5909 17.3595 13.5909 17.3603 13.591C17.3622 13.5911 17.3628 13.5913 17.3624 13.5912C17.3618 13.5911 17.3621 13.591 17.364 13.5921C17.3677 13.594 17.3864 13.6051 17.416 13.6427C17.4686 13.7097 17.5 13.7904 17.5 13.9091Z" fill="@NavLinkIcon["Tasks"]" stroke="black" />
+                </svg>
+                @if (!collapsed)
+                {
+                    <p style="margin:0 0 0 1rem;@NavLinkFont["Tasks"]">Tasks</p>
+                }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="auth">
-                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth Required
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="projects">
-                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Projects
-            </NavLink>
-        </div>
+            </div>
+        </a>
+        <!--Channel-->
+        <a class="MenuLink" href="projects/create" @onclick="@(()=>NavActive("Channels"))" style="@NavLinkBorder["Channels"]">
+            <div class="Navlink-Container" style="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" viewBox="0 0 18 17" fill="none">
+                    <path d="M13 0.9V9C13 9.10609 12.9579 9.20783 12.8828 9.28284C12.8078 9.35786 12.7061 9.4 12.6 9.4H4.01421C3.61639 9.4 3.23486 9.55803 2.95355 9.83934L1.35355 11.4393C1.03857 11.7543 0.5 11.5312 0.5 11.0858V0.9C0.5 0.793913 0.542143 0.692172 0.617157 0.617157C0.692172 0.542143 0.793913 0.5 0.9 0.5H12.6C12.7061 0.5 12.8078 0.542143 12.8828 0.617157C12.9579 0.692171 13 0.793912 13 0.9ZM16.3 4.1H17.1C17.2061 4.1 17.3078 4.14214 17.3828 4.21716C17.4579 4.29217 17.5 4.39391 17.5 4.5V15.5858C17.5 16.0312 16.9614 16.2543 16.6464 15.9393L15.0464 14.3393C14.7651 14.058 14.3836 13.9 13.9858 13.9H4.5C4.39391 13.9 4.29217 13.8579 4.21716 13.7828C4.14214 13.7078 4.1 13.6061 4.1 13.5V12.7C4.1 12.4239 4.32386 12.2 4.6 12.2H14.3C15.1284 12.2 15.8 11.5284 15.8 10.7V4.6C15.8 4.32386 16.0239 4.1 16.3 4.1Z" fill="@NavLinkIcon["Channels"]" stroke="black" />
+                </svg>
+                @if (!collapsed)
+                {
+                    <p style="margin:0 0 0 1rem;@NavLinkFont["Channels"]">Channels</p>
+                }
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="projecttasks">
-                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Tasks
-            </NavLink>
-        </div>
+            </div>
+        </a>
+        <!--Reports-->
+        <a class="MenuLink" href="projects/create" @onclick="@(()=>NavActive("Reports"))" style="@NavLinkBorder["Reports"]">
+            <div class="Navlink-Container" style="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M15 0.5H16C16.8284 0.5 17.5 1.17157 17.5 2V16C17.5 16.8284 16.8284 17.5 16 17.5H15C14.1716 17.5 13.5 16.8284 13.5 16V2C13.5 1.17157 14.1716 0.5 15 0.5Z" fill="@NavLinkIcon["Reports"]" stroke="black" />
+                    <path d="M8.5 6.5H9.5C10.3284 6.5 11 7.17157 11 8V16C11 16.8284 10.3284 17.5 9.5 17.5H8.5C7.67157 17.5 7 16.8284 7 16V8C7 7.17157 7.67157 6.5 8.5 6.5Z" fill="@NavLinkIcon["Reports"]" stroke="black" />
+                    <path d="M2 13.5H3C3.82843 13.5 4.5 14.1716 4.5 15V16C4.5 16.8284 3.82843 17.5 3 17.5H2C1.17157 17.5 0.5 16.8284 0.5 16V15C0.5 14.1716 1.17157 13.5 2 13.5Z" fill="@NavLinkIcon["Reports"]" stroke="black" />
+                </svg>
+                @if (!collapsed)
+                {
+                    <p style="margin:0 0 0 1rem;@NavLinkFont["Reports"]">Analytics</p>
+                }
 
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Manage">
-                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <form action="Account/Logout" method="post">
-                        <AntiforgeryToken />
-                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                        <button type="submit" class="nav-link">
-                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                        </button>
-                    </form>
-                </div>
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Register">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Login">
-                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
-</div> *@
-<MudAppBar Elevation="1" Dense="@_dense">
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-    <MudSpacer />
-    <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
-</MudAppBar>
-<MudDrawer @bind-Open="@_open" ClipMode="_clipMode" Breakpoint="@_breakpoint" Elevation="1" Variant="@DrawerVariant.Mini">
-    <MudNavMenu>
-        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Store">Store</MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.LibraryBooks">Library</MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Group">Community</MudNavLink>
-    </MudNavMenu>
-</MudDrawer>
+            </div>
+        </a>
+        <!--Users-->
+        <a class="MenuLink" href="projects/create" @onclick="@(()=>NavActive("Users"))" style="@NavLinkBorder["Users"]margin:auto 0 0 0;">
+            <div class="Navlink-Container" style="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 18 14" fill="none" style="margin:1px 0 0 0;">
+                    <path d="M11.8421 9.69986C11.2053 9.44505 10.9511 8.74474 10.9511 8.74474C10.9511 8.74474 10.6642 8.90336 10.6642 8.45786C10.6642 8.01236 10.9511 8.74474 11.238 7.02461C11.238 7.02461 12.0328 6.8013 11.8736 4.95461H11.6823C11.6823 4.95461 12.1605 2.98024 11.6823 2.31086C11.2042 1.64261 11.0141 1.19711 9.96277 0.878177C8.91146 0.559239 9.29452 0.622802 8.53008 0.655427C7.76564 0.688052 7.12833 1.10149 7.12833 1.3248C7.12833 1.3248 6.65021 1.3563 6.46008 1.54755C6.26883 1.7388 5.95046 2.6298 5.95046 2.85255C5.95046 3.0753 6.10964 4.5738 6.26883 4.89161L6.07927 4.95574C5.91952 6.80243 6.71489 7.02574 6.71489 7.02574C7.00177 8.74586 7.28864 8.01349 7.28864 8.45899C7.28864 8.90449 7.00177 8.74586 7.00177 8.74586C7.00177 8.74586 6.74752 9.44618 6.11077 9.70099C5.47402 9.9558 1.93927 11.3244 1.65183 11.6112C1.36383 11.8981 1.39646 13.2357 1.39646 13.2357H16.5541C16.5541 13.2357 16.5879 11.8987 16.2999 11.6112C16.013 11.3244 12.4777 9.95524 11.841 9.70099L11.8421 9.69986ZM4.82771 9.60311C4.77146 9.50186 4.74446 9.42874 4.74446 9.42874C4.74446 9.42874 4.50146 9.56374 4.50146 9.18574C4.50146 8.80774 4.74446 9.42874 4.98746 7.97074C4.98746 7.97074 5.66246 7.7823 5.52746 6.21686H5.36433C5.36433 6.21686 5.44533 5.88499 5.49821 5.46649C5.49583 5.27951 5.50277 5.09253 5.51902 4.90624L5.54039 4.66661C5.52914 4.38986 5.48021 4.13786 5.36489 3.97699C4.95989 3.41055 4.79789 3.03199 3.90802 2.76199C3.01702 2.49199 3.33989 2.54599 2.69302 2.57355C2.04502 2.60168 1.50502 2.95155 1.50502 3.14168C1.50502 3.14168 1.10002 3.16811 0.93802 3.33011C0.786145 3.48199 0.541457 4.15249 0.512207 4.39043V4.54793C0.539207 4.9158 0.658457 5.92605 0.776582 6.16399L0.615707 6.21799C0.480707 7.78286 1.15571 7.97186 1.15571 7.97186C1.39758 9.42874 1.64114 8.80886 1.64114 9.18686C1.64114 9.56486 1.39814 9.42874 1.39814 9.42874C1.39814 9.42874 1.18271 10.0239 0.642707 10.2387L0.512207 10.2905V13.2346H0.835644C0.818769 12.5157 0.878957 11.5882 1.25527 11.213C1.45608 11.0133 2.11252 10.6842 4.82883 9.60311H4.82771ZM17.3883 4.50911C17.3658 4.29649 17.3169 4.10693 17.2241 3.97699C16.8202 3.40999 16.6576 3.03199 15.7672 2.76199C14.8768 2.49199 15.2008 2.54599 14.5522 2.57355C13.9053 2.60168 13.3653 2.95155 13.3653 3.14168C13.3653 3.14168 12.9603 3.16811 12.7983 3.33011C12.6465 3.48311 12.399 4.15811 12.372 4.39324H12.3905L12.4355 4.90736C12.4468 5.03674 12.4479 5.15205 12.4507 5.26961C12.5013 5.64424 12.5688 6.02899 12.6363 6.16399L12.4755 6.21743C12.3405 7.7823 13.0155 7.9713 13.0155 7.9713C13.2585 9.42818 13.5009 8.8083 13.5009 9.1863C13.5009 9.5643 13.259 9.42818 13.259 9.42818C13.259 9.42818 13.2286 9.50861 13.1668 9.61943C15.8499 10.6882 16.5007 11.0144 16.6993 11.213C17.0761 11.5887 17.1346 12.5157 17.1183 13.2352H17.3883V10.2511L17.3602 10.2387C16.8202 10.0233 16.6042 9.42874 16.6042 9.42874C16.6042 9.42874 16.3606 9.56374 16.3606 9.18686C16.3606 8.80999 16.6042 9.42874 16.8466 7.97186C16.8466 7.97186 17.2989 7.84249 17.3883 6.93686V6.24611C17.3883 6.23636 17.3878 6.22699 17.3866 6.21799H17.2235C17.2235 6.21799 17.345 5.71736 17.3883 5.17061V4.50911Z" fill="@NavLinkIcon["Users"]" />
+                </svg>
+                @if (!collapsed)
+                {
+                    <p style="margin:0 0 0 1rem;@NavLinkFont["Users"]">Accounts</p>
+                }
+
+            </div>
+        </a>
+    }
+    
+    
+</nav>
+
+
 
 @code {
     private string? currentUrl;
 
-    protected override void OnInitialized()
+    public bool collapsed = false;
+
+    bool _expanded;
+
+    [Parameter]
+    public bool _open { get; set; }
+
+    [Parameter]
+    public List<Project>? Projects { get; set; } = null;
+    private Project? Project { get; set; } = null;
+    private Project? CurrentProject { get; set; } = null;
+    private List<Task>? ProjectTasks { get; set; } = null;
+    public Dictionary<string, string> NavLinkFont { get; set; } = new()
+    {
+        {"Home", "color:#5A3E9F" },
+        {"AllMessages", "color:#121114;"},
+        {"AllResources", "color:#121114;"},
+        {"newProject", "color:#121114;"},
+        {"Dashboard", "color:#121114;"},
+        {"Gantt", "color:#121114;"},
+        {"Tasks", "color:#121114;"},
+        {"Channels", "color:#121114;"},
+        {"Reports", "color:#121114;"},
+        {"Users", "color:#121114;"}
+    };
+    public Dictionary<string, string> NavLinkIcon { get; set; } = new()
+    {
+        {"Home", "#5A3E9F" },
+        {"AllMessages", "#121114"},
+        {"AllResources", "#121114"},
+        {"newProject", "#121114"},
+        {"Dashboard", "transparent"},
+        {"Gantt", "transparent"},
+        {"Tasks", "transparent"},
+        {"Channels", "transparent"},
+        {"Reports", "transparent"},
+        {"Users", "#121114"}
+    };
+    public Dictionary<string, string> NavLinkBorder { get; set; } = new()
+    {
+        {"Home", "border-color:#5A3E9F;" },
+        {"AllMessages", "border-color:transparent;"},
+        {"AllResources", "border-color:transparent;"},
+        {"newProject", "border-color:transparent;"},
+        {"Dashboard", "border-color:transparent;"},
+        {"Gantt", "border-color:transparent;"},
+        {"Tasks", "border-color:transparent;"},
+        {"Channels", "border-color:transparent;"},
+        {"Reports", "border-color:transparent;"},
+        {"Users", "border-color:transparent;"}
+    };
+
+
+    protected async override Task OnInitializedAsync()
     {
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+        Project = ProjectService.CurrentProject;
+        if(Project != null)
+        {
+            NavActive("Dashboard");
+        }
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -119,14 +267,69 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    private bool _open = false;
-    private bool _dense = false;
-    private Breakpoint _breakpoint = Breakpoint.Lg;
-    private DrawerClipMode _clipMode = DrawerClipMode.Never;
 
-    private void ToggleDrawer()
+    protected override void OnAfterRender(bool firstRender)
     {
-        _open = !_open;
+
     }
+
+    public void NavActive(string link)
+    {
+        foreach(var key in NavLinkFont)
+        {
+            if(key.Key == link)
+            {
+                NavLinkFont[link] = "color:#5A3E9F";
+                NavLinkIcon[link] = "#5A3E9F";
+                NavLinkBorder[link] = "border-color:#5A3E9F;";
+
+                Console.WriteLine(link);
+            }
+            else
+            {
+                NavLinkFont[key.Key] = "color:#121114;";
+                NavLinkIcon[key.Key] = "#121114";
+                NavLinkBorder[key.Key] = "border-color:transparent;";
+                if(key.Key == "Dashboard"
+                || key.Key == "Gantt"
+                || key.Key == "Tasks"
+                || key.Key == "Channels"
+                || key.Key == "Reports")
+                {
+                    NavLinkIcon[key.Key] = "transparent";
+                }
+            }
+        }
+
+    }
+    public async Task SetCurrentProject(Project project)
+    {
+
+        Project = await ProjectService.SetCurrentProjectAsync(project);
+        NavigationManager.NavigateTo($"projects/details?projectid={project.ProjectId}", forceLoad: true);
+        NavActive("Dashboard");
+
+    }
+    // protected override Task OnAfterRenderAsync(bool firstRender)
+    // {
+        
+    // }
+
+
+    private bool IsActive(string href)
+    {
+        return NavigationManager.Uri.Contains(href, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void Collapse()
+    {
+        
+    }
+
+    private void HoveredState()
+    {
+
+    }
+
 }
 

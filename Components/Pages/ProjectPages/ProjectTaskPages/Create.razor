@@ -3,6 +3,8 @@
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <PageTitle>Create</PageTitle>
 
@@ -63,6 +65,14 @@
     [SupplyParameterFromForm]
     private ProjectTask ProjectTask { get; set; } = new();
 
+    public Project Project { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Project = ProjectService.CurrentProject;
+        ProjectTask.ProjectId = Project.ProjectId;
+        await TaskService.CreateProjectTaskAsync(ProjectTask);
+    }
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddProjectTask()
     {

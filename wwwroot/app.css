@@ -49,6 +49,17 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }*/
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+body{
+    background-image: url("bodyBG.png");
+    background-position:center;
+    background-size:cover;
+    height: 100vh;
+}
 
 .PrimaryBG {
     background-color: #5A3E9F;
@@ -79,4 +90,18 @@ h1:focus {
 
 .MainText {
     color: #F8F8F8;
+}
+
+.TransparentBG{
+    background-color:transparent;
+}
+
+.NavLink {
+    border-width: 0 0 0 5px;
+    border-color: transparent;
+}
+
+.NavLinkActive {
+    border-width: 0 0 0 5px;
+    border-color: #5A3E9F;
 }

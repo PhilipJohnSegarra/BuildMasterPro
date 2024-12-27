@@ -1,0 +1,29 @@
+<svg width="35" height="31" viewBox="0 0 35 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="34.4444" height="31" rx="10" fill="#121114"/>
+<line y1="-1" x2="9.16987" y2="-1" transform="matrix(0.950313 -0.311297 0.374914 0.92706 8.61035 10.6045)" stroke="#F2F2F2" stroke-width="2"/>
+<line y1="-1" x2="9.16987" y2="-1" transform="matrix(0.950313 0.311297 -0.374914 0.92706 16.8232 7.75)" stroke="#F2F2F2" stroke-width="2"/>
+<rect x="9.40625" y="15.6201" width="1.8547" height="1.66923" fill="#5A3E9F"/>
+<rect x="9.40625" y="17.7656" width="1.8547" height="1.66923" fill="#5A3E9F"/>
+<rect x="9.40625" y="19.9121" width="1.8547" height="1.66923" fill="#FFA800"/>
+<rect x="9.40625" y="11.3281" width="1.8547" height="1.66923" fill="#F2F2F2"/>
+<rect x="9.40625" y="13.4736" width="1.8547" height="1.66923" fill="#FFA800"/>
+<rect x="22.9185" y="15.6201" width="1.58974" height="1.43077" fill="#F2F2F2"/>
+<rect x="25.0386" y="17.7656" width="0.529915" height="0.476923" fill="#5A3E9F"/>
+<rect x="26.6279" y="16.0967" width="0.529915" height="0.476923" fill="#FFA800"/>
+<rect x="27.4219" y="14.1895" width="0.264957" height="0.238462" fill="#F2F2F2"/>
+<rect x="22.9185" y="19.9121" width="1.32479" height="1.19231" fill="#F2F2F2"/>
+<rect x="25.5684" y="11.8047" width="0.794872" height="0.715385" fill="#5A3E9F"/>
+<rect x="23.978" y="13.4736" width="1.32479" height="1.19231" fill="#FFA800"/>
+<path d="M12.0557 16.5723H14.7052V18.9569H12.0557V16.5723Z" fill="#5A3E9F"/>
+<path d="M12.0557 19.4297H14.7052V21.8143H12.0557V19.4297Z" fill="#FFA800"/>
+<path d="M12.0557 10.8496H14.7052V13.2342H12.0557V10.8496Z" fill="#5A3E9F"/>
+<path d="M12.0557 13.7129H14.7052V16.0975H12.0557V13.7129Z" fill="#F2F2F2"/>
+<path d="M19.4736 16.5723H22.1232V18.9569H19.4736V16.5723Z" fill="#FFA800"/>
+<path d="M19.4736 19.4297H22.1232V21.8143H19.4736V19.4297Z" fill="#5A3E9F"/>
+<path d="M19.4736 10.8496H22.1232V13.2342H19.4736V10.8496Z" fill="#F2F2F2"/>
+<path d="M19.4736 13.7129H22.1232V16.0975H19.4736V13.7129Z" fill="#5A3E9F"/>
+<rect x="15.2339" y="16.5723" width="3.44444" height="3.1" fill="#F2F2F2"/>
+<rect x="15.2339" y="20.1445" width="3.44444" height="3.1" fill="#FFA800"/>
+<rect x="15.2339" y="9.41895" width="3.44444" height="3.1" fill="#F2F2F2"/>
+<rect x="15.2339" y="12.9961" width="3.44444" height="3.1" fill="#FFA800"/>
+</svg>

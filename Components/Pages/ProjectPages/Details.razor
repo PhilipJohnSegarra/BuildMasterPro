@@ -1,8 +1,14 @@
 ﻿@page "/projects/details"
+@rendermode InteractiveServer
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject ApplicationDbContext context
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <PageTitle>Details</PageTitle>
 
@@ -34,21 +40,63 @@
         </div>
     }
 </div>
+<button class="btn-outline-primary" @onclick="DisplayTaskCreate">@TCButtonText</button>
+<span style="display:@displayTaskCreate;">
+    <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Create />
+</span>
+<BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Index />
+
+@* <QuickGrid Class="table" TGridItem="ProjectTask" Items="@(Tasks == null? null : Tasks.AsQueryable())">
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.StartDate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.DueDate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Status" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Priority" />
+
+    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="projecttask">
+        <a href="@($"projecttasks/edit?taskid={projecttask.TaskId}")">Edit</a> |
+        <a href="@($"projecttasks/details?taskid={projecttask.TaskId}")">Details</a> |
+        <a href="@($"projecttasks/delete?taskid={projecttask.TaskId}")">Delete</a>
+    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+</QuickGrid> *@
+
 
 @code {
-    private Project? project;
+    private Project? project = new();
 
     [SupplyParameterFromQuery]
     private int ProjectId { get; set; }
 
+    private List<ProjectTask> Tasks { get; set; } = new();
+
+    private string displayTaskCreate = "none";
+    private string TCButtonText = "Add Task";
+
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
-        project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+        //using var context = DbFactory.CreateDbContext();
+        // project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+        // Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
+        project = ProjectService.CurrentProject;
+        Tasks = TaskService.CurrentProjectTasks;
 
         if (project is null)
         {
             NavigationManager.NavigateTo("notfound");
         }
+    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     project = await LocalStorage.GetItemAsync<Project>("CurrentProjectKey");
+    //     Tasks = await LocalStorage.GetItemAsync<List<ProjectTask>>("ProjectTasksKey");
+        
+    // }
+
+    private void DisplayTaskCreate()
+    {
+        displayTaskCreate = displayTaskCreate == "none" ? "block" : "none";
+        TCButtonText = TCButtonText == "Add Task" ? "Close" : "Add Task";
     }
 }

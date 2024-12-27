@@ -1,8 +1,9 @@
 ﻿@page "/projects/delete"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
-@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <PageTitle>Delete</PageTitle>
 
@@ -47,13 +48,17 @@
 @code {
     private Project? project;
 
+    private List<ProjectTask> Tasks { get; set; } = new();
+
     [SupplyParameterFromQuery]
     private int ProjectId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
-        project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+        project = await ProjectService.GetProjectAsync(ProjectId);
+        Tasks = await TaskService.GetCurrentProjtasksAsync();
+
+
 
         if (project is null)
         {
@@ -63,9 +68,15 @@
 
     private async Task DeleteProject()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.Project.Remove(project!);
-        await context.SaveChangesAsync();
+        if(Tasks != null)
+        {
+            foreach (ProjectTask task in Tasks)
+            {
+                await TaskService.DeleteProjectTaskAsync(task.TaskId);
+            }
+        }
+
+        await ProjectService.DeleteProjectAsync(project.ProjectId);
         NavigationManager.NavigateTo("/projects");
     }
 }

@@ -1,0 +1,18 @@
+﻿@rendermode InteractiveServer
+
+<MudAppBar>
+        <AppBar OnToggle="@ToggleDrawer"/>
+    </MudAppBar>
+    <MudDrawer>
+        <NavMenu _open="@_open"/>
+</MudDrawer>
+
+@code {
+    private bool _open = true;
+
+    private void ToggleDrawer()
+    {
+        _open = !_open;
+        StateHasChanged();
+    }
+}

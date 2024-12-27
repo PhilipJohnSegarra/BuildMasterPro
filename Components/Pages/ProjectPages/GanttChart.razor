@@ -1,0 +1,20 @@
+﻿@page "/gantt"
+@using BuildMasterPro.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Context
+@inject Blazored.LocalStorage.ILocalStorageService LS
+@inject BuildMasterPro.Services.ProjectService ProjectService
+
+<h3>GanttChart of @Project!.ProjectName</h3>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int ProjectId { get; set; }
+
+    public Project? Project { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        Project = ProjectService.CurrentProject;
+    }
+}

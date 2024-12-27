@@ -3,6 +3,7 @@
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
 
 <PageTitle>Create</PageTitle>
 
@@ -22,7 +23,7 @@
             </div>        
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label> 
-                <textarea id="description" @bind="Project.Description" class="form-control" /> 
+                <InputTextArea id="description" @bind-Value="Project.Description" class="form-control" /> 
                 <ValidationMessage For="() => Project.Description" class="text-danger" /> 
             </div>        
             <div class="mb-3">
@@ -56,9 +57,6 @@
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddProject()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.Project.Add(Project);
-        await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/projects");
+        await ProjectService.CreateProjectAsync(Project);
     }
 }

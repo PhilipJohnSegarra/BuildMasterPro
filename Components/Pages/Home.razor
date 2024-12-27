@@ -1,7 +1,52 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BuildMasterPro.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@using Microsoft.AspNetCore.Authorization
 
-<h1>Hello, world!</h1>
+<PageTitle>Index</PageTitle>
 
-Welcome to your new app.
+<h1>PROJECTS</h1>
+
+<p>
+    <a href="projects/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Project" style="width:100%;">
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.ProjectName" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Description" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Startdate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Enddate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Status" />
+
+    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="project">
+        <a href="@($"projects/edit?projectid={project.ProjectId}")">Edit</a> |
+        <a href="@($"projects/details?projectid={project.ProjectId}")">Details</a> |
+        <a href="@($"projects/delete?projectid={project.ProjectId}")">Delete</a>
+    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+</QuickGrid>
+
+@* <MudDataGrid Items="context.Project">
+    <Columns>
+        <MudBlazor.PropertyColumn Property="project => project.ProjectName" />
+        <MudBlazor.PropertyColumn Property="project => project.Description" />
+        <MudBlazor.PropertyColumn Property="project => project.Startdate" />
+        <MudBlazor.PropertyColumn Property="project => project.Enddate" />
+        <MudBlazor.PropertyColumn Property="project => project.Status" />
+    </Columns>
+</MudDataGrid> *@
+
+
+@code {
+    private ApplicationDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

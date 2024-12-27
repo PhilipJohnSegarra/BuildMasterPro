@@ -3,6 +3,8 @@
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <PageTitle>Delete</PageTitle>
 
@@ -60,8 +62,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        using var context = DbFactory.CreateDbContext();
-        projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+        projecttask = await TaskService.GetTaskAsync(TaskId);
 
         if (projecttask is null)
         {
@@ -71,9 +72,10 @@
 
     private async Task DeleteProjectTask()
     {
-        using var context = DbFactory.CreateDbContext();
-        context.ProjectTask.Remove(projecttask!);
-        await context.SaveChangesAsync();
+        // using var context = DbFactory.CreateDbContext();
+        // context.ProjectTask.Remove(projecttask!);
+        // await context.SaveChangesAsync();
+        await TaskService.DeleteProjectTaskAsync(TaskId);
         NavigationManager.NavigateTo("/projecttasks");
     }
 }
