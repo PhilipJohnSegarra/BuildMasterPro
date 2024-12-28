@@ -10,13 +10,13 @@ namespace BuildMasterPro.Data
     public class ApplicationUser : IdentityUser
     {
         [AllowNull]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
         [AllowNull]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
         [AllowNull]
-        public string MiddleMName { get; set; }
+        public string MiddleMName { get; set; } = string.Empty;
         [AllowNull]
-        public string Phone { get; set; }
+        public string Phone { get; set; } = string.Empty;
         [DataType(DataType.DateTime)]
         public DateTime DateCreated { get; set; } = DateTime.Today.Date;
         [DataType(DataType.DateTime)]
@@ -24,13 +24,13 @@ namespace BuildMasterPro.Data
         [AllowNull]
         public bool IsActive { get; set; } = true;
         [AllowNull]
-        public string? Address { get; set; }
+        public string? Address { get; set; } = string.Empty;
         [AllowNull]
-        public string ProfilePictureUrl { get; set; }
+        public string ProfilePictureUrl { get; set; } = string.Empty;
         [AllowNull]
-        public string JobTitle { get; set; }
+        public string JobTitle { get; set; } = string.Empty;
         [AllowNull]
-        public string Department { get; set; }
+        public string Department { get; set; } = string.Empty;
         [DataType(DataType.DateTime)]
         [AllowNull]
         public DateTime BirthDate { get; set; } = DateTime.Today.AddYears(-18);

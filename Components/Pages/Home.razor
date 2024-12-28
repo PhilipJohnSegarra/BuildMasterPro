@@ -6,6 +6,7 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
 <PageTitle>Index</PageTitle>
 

@@ -1,0 +1,123 @@
+﻿@page "/user/create"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using BuildMasterPro.Data
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NM
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApplicationDbContext db
+@using System.Net.Http.Json
+@inject HttpClient httpClient
+<h3>Create New User</h3>
+
+<!-- This is the popup to create or edit a user -->
+<div class="modal" tabindex="-1" style="display:block" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+                <!-- Button to close the popup -->
+            </div>
+            <!-- Edit form for the current user -->
+            <div class="modal-body">
+                <!-- Only show Id if not a new user -->
+                
+                    <input class="form-control" type="text"
+                           placeholder="UserName"
+                           @bind="OBJUser.UserName" />
+                
+                <input class="form-control" type="text"
+                       placeholder="Email"
+                       @bind="OBJUser.Email" />
+                <input class="form-control" type="password"
+                       placeholder="Password"
+                       @bind="OBJUser.PasswordHash" />
+                <select class="form-control"
+                        @bind="@CurrentUserRole">
+                    @foreach (var option in Options)
+                    {
+                        <option value="@option">
+                            @option
+                        </option>
+                    }
+                </select>
+                <br /><br />
+                <!-- Button to save the user -->
+                <button class="btn btn-primary"
+                        @onclick="CreateUser">
+                    Save
+                </button>
+                <!-- Only show delete button if not a new record -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string userid { get; set; }
+    private IdentityUser OBJUser { get; set; }
+    private string Password = "";
+    private string SelectedRole = "Users";
+    private List<string> Roles = new List<string> { "Users", "Administrators" };
+    private string ErrorMessage = "";
+    List<string> Options = new List<string>() { "Users", "Administrators" };
+    string CurrentUserRole { get; set; } = "Users";
+    string strError = "";
+    string ADMINISTRATION_ROLE = "Administrators";
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        OBJUser = new IdentityUser();
+
+
+    }
+
+    private async Task CreateUser()
+    {
+        var NewUser =
+                    new ApplicationUser
+                        {
+                            UserName = OBJUser.UserName,
+                            Email = OBJUser.Email
+                        };
+        var CreateResult =
+            await _UserManager
+            .CreateAsync(NewUser, OBJUser.PasswordHash);
+        if (!CreateResult.Succeeded)
+        {
+            if (CreateResult
+                .Errors
+                .FirstOrDefault() != null)
+            {
+                strError =
+                    CreateResult
+                    .Errors
+                    .FirstOrDefault()
+                    .Description;
+            }
+            else
+            {
+                strError = "Create error";
+            }
+            // Keep the popup opened
+            return;
+        }
+        else
+        {
+            // Handle Roles
+            if (CurrentUserRole == ADMINISTRATION_ROLE)
+            {
+                // Put admin in Administrator role
+                await _UserManager
+                    .AddToRoleAsync(NewUser, ADMINISTRATION_ROLE);
+            }
+        }
+        NM.NavigateTo("users");
+    }
+}
+

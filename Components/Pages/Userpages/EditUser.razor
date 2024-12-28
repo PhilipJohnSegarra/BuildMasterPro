@@ -1,0 +1,222 @@
+﻿@page "/user/edit"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using BuildMasterPro.Data
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NM
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApplicationDbContext db
+@using System.Net.Http.Json
+@inject HttpClient httpClient
+
+
+<!-- This is the popup to create or edit a user -->
+<div class="modal" tabindex="-1" style="display:block" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+            </div>
+            <!-- Edit form for the current user -->
+            <div class="modal-body">
+                <!-- Only show Id if not a new user -->
+                @if (objUser.Id != "")
+                {
+                    <p>@objUser.Id</p>
+                }
+                <!-- Only allow edit if a new user -->
+                @if (objUser.Id != "")
+                {
+                    <p>@objUser.UserName</p>
+                }
+                else
+                {
+                    <input class="form-control" type="text"
+                           placeholder="UserName"
+                           @bind="objUser.UserName" />
+                }
+                <input class="form-control" type="text"
+                       placeholder="Email"
+                       @bind="objUser.Email" />
+                <input class="form-control" type="password"
+                       placeholder="Password"
+                       @bind="objUser.PasswordHash" />
+                <select class="form-control"
+                        @bind="@CurrentUserRole">
+                    @foreach (var option in Options)
+                    {
+                        <option value="@option">
+                            @option
+                        </option>
+                    }
+                </select>
+                <br /><br />
+                <!-- Button to save the user -->
+                <button class="btn btn-primary"
+                        @onclick="SaveUser">
+                    Save
+                </button>
+@*                 <!-- Only show delete button if not a new record -->
+                @if (objUser.Id != "")
+                {
+                    <!-- Button to delete the forecast -->
+                    <button class="btn btn-danger"
+                            @onclick="DeleteUser">
+                        Delete
+                    </button>
+                }
+                <br />
+                <span style="color:red">@strError</span> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private string userid { get; set; }
+    string ADMINISTRATION_ROLE = "Administrators";
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    // Property used to add or edit the currently selected user
+    IdentityUser objUser = new IdentityUser();
+    // Tracks the selected role for the currently selected user
+    string CurrentUserRole { get; set; } = "Users";
+    // Collection to display the existing users
+    List<ApplicationUser> ColUsers = new List<ApplicationUser>();
+    // Options to display in the roles dropdown when editing a user
+    List<string> Options = new List<string>() { "Users", "Administrators" };
+    // To hold any possible errors
+    string strError = "";
+    // To enable showing the Popup
+    bool ShowPopup = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        objUser = db.Users.SingleOrDefault(i => i.Id == userid);
+    }
+
+    async Task SaveUser()
+    {
+        try
+        {
+            // Is this an existing user?
+            if (objUser.Id != "")
+            {
+                // Get the user
+                var user = await _UserManager.FindByIdAsync(objUser.Id);
+                // Update Email
+                user.Email = objUser.Email;
+                // Update the user
+                await _UserManager.UpdateAsync(user);
+                // Only update password if the current value
+                // is not the default value
+                if (objUser.PasswordHash != "*****")
+                {
+                    var resetToken =
+                        await _UserManager.GeneratePasswordResetTokenAsync(user);
+                    var passworduser =
+                        await _UserManager.ResetPasswordAsync(
+                            user,
+                            resetToken,
+                            objUser.PasswordHash);
+                    if (!passworduser.Succeeded)
+                    {
+                        if (passworduser.Errors.FirstOrDefault() != null)
+                        {
+                            strError =
+                                passworduser
+                                .Errors
+                                .FirstOrDefault()
+                                .Description;
+                        }
+                        else
+                        {
+                            strError = "Pasword error";
+                        }
+                        // Keep the popup opened
+                        return;
+                    }
+                }
+                // Handle Roles
+                // Is user in administrator role?
+                var UserResult =
+                    await _UserManager
+                    .IsInRoleAsync(user, ADMINISTRATION_ROLE);
+                // Is Administrator role selected
+                // but user is not an Administrator?
+                if (
+                    (CurrentUserRole == ADMINISTRATION_ROLE)
+                    &
+                    (!UserResult))
+                {
+                    // Put admin in Administrator role
+                    await _UserManager
+                        .AddToRoleAsync(user, ADMINISTRATION_ROLE);
+                }
+                else
+                {
+                    // Is Administrator role not selected
+                    // but user is an Administrator?
+                    if ((CurrentUserRole != ADMINISTRATION_ROLE)
+                        &
+                        (UserResult))
+                    {
+                        // Remove user from Administrator role
+                        await _UserManager
+                            .RemoveFromRoleAsync(user, ADMINISTRATION_ROLE);
+                    }
+                }
+            }
+            else
+            {
+                // Insert new user
+                var NewUser =
+                    new ApplicationUser
+                        {
+                            UserName = objUser.UserName,
+                            Email = objUser.Email
+                        };
+                var CreateResult =
+                    await _UserManager
+                    .CreateAsync(NewUser, objUser.PasswordHash);
+                if (!CreateResult.Succeeded)
+                {
+                    if (CreateResult
+                        .Errors
+                        .FirstOrDefault() != null)
+                    {
+                        strError =
+                            CreateResult
+                            .Errors
+                            .FirstOrDefault()
+                            .Description;
+                    }
+                    else
+                    {
+                        strError = "Create error";
+                    }
+                    // Keep the popup opened
+                    return;
+                }
+                else
+                {
+                    // Handle Roles
+                    if (CurrentUserRole == ADMINISTRATION_ROLE)
+                    {
+                        // Put admin in Administrator role
+                        await _UserManager
+                            .AddToRoleAsync(NewUser, ADMINISTRATION_ROLE);
+                    }
+                }
+            }
+            NM.NavigateTo("users");
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
+}

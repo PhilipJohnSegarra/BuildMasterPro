@@ -1,16 +1,15 @@
-﻿@page "/main"
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 @using Syncfusion.Blazor.Navigations
 @using BuildMasterPro.Data
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
 @inject BuildMasterPro.Data.ApplicationDbContext context
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject BuildMasterPro.Services.ProjectService PS
+@attribute [Authorize]
 
-<MudThemeProvider />
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+
+
 
 <div class="mainlayout">
     <div class="mainlayout-sidebar-container">
