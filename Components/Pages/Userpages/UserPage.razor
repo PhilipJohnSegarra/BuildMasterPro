@@ -1,0 +1,176 @@
+﻿@page "/users"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using BuildMasterPro.Data
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NM
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApplicationDbContext db
+@using System.Net.Http.Json
+@inject HttpClient httpClient
+
+<MudPopoverProvider />
+<MudDialogProvider />
+
+<MudPaper Class="d-flex flex-row justify-space-between align-center mb-2" Style="width:100%;">
+    <div>
+        <p style="font-size:medium">Users</p>
+    </div>
+    <div>
+        <a href="user/create">Add User</a>
+    </div>
+    
+    
+</MudPaper>
+<MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
+              CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
+             Bordered="true" Dense="true" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="height:95%;border:1px solid gray;border-radius:10px;overflow:auto;" Elevation="2">
+    <Columns>
+        <PropertyColumn Property="x => x.Id" />
+        <PropertyColumn Property="x => x.UserName" Title="Username" />
+        <PropertyColumn Property="x => x.Email" Title="Email" />
+        <PropertyColumn Property="x => x.Phone" />
+        <PropertyColumn Property="x => x.JobTitle" Title="Job Title"/>
+        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => NM.NavigateTo($"/user/edit?userid={context.Item.Id}"))" />
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async()=>OnDeleteClicked(context.Item))" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid>
+
+<MudChip T="string">@state</MudChip>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string ADMINISTRATION_ROLE = "Administrators";
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    // Property used to add or edit the currently selected user
+    IdentityUser objUser = new IdentityUser();
+    // Tracks the selected role for the currently selected user
+    string CurrentUserRole { get; set; } = "Users";
+    // Collection to display the existing users
+    List<ApplicationUser> ColUsers = new List<ApplicationUser>();
+    // Options to display in the roles dropdown when editing a user
+    List<string> Options = new List<string>() { "Users", "Administrators" };
+    // To hold any possible errors
+    string strError = "";
+    // To enable showing the Popup
+    bool ShowPopup = false;
+
+    [Inject] private IDialogService DialogService { get; set; }
+
+    string state = "Message box hasn't been opened yet";
+
+
+    private async void OnDeleteClicked(ApplicationUser User)
+    {
+        var user = await _UserManager.FindByIdAsync(User.Id);
+        bool? result = await DialogService.ShowMessageBox(
+            $"Confirm Deletion:",
+            $"ID:{user.Id}\nUser:{user.UserName}\nEmail:{user.Email}",
+            yesText: "Delete!", cancelText: "Cancel");
+        state = result == null ? "Canceled" : "Deleted!";
+
+        if(state == "Deleted!")
+        {
+            if (user != null)
+            {
+                // Delete the user
+                user.IsDeleted = true;
+                await _UserManager.UpdateAsync(user);
+            }
+            // Refresh Users
+            GetUsers();
+            StateHasChanged();
+        }
+
+        
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // ensure there is a ADMINISTRATION_ROLE
+        var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
+        if (RoleResult == null)
+        {
+            // Create ADMINISTRATION_ROLE Role
+            await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
+        }
+        // Ensure a user named Admin@BlazorHelpWebsite.com is an Administrator
+        var user = await _UserManager.FindByNameAsync("Admin@BlazorHelpWebsite.com");
+        if (user != null)
+        {
+            // Is Admin@BlazorHelpWebsite.com in administrator role?
+            var UserResult = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
+            if (!UserResult)
+            {
+                // Put admin in Administrator role
+                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+            }
+        }
+        // Get the current logged in user
+        CurrentUser = (await authenticationStateTask).User;
+        GetUsers();
+    }
+    public void GetUsers()
+    {
+        // clear any error messages
+        strError = "";
+        // Collection to hold users
+        ColUsers = new List<ApplicationUser>();
+        // get users from _UserManager
+        var user = _UserManager.Users.Where(i => i.IsDeleted != true);
+        foreach (var item in user)
+        {
+            ColUsers.Add(item);
+        }
+    }
+    private bool _readOnly;
+    private bool _isCellEditMode;
+    private List<string> _events = new();
+    private bool _editTriggerRowClick;
+
+    // events
+    public async Task StartedEditingItem(IdentityUser _IdentityUser)
+    {
+        // Open the Popup
+        ShowPopup = true;
+        // Set the selected user
+        // as the current user
+        objUser = _IdentityUser;
+        // Get the user
+        var user = await _UserManager.FindByIdAsync(objUser.Id);
+        if (user != null)
+        {
+            // Is user in administrator role?
+            var UserResult =
+                await _UserManager
+                .IsInRoleAsync(user, ADMINISTRATION_ROLE);
+            if (UserResult)
+            {
+                CurrentUserRole = ADMINISTRATION_ROLE;
+            }
+            else
+            {
+                CurrentUserRole = "Users";
+            }
+        }
+        
+    }
+
+    void CanceledEditingItem(ApplicationUser user)
+    {
+        _events.Insert(0, $"Event = CanceledEditingItem, Data = {System.Text.Json.JsonSerializer.Serialize(user)}");
+    }
+
+    void CommittedItemChanges(ApplicationUser user)
+    {
+        _events.Insert(0, $"Event = CommittedItemChanges, Data = {System.Text.Json.JsonSerializer.Serialize(user)}");
+    }
+}

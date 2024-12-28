@@ -9,8 +9,8 @@
     justify-content: start;
     align-items: start;
     padding: 10px 3rem 1rem 5px;
-    overflow-x:hidden;
-    overflow-y:scroll;
+    overflow-x:auto;
+    overflow-y:auto;
 }
 .MenuLink {
     margin: 0 0 1rem 0;
@@ -23,4 +23,7 @@
     flex-direction: row;
     justify-content: start;
     align-items: start;
+}
+.Navlink-Container > p{
+    font-size: 13px;
 }
