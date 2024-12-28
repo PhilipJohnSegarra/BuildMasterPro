@@ -14,36 +14,39 @@
 
 <MudPopoverProvider />
 <MudDialogProvider />
+<MudThemeProvider />
 
-<MudPaper Class="d-flex flex-row justify-space-between align-center mb-2" Style="width:100%;">
+<div Class="d-flex flex-row justify-space-between align-center mb-2" Style="width:100%;border:none;background-color:none;">
     <div>
         <p style="font-size:medium">Users</p>
     </div>
     <div>
         <a href="user/create">Add User</a>
     </div>
-    
-    
-</MudPaper>
+</div>
 <MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
               CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
-             Bordered="true" Dense="true" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="height:95%;border:1px solid gray;border-radius:10px;overflow:auto;" Elevation="2">
+             Bordered="true" Dense="true" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="border:1px solid gray;border-radius:10px;overflow:auto;" Height="100%">
     <Columns>
-        <PropertyColumn Property="x => x.Id" />
-        <PropertyColumn Property="x => x.UserName" Title="Username" />
+        <PropertyColumn Property="x => x.UserName" Title="Username" StickyLeft="true" Class="SecondaryBG MainText"/>
+        <PropertyColumn Property="x => x.LastName" Title="Last Name" />
+        <PropertyColumn Property="x => x.FirstName" Title="First Name" />
+        <PropertyColumn Property="x => x.MiddleMName" Title="Middle Name" />
         <PropertyColumn Property="x => x.Email" Title="Email" />
         <PropertyColumn Property="x => x.Phone" />
         <PropertyColumn Property="x => x.JobTitle" Title="Job Title"/>
-        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end">
+        <PropertyColumn Property="x => x.DateCreated" Title="Date Added" />
+        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end" StickyRight="true">
             <CellTemplate>
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => NM.NavigateTo($"/user/edit?userid={context.Item.Id}"))" />
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async()=>OnDeleteClicked(context.Item))" />
             </CellTemplate>
         </TemplateColumn>
     </Columns>
+    <PagerContent>
+        <MudDataGridPager T="ApplicationUser" />
+    </PagerContent>
 </MudDataGrid>
-
-<MudChip T="string">@state</MudChip>
 
 @code {
     [CascadingParameter]

@@ -1,6 +1,7 @@
 ﻿@page "/projects/delete"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
+@using System.ComponentModel
 @inject NavigationManager NavigationManager
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
@@ -46,16 +47,19 @@
 </div>
 
 @code {
-    private Project? project;
+    private Project? project = new();
 
     private List<ProjectTask> Tasks { get; set; } = new();
 
     [SupplyParameterFromQuery]
-    private int ProjectId { get; set; }
+    private int projectid { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        project = await ProjectService.GetProjectAsync(ProjectId);
+        ProjectService.PropertyChanged += HandlePropertyChanged;
+        ProjectService.RegisterListener(StateHasChanged);
+        project = await ProjectService.GetProjectAsync(projectid);
+        await ProjectService.SetCurrentProjectAsync(project);
         Tasks = await TaskService.GetCurrentProjtasksAsync();
 
 
@@ -63,6 +67,14 @@
         if (project is null)
         {
             NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private void HandlePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProjectService.CurrentProject))
+        {
+            InvokeAsync(StateHasChanged); // Trigger re-render
         }
     }
 
@@ -78,5 +90,10 @@
 
         await ProjectService.DeleteProjectAsync(project.ProjectId);
         NavigationManager.NavigateTo("/projects");
+    }
+    public void Dispose()
+    {
+        ProjectService.PropertyChanged -= HandlePropertyChanged;
+        ProjectService.UnregisterListener(StateHasChanged);
     }
 }
