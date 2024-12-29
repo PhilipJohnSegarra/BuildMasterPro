@@ -1,53 +1,48 @@
 ﻿@page "/"
-
+@rendermode InteractiveServer
+@using System.ComponentModel
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
-@implements IAsyncDisposable
-@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@using BuildMasterPro.Services
+@using BuildMasterPro.Components.Pages.ProjectPages
+@inject NavigationManager NavManager
+@inject ProjectService ProjectService
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 
-<PageTitle>Index</PageTitle>
+<BuildMasterPro.Components.Pages.ProjectPages.Index />
 
-<h1>PROJECTS</h1>
-
-<p>
-    <a href="projects/create">Create New</a>
-</p>
-
-<QuickGrid Class="table" Items="context.Project" style="width:100%;">
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.ProjectName" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Description" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Startdate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Enddate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Status" />
-
-    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="project">
-        <a href="@($"projects/edit?projectid={project.ProjectId}")">Edit</a> |
-        <a href="@($"projects/details?projectid={project.ProjectId}")">Details</a> |
-        <a href="@($"projects/delete?projectid={project.ProjectId}")">Delete</a>
-    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</QuickGrid>
-
-@* <MudDataGrid Items="context.Project">
-    <Columns>
-        <MudBlazor.PropertyColumn Property="project => project.ProjectName" />
-        <MudBlazor.PropertyColumn Property="project => project.Description" />
-        <MudBlazor.PropertyColumn Property="project => project.Startdate" />
-        <MudBlazor.PropertyColumn Property="project => project.Enddate" />
-        <MudBlazor.PropertyColumn Property="project => project.Status" />
-    </Columns>
-</MudDataGrid> *@
 
 
 @code {
-    private ApplicationDbContext context = default!;
 
-    protected override void OnInitialized()
+    // protected override void OnInitialized()
+    // {
+    //     db = DbFactory.CreateDbContext();
+    // }
+    protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        ProjectService.PropertyChanged += HandlePropertyChanged;
+        ProjectService.RegisterListener(StateHasChanged);
+        await ProjectService.GetProjectsAsync();
     }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    private void HandlePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProjectService.CurrentProject))
+        {
+            InvokeAsync(StateHasChanged); // Trigger re-render
+        }
+    }
+    async Task GoToProject(Project proj)
+    {
+        await ProjectService.SetCurrentProjectAsync(proj);
+        NavManager.NavigateTo($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}");
+        
+    }
+    public void Dispose()
+    {
+        ProjectService.PropertyChanged -= HandlePropertyChanged;
+        ProjectService.UnregisterListener(StateHasChanged);
+    }
 }

@@ -1,49 +1,108 @@
 ﻿@page "/projects"
+@rendermode InteractiveServer
+@using System.ComponentModel
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
+@using BuildMasterPro.Services
+@inject NavigationManager NavManager
+@inject ProjectService ProjectService
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
-@inject BuildMasterPro.Services.ProjectService ProjectService
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
 
 <PageTitle>Index</PageTitle>
 
-<h1>Index</h1>
+<h4>PROJECTS</h4>
 
-<p>
-    <a href="projects/create">Create New</a>
-</p>
 
-@* <QuickGrid Class="table" Items="Projects">
-    <PropertyColumn Property="project => project.ProjectName" />
-    <PropertyColumn Property="project => project.Description" />
-    <PropertyColumn Property="project => project.Startdate" />
-    <PropertyColumn Property="project => project.Enddate" />
-    <PropertyColumn Property="project => project.Status" />
+@* <QuickGrid Class="table" Items="context.Project" style="width:100%;">
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.ProjectName" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Description" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Startdate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Enddate" />
+    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Status" />
 
-    <TemplateColumn Context="project">
+    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="project">
         <a href="@($"projects/edit?projectid={project.ProjectId}")">Edit</a> |
         <a href="@($"projects/details?projectid={project.ProjectId}")">Details</a> |
         <a href="@($"projects/delete?projectid={project.ProjectId}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>  *@
+    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+</QuickGrid> *@
 
-<MudDataGrid Items="Projects">
+<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="true" Dense="true">
     <Columns>
+        <HierarchyColumn T="Project" />
         <MudBlazor.PropertyColumn Property="project => project.ProjectName" />
         <MudBlazor.PropertyColumn Property="project => project.Description" />
         <MudBlazor.PropertyColumn Property="project => project.Startdate" />
         <MudBlazor.PropertyColumn Property="project => project.Enddate" />
         <MudBlazor.PropertyColumn Property="project => project.Status" />
+        <MudBlazor.TemplateColumn CellClass="d-flex justify-between">
+            <CellTemplate Context="context">
+                <MudTooltip Text="Edit">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
+                                                                                      NavManager.NavigateTo($"projects/edit?projectid={context.Item.ProjectId}");
+                                                                                      })" />
+                </MudTooltip>
+                <MudTooltip Text="Details">
+                    <MudIconButton Icon="@Icons.Material.Filled.Newspaper" OnClick="@(async ()=>{
+                                                                                                 GoToProject(context.Item);})" />
+                </MudTooltip>
+                <MudTooltip Text="Delete">
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
+                                                                                        NavManager.NavigateTo($"projects/delete?projectid={context.Item.ProjectId}");
+                                                                                        })" />
+                </MudTooltip>
+            </CellTemplate>
+        </MudBlazor.TemplateColumn>
     </Columns>
+    <ChildRowContent>
+        <MudCard>
+            <MudCardHeader>
+                <MudText Typo="Typo.h6">@context.Item.ProjectName</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>Date Started: @context.Item.Startdate</MudText>
+                <MudText>CreatedBy: </MudText>
+            </MudCardContent>
+        </MudCard>
+    </ChildRowContent>
 </MudDataGrid>
+
 
 
 @code {
 
-    private List<Project> Projects { get; set; } = new();
-
+    // protected override void OnInitialized()
+    // {
+    //     db = DbFactory.CreateDbContext();
+    // }
     protected override async Task OnInitializedAsync()
     {
-        Projects = await ProjectService.GetProjectsAsync();
+        ProjectService.PropertyChanged += HandlePropertyChanged;
+        ProjectService.RegisterListener(StateHasChanged);
+        await ProjectService.GetProjectsAsync();
+    }
+    private void HandlePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProjectService.CurrentProject))
+        {
+            InvokeAsync(StateHasChanged); // Trigger re-render
+        }
+    }
+    async Task GoToProject(Project proj)
+    {
+        await ProjectService.SetCurrentProjectAsync(proj);
+        NavManager.NavigateTo($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}");
+
+    }
+    public void Dispose()
+    {
+        ProjectService.PropertyChanged -= HandlePropertyChanged;
+        ProjectService.UnregisterListener(StateHasChanged);
     }
 }

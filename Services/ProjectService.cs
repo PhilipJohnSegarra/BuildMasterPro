@@ -1,14 +1,45 @@
 ﻿using BuildMasterPro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.ComponentModel;
 namespace BuildMasterPro.Services
 {
-    public class ProjectService
+    public class ProjectService : INotifyPropertyChanged
     {
         public List<Project> Projects { get; set; } = new();
-        public Project? CurrentProject { get; set; }
+        private Project _currentProject;
+        public Project? CurrentProject { 
+            get => _currentProject;
+            set
+            {
+                if(_currentProject != value)
+                {
+                    _currentProject = value;
+                    OnPropertyChanged(nameof(CurrentProject));
+                }
+            }
+        }
+        private readonly List<Action> _listeners = new();
         private readonly IDbContextFactory<ApplicationDbContext> context;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            foreach (var listener in _listeners)
+            {
+                listener();
+            }
+        }
+        public void RegisterListener(Action listener)
+        {
+            _listeners.Add(listener);
+        }
+
+        public void UnregisterListener(Action listener)
+        {
+            _listeners.Remove(listener);
+        }
         public ProjectService(IDbContextFactory<ApplicationDbContext> Context)
         {
             context = Context;
