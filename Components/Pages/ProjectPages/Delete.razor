@@ -2,9 +2,11 @@
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
 @using System.ComponentModel
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
+@inject ApplicationDbContext db
 
 <PageTitle>Delete</PageTitle>
 
@@ -56,13 +58,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ProjectService.PropertyChanged += HandlePropertyChanged;
-        ProjectService.RegisterListener(StateHasChanged);
-        project = await ProjectService.GetProjectAsync(projectid);
-        await ProjectService.SetCurrentProjectAsync(project);
-        Tasks = await TaskService.GetCurrentProjtasksAsync();
-
-
+        // ProjectService.PropertyChanged += HandlePropertyChanged;
+        // ProjectService.RegisterListener(StateHasChanged);
+        // project = await ProjectService.GetProjectAsync(projectid);
+        // await ProjectService.SetCurrentProjectAsync(project);
+        // Tasks = await TaskService.GetCurrentProjtasksAsync();
+        project = await db.Project.FirstOrDefaultAsync(i => i.ProjectId == projectid);
+        Tasks = await db.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
 
         if (project is null)
         {

@@ -5,72 +5,13 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
 @using BuildMasterPro.Services
+@using BuildMasterPro.Components.Pages.ProjectPages
 @inject NavigationManager NavManager
 @inject ProjectService ProjectService
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudThemeProvider />
-
-<PageTitle>Index</PageTitle>
-
-<h4>PROJECTS</h4>
-
-<p>
-    <a href="projects/create">Create New</a>
-</p>
-
-
-@* <QuickGrid Class="table" Items="context.Project" style="width:100%;">
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.ProjectName" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Description" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Startdate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Enddate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Status" />
-
-    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="project">
-        <a href="@($"projects/edit?projectid={project.ProjectId}")">Edit</a> |
-        <a href="@($"projects/details?projectid={project.ProjectId}")">Details</a> |
-        <a href="@($"projects/delete?projectid={project.ProjectId}")">Delete</a>
-    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</QuickGrid> *@
-
-<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="true" Dense="true">
-    <Columns>
-        <HierarchyColumn T="Project" />
-        <MudBlazor.PropertyColumn Property="project => project.ProjectName" />
-        <MudBlazor.PropertyColumn Property="project => project.Description" />
-        <MudBlazor.PropertyColumn Property="project => project.Startdate" />
-        <MudBlazor.PropertyColumn Property="project => project.Enddate" />
-        <MudBlazor.PropertyColumn Property="project => project.Status" />
-        <MudBlazor.TemplateColumn CellClass="d-flex justify-between">
-            <CellTemplate Context="context">
-                <MudTooltip Text="Edit">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(()=>NavManager.NavigateTo($"projects/edit?projectid={context.Item.ProjectId}"))" />
-                </MudTooltip>
-                <MudTooltip Text="Details">
-                    <MudIconButton Icon="@Icons.Material.Filled.Newspaper" OnClick="@(()=>GoToProject(context.Item))" />
-                </MudTooltip>
-                <MudTooltip Text="Delete">
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(()=>NavManager.NavigateTo($"projects/delete?projectid={context.Item.ProjectId}"))" />
-                </MudTooltip>
-            </CellTemplate>
-        </MudBlazor.TemplateColumn>
-    </Columns>
-    <ChildRowContent>
-        <MudCard>
-            <MudCardHeader>
-                <MudText Typo="Typo.h6">@context.Item.ProjectName</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText>Date Started: @context.Item.Startdate</MudText>
-                <MudText>CreatedBy: </MudText>
-            </MudCardContent>
-        </MudCard>
-    </ChildRowContent>
-</MudDataGrid>
+<BuildMasterPro.Components.Pages.ProjectPages.Index />
 
 
 
