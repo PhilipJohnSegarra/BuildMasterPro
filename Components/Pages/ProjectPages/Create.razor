@@ -47,12 +47,16 @@
 </div>
 
 <div>
-    <a href="/projects">Back to List</a>
+    <a href="">Back to List</a>
 </div>
+
+<h1>@exception</h1>
 
 @code {
     [SupplyParameterFromForm]
     private Project Project { get; set; } = new();
+
+    string exception = "";
 
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddProject()
@@ -60,13 +64,13 @@
         try
         {
             await ProjectService.CreateProjectAsync(Project);
-            NavigationManager.NavigateTo("/projects");
+            // 
         }
-        catch
+        catch (Exception e)
         {
-            NavigationManager.NavigateTo("notfound");
+            exception = e.Message;
         }
 
-        
+        await InvokeAsync(() => NavigationManager.NavigateTo("/", forceLoad: true));
     }
 }
