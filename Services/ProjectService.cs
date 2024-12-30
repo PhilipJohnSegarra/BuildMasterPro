@@ -26,6 +26,7 @@ namespace BuildMasterPro.Services
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            
             foreach (var listener in _listeners)
             {
                 listener();
