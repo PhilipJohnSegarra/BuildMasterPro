@@ -1,0 +1,43 @@
+﻿@page "/user/details"
+@rendermode InteractiveServer
+@using BuildMasterPro.Data
+@inject ApplicationDbContext db
+
+<MudThemeProvider/>
+<!--Profile pic Area-->
+<MudGrid Class="d-flex" Style="width:100%;" Justify="Justify.Center">
+    <MudItem xs="10" Class="d-flex flex-column justify-start">
+        <MudPaper Class="d-flex flex-lg-row flex-sm-column flex-xs-column justify-start pa-5" Width="100%" Style="border-radius:10px 10px 0 0;">
+            <MudItem sm="12" md="6" lg="3">
+                <MudImage Alt="Profile Picture" Style="border-radius:50%;height:auto;width:100%;max-width:200px;object-position:center;object-fit:cover;" Src="https://scontent.fceb3-1.fna.fbcdn.net/v/t39.30808-1/457017764_531977952720573_8286795902897620158_n.jpg?stp=c0.0.640.640a_dst-jpg_s200x200_tt6&_nc_cat=107&ccb=1-7&_nc_sid=e99d92&_nc_eui2=AeEITcsTWrWsklyYXJfbe8ABLAz7-ugL-A4sDPv66Av4Dj-VfNN6eLSXOkLumMCAAhJT8ofwajWwgPxzGkY4KFhj&_nc_ohc=NnYKstyztXUQ7kNvgHps2Ib&_nc_oc=AdiVM51eS8lBB2CozzTnWkwUsq1fxdgnWjx-Tc3FdMEy-WemLaR2KIBvex4Dtz380Ls&_nc_zt=24&_nc_ht=scontent.fceb3-1.fna&_nc_gid=Am52NUn-g7tDWhMWvHJNKwo&oh=00_AYBbpN4CqZrVRG1NaCtiGQs-IEysopAJffuvHL626D2k8g&oe=677898FD" />
+            </MudItem>
+            <MudItem sm="12" Style="height:100%;">
+                <MudPaper Class="d-flex flex-column justify-center pl-5" Width="100%" Height="100%" Elevation="0">
+                    <p style="max-width:300px;">Personalize your account with a photo. Your profile photo will appear on apps and devices that use your Microsoft account.</p>
+                    <MudButton Variant="Variant.Outlined" Style="max-width:150px;font-size:10px;margin:10px 0 0 0;">
+                        Change Photo
+                    </MudButton>
+                </MudPaper>
+            </MudItem>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-row border-t-2 align-center pl-3 pr-3 pt-1 pb-1" Style="border-radius:0 0 10px 10px;">
+            <p style="flex:1;max-width:30%;">Full Name</p>
+            <p style ="flex:1;font-weight:bold;">@(User != null ? User.Email : "null")</p>
+            <MudButton Class="PrimaryText" Variant="Variant.Text">Edit</MudButton>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? userid { get; set; }
+
+    public ApplicationUser? User { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        User = await db.Users.FindAsync(userid);
+    }
+}

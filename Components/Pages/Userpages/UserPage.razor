@@ -26,17 +26,17 @@
 </div>
 <MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
               CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
-             Bordered="true" Dense="true" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="border:1px solid gray;border-radius:10px;overflow:auto;" Height="100%">
+             Bordered="false" Dense="false" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="border:1px solid gray;border-radius:10px;overflow:auto;" Hover="true" RowClick="GoToUserDetails">
     <Columns>
-        <PropertyColumn Property="x => x.UserName" Title="Username" StickyLeft="true" Class="SecondaryBG MainText"/>
-        <PropertyColumn Property="x => x.LastName" Title="Last Name" />
-        <PropertyColumn Property="x => x.FirstName" Title="First Name" />
-        <PropertyColumn Property="x => x.MiddleMName" Title="Middle Name" />
-        <PropertyColumn Property="x => x.Email" Title="Email" />
-        <PropertyColumn Property="x => x.Phone" />
-        <PropertyColumn Property="x => x.JobTitle" Title="Job Title"/>
-        <PropertyColumn Property="x => x.DateCreated" Title="Date Added" />
-        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end" StickyRight="true">
+        <PropertyColumn Property="x => x.UserName" Title="Username" CellClass="row" StickyLeft="true" Class="SecondaryBG MainText"/>
+        <PropertyColumn Property="x => x.LastName" Title="Last Name" CellClass="row" />
+        <PropertyColumn Property="x => x.FirstName" Title="First Name" CellClass="row" />
+        <PropertyColumn Property="x => x.MiddleMName" Title="Middle Name" CellClass="row" />
+        <PropertyColumn Property="x => x.Email" Title="Email" CellClass="row" />
+        <PropertyColumn Property="x => x.Phone" CellClass="row" />
+        <PropertyColumn Property="x => x.JobTitle" Title="Job Title" CellClass="row" />
+        <PropertyColumn Property="x => x.DateCreated" Title="Date Added" CellClass="row" />
+        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end action-column" StickyRight="true">
             <CellTemplate>
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => NM.NavigateTo($"/user/edit?userid={context.Item.Id}"))" />
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async()=>OnDeleteClicked(context.Item))" />
@@ -47,6 +47,46 @@
         <MudDataGridPager T="ApplicationUser" />
     </PagerContent>
 </MudDataGrid>
+
+<style>
+    /* Hide the action column by default */
+    .mud-table-row .row {
+        cursor: pointer;
+    }
+
+    .mud-table-row .action-column {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        margin: 0 0 0 auto;
+    }
+
+    /* Show the action column on row hover */
+    .mud-table-row:hover {
+        background-color: transparent;
+        color: pink;
+    }
+
+        .mud-table-row:hover .action-column {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    .full-height-datagrid {
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Ensure the grid takes the full height of its container */
+    }
+
+        .full-height-datagrid .mud-datagrid-table {
+            flex-grow: 1; /* Make the rows container fill available space */
+            overflow-y: auto; /* Add scrolling if the content overflows */
+        }
+
+        .full-height-datagrid .mud-datagrid-pager {
+            flex-shrink: 0; /* Prevent the pager from shrinking */
+        }
+</style>
 
 @code {
     [CascadingParameter]
@@ -93,7 +133,7 @@
             StateHasChanged();
         }
 
-        
+
     }
 
     protected override async Task OnInitializedAsync()
@@ -164,8 +204,13 @@
                 CurrentUserRole = "Users";
             }
         }
-        
+
     }
+    async Task GoToUserDetails(DataGridRowClickEventArgs<ApplicationUser> args)
+    {
+        NM.NavigateTo($"user/details?userid={args.Item.Id}");
+    }
+
 
     void CanceledEditingItem(ApplicationUser user)
     {
