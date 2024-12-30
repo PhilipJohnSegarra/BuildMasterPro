@@ -18,17 +18,17 @@
 
 <h3 style="margin:0 0 1rem 0;">PROJECTS</h3>
 
-<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="false" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;">
+<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="false" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Class="full-height-datagrid">
     <Columns>
-        <HierarchyColumn T="Project" Class="row" Style="border:none;"/>
-        <MudBlazor.PropertyColumn Property="project => project.ProjectName" CellClass="row" HeaderStyle="height:60px;width:50%;"/>
-        <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" CellClass="row" />
-        <MudBlazor.PropertyColumn Property="project => project.Enddate.ToShortDateString()" CellClass="row" />
-        <MudBlazor.PropertyColumn Property="project => project.Status" CellClass="row" />
-        <MudBlazor.TemplateColumn CellClass="d-flex justify-center action-column">
+        <HierarchyColumn T="Project"/>
+        <MudBlazor.PropertyColumn Property="project => project.ProjectName" CellClass="row" HeaderStyle="height:60px;width:50%;font-weight:bold;"/>
+        <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
+        <MudBlazor.PropertyColumn Property="project => project.Enddate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
+        <MudBlazor.PropertyColumn Property="project => project.Status" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
+        <MudBlazor.TemplateColumn CellClass="d-flex justify-center " HeaderStyle="height:60px;width:5%;font-weight:bold;">
             <CellTemplate Context="context">
                 <MudTooltip Text="Edit">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
+                    <MudIconButton Class="action-column" Icon="@Icons.Material.Filled.Edit" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
                                                                                       NavManager.NavigateTo($"projects/edit?projectid={context.Item.ProjectId}");
                                                                                       })" />
                 </MudTooltip>
@@ -37,7 +37,7 @@
                                                                                                  GoToProject(context.Item);})" />
                 </MudTooltip> *@
                 <MudTooltip Text="Delete">
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
+                    <MudIconButton Class="action-column" Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
                                                                                         NavManager.NavigateTo($"projects/delete?projectid={context.Item.ProjectId}");
                                                                                         })" />
                 </MudTooltip>
@@ -45,7 +45,7 @@
         </MudBlazor.TemplateColumn>
     </Columns>
     <ChildRowContent>
-        <MudCard>
+        <MudCard Class="MainBG">
             <MudCardHeader>
                 <MudText Typo="Typo.h6">@context.Item.ProjectName</MudText>
             </MudCardHeader>
@@ -118,12 +118,7 @@
 
 <style>
     /* Hide the action column by default */
-    .row{
-        border: none;
-    }
     .mud-table-row .row{
-        border:none;
-        border:red;
         cursor:pointer;
     }
     .mud-table-row .action-column {
@@ -131,7 +126,6 @@
         opacity: 0;
         transition: opacity 0.3s ease;
         margin:0 0 0 auto;
-        width: 200px;
     }
 
     /* Show the action column on row hover */
@@ -143,6 +137,21 @@
         visibility: visible;
         opacity: 1;
     }
+
+    .full-height-datagrid {
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Ensure the grid takes the full height of its container */
+    }
+
+        .full-height-datagrid .mud-datagrid-table {
+            flex-grow: 1; /* Make the rows container fill available space */
+            overflow-y: auto; /* Add scrolling if the content overflows */
+        }
+
+        .full-height-datagrid .mud-datagrid-pager {
+            flex-shrink: 0; /* Prevent the pager from shrinking */
+        }
 </style>
 
 
