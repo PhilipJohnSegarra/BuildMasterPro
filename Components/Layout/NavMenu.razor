@@ -103,7 +103,7 @@
     }
     
     
-    @if (ProjectService.CurrentProject != null && !collapsed)
+   @*  @if (ProjectService.CurrentProject != null && !collapsed)
     {
         <MudList T="string">
             <MudListItem Text="@(ProjectService.CurrentProject == null? "Select a project":ProjectService.CurrentProject.ProjectName)" Style="height:25px;max-width:200px;" @bind-Expanded="_expanded">
@@ -119,7 +119,7 @@
                 </NestedList>
             </MudListItem>
         </MudList>
-    }
+    } *@
     @if(ProjectService.CurrentProject != null)
     {
         <!--PER PROJECT NAVIGATIONS-->

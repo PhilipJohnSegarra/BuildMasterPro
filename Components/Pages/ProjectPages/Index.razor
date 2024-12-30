@@ -16,42 +16,26 @@
 
 <PageTitle>Index</PageTitle>
 
-<h4>PROJECTS</h4>
+<h3 style="margin:0 0 1rem 0;">PROJECTS</h3>
 
-
-@* <QuickGrid Class="table" Items="context.Project" style="width:100%;">
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.ProjectName" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Description" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Startdate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Enddate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="project => project.Status" />
-
-    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="project">
-        <a href="@($"projects/edit?projectid={project.ProjectId}")">Edit</a> |
-        <a href="@($"projects/details?projectid={project.ProjectId}")">Details</a> |
-        <a href="@($"projects/delete?projectid={project.ProjectId}")">Delete</a>
-    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</QuickGrid> *@
-
-<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="true" Dense="true">
+<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="false" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;">
     <Columns>
-        <HierarchyColumn T="Project" />
-        <MudBlazor.PropertyColumn Property="project => project.ProjectName" />
-        <MudBlazor.PropertyColumn Property="project => project.Description" />
-        <MudBlazor.PropertyColumn Property="project => project.Startdate" />
-        <MudBlazor.PropertyColumn Property="project => project.Enddate" />
-        <MudBlazor.PropertyColumn Property="project => project.Status" />
-        <MudBlazor.TemplateColumn CellClass="d-flex justify-between">
+        <HierarchyColumn T="Project" Class="row" Style="border:none;"/>
+        <MudBlazor.PropertyColumn Property="project => project.ProjectName" CellClass="row" HeaderStyle="height:60px;width:50%;"/>
+        <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" CellClass="row" />
+        <MudBlazor.PropertyColumn Property="project => project.Enddate.ToShortDateString()" CellClass="row" />
+        <MudBlazor.PropertyColumn Property="project => project.Status" CellClass="row" />
+        <MudBlazor.TemplateColumn CellClass="d-flex justify-center action-column">
             <CellTemplate Context="context">
                 <MudTooltip Text="Edit">
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
                                                                                       NavManager.NavigateTo($"projects/edit?projectid={context.Item.ProjectId}");
                                                                                       })" />
                 </MudTooltip>
-                <MudTooltip Text="Details">
-                    <MudIconButton Icon="@Icons.Material.Filled.Newspaper" OnClick="@(async ()=>{
+@*                 <MudTooltip Text="Details">
+                    <MudIconButton Icon="@Icons.Material.Filled.Share" OnClick="@(async ()=>{
                                                                                                  GoToProject(context.Item);})" />
-                </MudTooltip>
+                </MudTooltip> *@
                 <MudTooltip Text="Delete">
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context.Item);
                                                                                         NavManager.NavigateTo($"projects/delete?projectid={context.Item.ProjectId}");
@@ -73,6 +57,93 @@
     </ChildRowContent>
 </MudDataGrid>
 
+@* <MudTable Items="@ProjectService.Projects" 
+          FixedHeader="true" 
+          FixedFooter="true" 
+          Height="100%" Hover=true 
+          RowClass="RowTemplate" 
+          Style="height:89%;" 
+          RowStyle="border-bottom:none;">
+    <HeaderContent>
+        <MudTh>View</MudTh>
+        <MudTh Style="height:70px;font-weight:bold;" Class="SecondaryText">Title</MudTh>
+        <MudTh Style="height:70px;font-weight:bold;" Class="SecondaryText">Start Date</MudTh>
+        <MudTh Style="height:70px;font-weight:bold;" Class="SecondaryText">Status</MudTh>
+        <MudTh Style="width:200px;"></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.FileOpen"/>
+        </MudTd>
+        <MudTd>@context.ProjectName</MudTd>
+        <MudTd>@context.Startdate.ToShortDateString()</MudTd>
+        <MudTd>@context.Status</MudTd>
+        <MudTd Class="d-flex justify-center action-column" Style="">
+            <MudTooltip Text="Edit" Style="margin:0 0 0 0;">
+                <MudIconButton Style="padding:10px;" Icon="@Icons.Material.Filled.Edit" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context);
+                                                                                      NavManager.NavigateTo($"projects/edit?projectid={context.ProjectId}");
+                                                                                      })" />
+            </MudTooltip>
+            <MudTooltip Text="Details" Style="margin:0 0 0 0;">
+                <MudIconButton Style="padding:10px;" Icon="@Icons.Material.Filled.OpenInNew" OnClick="@(async ()=>{GoToProject(context);})" />
+            </MudTooltip>
+            <MudTooltip Text="Delete" Style="margin:0 0 0 0;">
+                <MudIconButton Style="padding:10px;" Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(context);
+                                                                                        NavManager.NavigateTo($"projects/delete?projectid={context.ProjectId}");
+                                                                                        })" />
+            </MudTooltip>
+        </MudTd>
+    </RowTemplate>
+    <ChildRowContent>
+        <MudCard>
+            <MudCardHeader>
+                <MudText Typo="Typo.h6">@context.ProjectName</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>Date Started: @context.Startdate</MudText>
+                <MudText>CreatedBy: </MudText>
+            </MudCardContent>
+        </MudCard>
+    </ChildRowContent>
+    <FooterContent>
+        <MudTd></MudTd>
+        <MudTd></MudTd>
+        <MudTd></MudTd>
+        <MudTd></MudTd>
+    </FooterContent>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[]{10, 50, 100}" />
+    </PagerContent>
+</MudTable> *@
+
+<style>
+    /* Hide the action column by default */
+    .row{
+        border: none;
+    }
+    .mud-table-row .row{
+        border:none;
+        border:red;
+        cursor:pointer;
+    }
+    .mud-table-row .action-column {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        margin:0 0 0 auto;
+        width: 200px;
+    }
+
+    /* Show the action column on row hover */
+    .mud-table-row:hover{
+        background-color:transparent;
+        color: pink;
+    }
+    .mud-table-row:hover .action-column {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>
 
 
 @code {
@@ -81,11 +152,26 @@
     // {
     //     db = DbFactory.CreateDbContext();
     // }
+    public class CustomProject : Project
+    {
+        public int projID { get; set; }
+        public bool showDetails { get; set; } = false;
+    }
+    List<Project> CustomProjects { get; set; } = new();
     protected override async Task OnInitializedAsync()
     {
         ProjectService.PropertyChanged += HandlePropertyChanged;
         ProjectService.RegisterListener(StateHasChanged);
         await ProjectService.GetProjectsAsync();
+        foreach(var proj in ProjectService.Projects)
+        {
+            var p = new CustomProject()
+            {
+                projID = proj.ProjectId
+            };
+
+            CustomProjects.Add(p);
+        }
     }
     private void HandlePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -94,11 +180,17 @@
             InvokeAsync(StateHasChanged); // Trigger re-render
         }
     }
-    async Task GoToProject(Project proj)
+    async Task GoToProject(DataGridRowClickEventArgs<Project> args)
     {
+        var proj = args.Item;
         await ProjectService.SetCurrentProjectAsync(proj);
         NavManager.NavigateTo($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}");
-
+    }
+    private void RowMouseEnterEvent(TableRowHoverEventArgs<Project> eventArgs)
+    {
+        var proj = eventArgs.Item;
+        ProjectService.SetCurrentProjectAsync(proj);
+        NavManager.NavigateTo($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}");
     }
     public void Dispose()
     {
