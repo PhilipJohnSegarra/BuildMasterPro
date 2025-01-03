@@ -12,6 +12,7 @@ using MudBlazor.Services;
 using BuildMasterPro.Components.Layout;
 using BuildMasterPro.Services;
 using Blazored.LocalStorage;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,7 @@ builder.Services.AddBlazoredLocalStorage();
 //builder.Services.AddScoped<RoleService>();
 builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<ProjectTaskService>();
+builder.Services.AddSingleton<MongoService>();
 
 var app = builder.Build();
 

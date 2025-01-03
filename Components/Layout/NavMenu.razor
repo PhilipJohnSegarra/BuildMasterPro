@@ -38,14 +38,14 @@
             </div>
         </a>
         <!--All Messages-->
-        <a class="MenuLink" href="" @onclick="@(()=>NavActive("AllMessages"))" style="@(IsActive("/")? NavLinkBorder["AllMessages"]:NavLinkBorder["AllMessages"])">
+        <a class="MenuLink" href="newMessage" @onclick="@(()=>NavActive("AllMessages"))" style="@(IsActive("/")? NavLinkBorder["AllMessages"]:NavLinkBorder["AllMessages"])">
             <div class="Navlink-Container" style="">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 20 16" style="margin:3px 0 0 0;" fill="none">
                     <path d="M1.79556 15.5556C1.2837 15.5556 0.856667 15.3844 0.514445 15.0422C0.172222 14.7 0.000740741 14.2726 0 13.76V1.79556C0 1.2837 0.171482 0.856666 0.514445 0.514444C0.857408 0.172222 1.28407 0.000740741 1.79444 0H18.2056C18.7167 0 19.1433 0.171481 19.4856 0.514444C19.8278 0.857407 19.9993 1.28444 20 1.79556V13.7611C20 14.2722 19.8285 14.6993 19.4856 15.0422C19.1426 15.3852 18.7159 15.5563 18.2056 15.5556H1.79556ZM10 7.90667L18.8889 2.09444L18.5467 1.11111L10 6.66667L1.45333 1.11111L1.11111 2.09444L10 7.90667Z" fill="@(IsActive("/")? NavLinkIcon["AllMessages"]:NavLinkIcon["AllMessages"])" />
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@(IsActive("/")? NavLinkFont["AllMessages"]:NavLinkFont["AllMessages"])">All Messages</p>
+                    <p style="margin:0 0 0 1rem;@(IsActive("/AllMessages")? NavLinkFont["AllMessages"]:NavLinkFont["AllMessages"])">All Messages</p>
                 }
 
             </div>
@@ -103,17 +103,7 @@
     }
     @if(ProjectService.CurrentProject != null)
     {
-        <!--Back-->
-        <a class="MenuLink" href="projects/create" @onclick="@(()=>{ProjectService.CurrentProject = null;NavigationManager.NavigateTo(""); StateHasChanged();})" style="border:none;">
-            <div class="Navlink-Container" style="">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16"><path fill="#121114" fill-rule="" d="m2.87 7.75l1.97 1.97a.75.75 0 1 1-1.06 1.06L.53 7.53L0 7l.53-.53l3.25-3.25a.75.75 0 0 1 1.06 1.06L2.87 6.25h9.88a3.25 3.25 0 0 1 0 6.5h-2a.75.75 0 0 1 0-1.5h2a1.75 1.75 0 1 0 0-3.5z" clip-rule="evenodd" /></svg>
-                @if (!collapsed)
-                {
-                    <p style="margin:0 0 0 1rem;color:#121114;">Back</p>
-                }
-
-            </div>
-        </a>
+        
     }
     
     
@@ -201,6 +191,17 @@
                 @if (!collapsed)
                 {
                     <p style="margin:0 0 0 1rem;@NavLinkFont["Reports"]">Analytics</p>
+                }
+
+            </div>
+        </a>
+        <!--Back-->
+        <a class="MenuLink" href="projects/create" @onclick="@(()=>{ProjectService.CurrentProject = null;NavigationManager.NavigateTo(""); StateHasChanged();})" style="border:none;margin:auto 0 0 0;">
+            <div class="Navlink-Container" style="">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16"><path fill="#121114" fill-rule="" d="m2.87 7.75l1.97 1.97a.75.75 0 1 1-1.06 1.06L.53 7.53L0 7l.53-.53l3.25-3.25a.75.75 0 0 1 1.06 1.06L2.87 6.25h9.88a3.25 3.25 0 0 1 0 6.5h-2a.75.75 0 0 1 0-1.5h2a1.75 1.75 0 1 0 0-3.5z" clip-rule="evenodd" /></svg>
+                @if (!collapsed)
+                {
+                    <p style="margin:0 0 0 1rem;color:#121114;">Back</p>
                 }
 
             </div>

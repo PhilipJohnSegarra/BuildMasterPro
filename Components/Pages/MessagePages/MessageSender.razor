@@ -1,0 +1,73 @@
+﻿@page "/newMessage"
+@rendermode InteractiveServer
+@using BuildMasterPro.Data
+@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Services
+@using MongoDB.Driver
+@using MongoDB.Bson
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApplicationDbContext db
+@inject MongoService MongoService
+
+<MudPopoverProvider />
+<MudThemeProvider/>
+<!--Sender-->
+<MudSelect @bind-Value="@Sender"
+           Clearable="true">
+    @foreach (var user in Users!)
+    {
+        <MudSelectItem Value="user">@user.UserName</MudSelectItem>
+    }
+</MudSelect>
+<!--Receiver-->
+<MudSelect @bind-Value="@Receiver"
+    Clearable="true">
+    @foreach(var user in Users!)
+    {
+        <MudSelectItem Value="user">@user.UserName</MudSelectItem>
+    }
+</MudSelect>
+
+<MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Lines="3" @bind-Text="@Message!.MessageText"/>
+<MudButton OnClick="SendMessage">Send</MudButton>
+<MudDivider/>
+<MudList T="Message">
+    @foreach(var message in Messages)
+    {
+        <MudListItem Text="@message.ReceiverID" SecondaryText="@message.MessageText"></MudListItem>
+    }
+</MudList>
+
+
+@code {
+    private AuthenticationState? authState;
+    private ApplicationUser? Receiver { get; set; } = new();
+    private ApplicationUser? Sender { get; set; } = new();
+    private List<ApplicationUser>? Users { get; set; } = new();
+    private Message? Message { get; set; } = new();
+    private List<Message>? Messages { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        Users = await db.Users.ToListAsync();
+        var messageCollection = await MongoService.GetCollection<Message>("Messages");
+        Messages = await messageCollection.Find(new BsonDocument()).ToListAsync();
+    }
+
+    async Task SendMessage()
+    {
+        var message = await ComposeMessage();
+        var messageCollection = await MongoService.GetCollection<Message>("Messages");
+        await messageCollection.InsertOneAsync(message);
+        Sender = null; Receiver = null; Message.MessageText = "";
+        Messages = await messageCollection.Find(new BsonDocument()).ToListAsync();
+    }
+
+    async Task<Message> ComposeMessage()
+    {
+        this.Message.SenderID = Sender.Id;
+        this.Message.ReceiverID = Receiver.Id;
+        return this.Message;
+    }
+}
