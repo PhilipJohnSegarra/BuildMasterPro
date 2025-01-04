@@ -12,13 +12,8 @@ namespace BuildMasterPro.Services
             _database = client.GetDatabase("BuildMasterPro");
         }
 
-        public async Task<IMongoCollection<T>> GetCollection<T>(string collectionName)
+        public IMongoCollection<T> GetCollection<T>(string collectionName)
         {
-            if(_database.GetCollection<T>(collectionName) == null)
-            {
-                await _database.CreateCollectionAsync(collectionName);
-                return _database.GetCollection<T>(collectionName);
-            }
             return _database.GetCollection<T>(collectionName);
         }
     }

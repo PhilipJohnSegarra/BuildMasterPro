@@ -3,8 +3,12 @@
 @using BuildMasterPro.Data
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject BuildMasterPro.Data.ApplicationDbContext context
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject UserManager<ApplicationUser> UserManager
+@inject BuildMasterPro.Services.MessageService MessageService
 @inject BuildMasterPro.Services.ProjectService PS
 @attribute [Authorize]
 
@@ -35,10 +39,14 @@
 @code {
 
     private List<Project> Projects { get; set; } = new();
+    private AuthenticationState? authState;
 
     protected async override Task OnInitializedAsync()
     {
         Projects = await PS.GetProjectsAsync();
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var CurrentUser = await UserManager.GetUserAsync(authState.User);
+        await MessageService.GetLatestMessagesForUser(CurrentUser);
     }
 
     private void HoveredState()

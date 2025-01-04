@@ -5,13 +5,20 @@
 @using BuildMasterPro.Services
 @using MongoDB.Driver
 @using MongoDB.Bson
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApplicationDbContext db
 @inject MongoService MongoService
+@inject UserManager<ApplicationUser> UserManager
+@inject MessageService MessageService
+@inject IJSRuntime JSRuntime
+
 
 <MudPopoverProvider />
 <MudThemeProvider/>
 <!--Sender-->
+<h3>Sender</h3>
 <MudSelect @bind-Value="@Sender"
            Clearable="true">
     @foreach (var user in Users!)
@@ -20,54 +27,134 @@
     }
 </MudSelect>
 <!--Receiver-->
-<MudSelect @bind-Value="@Receiver"
-    Clearable="true">
-    @foreach(var user in Users!)
-    {
-        <MudSelectItem Value="user">@user.UserName</MudSelectItem>
-    }
-</MudSelect>
+@if(authState == null || Users == null)
+{
+    <h2>Please Wait</h2>
+}
+else
+{
+    <div style="display:grid;grid-template-columns:300px 1fr;height:100%;">
+        <div>
+            <MudList T="Message">
+                @foreach (var message in Messages)
+                {
+                    <MudListItem Text="" SecondaryText="" OnClick="@(async()=> {
+                            await UserMessage(message);
+                            UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, Receiver);
+                            await ScrollMessages();
+                        })">
+                        <h5>@(message.SenderID == CurrentUser.Id ? message.ReceiverName : message.SenderName)</h5>
+                        <p>@message.MessageText</p>
+                        <p>Date: @message.Timestamp</p>
+                    </MudListItem>
+                }
+            </MudList>
+        </div>
+        <div style="display:grid;grid-template-rows:50px 1fr auto;height:90%;">
+            <MudSelect @bind-Value="@Receiver"
+                       Clearable="true"
+                       Class="MainBG">
+                @foreach (var user in Users!)
+                {
+                    <MudSelectItem Value="user">@user.UserName</MudSelectItem>
+                }
+            </MudSelect>
+            <div id="messages" style="flex: 1;margin:0 0 0 0;max-height:500px;overflow-y:auto;">
+                <MudList T="Message">
+                    @foreach (var message in UserMessages)
+                    {
+                        <MudListItem Text="" SecondaryText="">
+                            <h5>@(message.SenderName)</h5>
+                            <p>@message.MessageText</p>
+                            <p>Date: @message.Timestamp</p>
+                        </MudListItem>
+                    }
+                </MudList>
+            </div>
+            <div>
+                <MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Lines="3" @bind-Text="@MessageText" Class="MainBG" />
+                <MudButton OnClick="SendMessage" Disabled="@(this.Receiver != null && this.MessageText != ""? false : true)">Send</MudButton>
+            </div>
 
-<MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Lines="3" @bind-Text="@Message!.MessageText"/>
-<MudButton OnClick="SendMessage">Send</MudButton>
-<MudDivider/>
-<MudList T="Message">
-    @foreach(var message in Messages)
-    {
-        <MudListItem Text="@message.ReceiverID" SecondaryText="@message.MessageText"></MudListItem>
-    }
-</MudList>
+        </div>
+    </div>
+    
+}
+
 
 
 @code {
+    //For left side
     private AuthenticationState? authState;
-    private ApplicationUser? Receiver { get; set; } = new();
+    private ApplicationUser? CurrentUser { get; set; } = new();
+    private ApplicationUser? Receiver { get; set; } = null;
     private ApplicationUser? Sender { get; set; } = new();
     private List<ApplicationUser>? Users { get; set; } = new();
-    private Message? Message { get; set; } = new();
+    private string MessageText { get; set; } = "";
     private List<Message>? Messages { get; set; } = new();
+
+    //For Right Side
+    private List<Message>? UserMessages { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         Users = await db.Users.ToListAsync();
-        var messageCollection = await MongoService.GetCollection<Message>("Messages");
-        Messages = await messageCollection.Find(new BsonDocument()).ToListAsync();
+        CurrentUser = await UserManager.GetUserAsync(authState.User);
+        Sender = await UserManager.GetUserAsync(authState.User);
+        Messages = MessageService.Messages;
+        
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await ScrollMessages();
     }
 
     async Task SendMessage()
     {
         var message = await ComposeMessage();
-        var messageCollection = await MongoService.GetCollection<Message>("Messages");
-        await messageCollection.InsertOneAsync(message);
-        Sender = null; Receiver = null; Message.MessageText = "";
-        Messages = await messageCollection.Find(new BsonDocument()).ToListAsync();
+        if(message != null && Receiver != null)
+        {
+            var messageCollection = MongoService.GetCollection<Message>("Messages");
+            await messageCollection.InsertOneAsync(message);
+            Receiver = null; MessageText = "";
+            await MessageService.GetLatestMessagesForUser(CurrentUser);
+            Messages = MessageService.Messages;
+            UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, Receiver);
+            await ScrollMessages();
+        }
+        else
+        {
+            return;
+        }
+
     }
 
     async Task<Message> ComposeMessage()
     {
-        this.Message.SenderID = Sender.Id;
-        this.Message.ReceiverID = Receiver.Id;
-        return this.Message;
+        var newMessage = new Message();
+        newMessage.SenderID = Sender!.Id;
+        newMessage.SenderName = Sender.FirstName == "" && Sender.LastName == "" ? Sender.Email : Sender.LastName + " " + Sender.FirstName;
+        newMessage.ReceiverID = Receiver!.Id;
+        newMessage.ReceiverName = Receiver.FirstName == "" && Receiver.LastName == "" ? Receiver.Email : Receiver.LastName + " " + Receiver.FirstName;
+        newMessage.MessageText = this.MessageText;
+        return newMessage;
+
+    }
+
+    async Task UserMessage(Message message)
+    {
+        if (message.ReceiverID == CurrentUser.Id)
+        {
+            Receiver = db.Users.Find(message.SenderID);
+        }
+        else
+        {
+            Receiver = db.Users.Find(message.ReceiverID);
+        }
+    }
+    private async Task ScrollMessages()
+    {
+        await JSRuntime.InvokeVoidAsync("scrollToBottom", "messages");
     }
 }

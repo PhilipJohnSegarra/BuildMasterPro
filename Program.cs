@@ -59,6 +59,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<ProjectTaskService>();
 builder.Services.AddSingleton<MongoService>();
+builder.Services.AddSingleton<MessageService>();
 
 var app = builder.Build();
 
