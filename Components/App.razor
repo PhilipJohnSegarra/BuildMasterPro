@@ -25,6 +25,14 @@
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/Syncfusion.Blazor.Core/scripts/syncfusion-blazor.min.js" type="text/javascript"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script>
+        function scrollToBottom(elementId) {
+            var element = document.getElementById(elementId);
+            if (element) {
+                element.scrollTop = element.scrollHeight;
+            }
+        }
+    </script>
 </body>
 
 </html>
