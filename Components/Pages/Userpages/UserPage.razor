@@ -2,13 +2,13 @@
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization;
 @using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
 @using Microsoft.AspNetCore.Components
 @inject NavigationManager NM
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject ApplicationDbContext db
 @using System.Net.Http.Json
 @inject HttpClient httpClient
 
@@ -146,32 +146,46 @@
             await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
         }
         // Ensure a user named Admin@BlazorHelpWebsite.com is an Administrator
-        var user = await _UserManager.FindByNameAsync("Admin@BlazorHelpWebsite.com");
-        if (user != null)
-        {
-            // Is Admin@BlazorHelpWebsite.com in administrator role?
-            var UserResult = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
-            if (!UserResult)
-            {
-                // Put admin in Administrator role
-                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
-            }
-        }
+        // var user = await _UserManager.FindByNameAsync("Admin@BlazorHelpWebsite.com");
+        // if (user != null)
+        // {
+        //     // Is Admin@BlazorHelpWebsite.com in administrator role?
+        //     var UserResult = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
+        //     if (!UserResult)
+        //     {
+        //         // Put admin in Administrator role
+        //         await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+        //     }
+        // }
         // Get the current logged in user
         CurrentUser = (await authenticationStateTask).User;
-        GetUsers();
+        await GetUsers();
     }
-    public void GetUsers()
+    private bool isLoadingUsers = false;
+    public async Task GetUsers()
     {
-        // clear any error messages
-        strError = "";
-        // Collection to hold users
-        ColUsers = new List<ApplicationUser>();
-        // get users from _UserManager
-        var user = _UserManager.Users.Where(i => i.IsDeleted != true);
-        foreach (var item in user)
+        if (isLoadingUsers)
+            return;
+
+        isLoadingUsers = true;
+
+        try
         {
-            ColUsers.Add(item);
+            // Clear error messages
+            strError = "";
+
+            // Fetch users
+            ColUsers = await _UserManager.Users
+                .Where(i => i.IsDeleted != true)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            strError = $"Error fetching users: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingUsers = false;
         }
     }
     private bool _readOnly;
