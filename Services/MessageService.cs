@@ -44,13 +44,13 @@ namespace BuildMasterPro.Services
             this.Messages = messages.OrderByDescending(m => m.Timestamp).ToList();
             return this.Messages;
         }
-        public async Task<List<Message>> GetAllMessagesForUsers(ApplicationUser user, ApplicationUser user2)
+        public async Task<List<Message>> GetAllMessagesForUsers(ApplicationUser user, ApplicationUser? user2)
         {
             var messageCollection = _MongoService.GetCollection<Message>("Messages");
             var matchStage = Builders<Message>.Filter.Or(
                         Builders<Message>.Filter.And(
                             Builders<Message>.Filter.Eq(m => m.SenderID, user.Id),
-                            Builders<Message>.Filter.Eq(m => m.ReceiverID, user2.Id)
+                            Builders<Message>.Filter.Eq(m => m.ReceiverID, user2!.Id)
                             ),
                         Builders<Message>.Filter.And(
                             Builders<Message>.Filter.Eq(m => m.SenderID, user2.Id),
