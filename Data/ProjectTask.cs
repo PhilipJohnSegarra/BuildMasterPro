@@ -14,12 +14,28 @@ namespace BuildMasterPro.Data
         public string TaskName { get; set; } = string.Empty;
         [Required]
         public string TaskDescription { get; set; } = string.Empty;
+        [DataType(DataType.DateTime)]
+        public DateTime StartDate { get; set; } = DateTime.Now;
+        [DataType(DataType.DateTime)]
+        public DateTime DueDate { get; set; } = DateTime.Now;
 
-        //AssignedTo property later
+        //PROPERTIES 12/01/2025
         [DataType(DataType.DateTime)]
-        public DateTime StartDate { get; set; }
+        public DateTime PlannedStartDate {  get; set; } = DateTime.Now;
         [DataType(DataType.DateTime)]
-        public DateTime DueDate { get; set; }
+        public DateTime PlannedEndDate { get; set; } = DateTime.Now;
+        [DataType(DataType.DateTime)]
+        [AllowNull]
+        public DateTime? ActualStartDate { get; set; }
+        [DataType(DataType.DateTime)]
+        [AllowNull]
+        public DateTime? ActualEndDate { get; set; }
+        [AllowNull]
+        public string? GroupName { get; set; }
+        [AllowNull]
+        public int CategoryId { get; set; }
+        //PROPERTIES 12/01/2025 END
+
         [AllowNull]
         public string Status { get; set; } = "Not Started";
         [AllowNull]
@@ -27,5 +43,7 @@ namespace BuildMasterPro.Data
 
         [ForeignKey(nameof(ProjectId))]
         public Project Project { get; set; } = default!;
+        [ForeignKey(nameof(CategoryId))]
+        public TaskCategory TaskCategory { get; set; } = default!;
     }
 }
