@@ -16,16 +16,25 @@
 
 
 <MudPopoverProvider />
-<MudThemeProvider/>
+<MudDialogProvider />
+<MudThemeProvider />
 <!--Sender-->
 @* <h3>Choose Sender (Development Purposes)</h3>
-<MudSelect @bind-Value="@Sender"
-           Clearable="true">
+<MudSelect @bind-Value="@Receiver"
+           Clearable="true"
+           T="ApplicationUser"
+           >
     @foreach (var user in Users!)
     {
-        <MudSelectItem Value="user">@user.UserName</MudSelectItem>
+        <MudSelectItem Value="user" OnClick="@(async()=>{
+                                        UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, Receiver);
+                                        await ScrollMessages();})">@user.UserName</MudSelectItem>
     }
 </MudSelect> *@
+
+
+
+
 <!--Receiver-->
 @if(authState == null || Users == null)
 {
@@ -33,18 +42,48 @@
 }
 else
 {
-    
-    <div style="display:grid;grid-template-columns:auto;height:100%;background-color:gray;">
-        @if(Receiver == null)
-        {
-            <div>
+   
+    <MudPaper Elevation="2" Style="display:grid;grid-template-columns:auto 1fr;height:100%;margin:0 auto 0 auto;border-radius:10px;">
+            <div class="MainBG" style="width:100%;height:100%;max-width:450px;">
+                <div class="MainBG" style="width:100%;height:auto;position:relative;overflow:visible;margin:0 0 1rem 0;padding:1rem 1rem 0 1rem;">
+                    <input @bind="TextValue" @bind:event="oninput" style="width:100%;height:auto;border: 1px solid black;padding:.5rem;" />
+                    @if (TextValue != "")
+                    {
+                        <MudPaper Elevation="2"  Style="position:absolute;left:0;top:100%;z-index:1000;width:100%;">
+                            <MudList T="ApplicationUser" Class="MainBG">
+                                @foreach (var user in Users.Where(x => x.Email.ToLower().Contains(TextValue.ToLower())).ToList())
+                                {
+                                    if (user != null)
+                                    {
+                                        <MudListItem OnClick="@(async()=>{
+                                            Receiver = user;
+                                            UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, Receiver);
+                                            TextValue = "";
+})">
+                                            <h5>
+                                                @user.Email
+                                            </h5>
+                                        </MudListItem>
+                                    }
+                                    else
+                                    {
+                                        <MudListItem>
+
+                                        </MudListItem>
+                                    }
+                                }
+                            </MudList>
+                        </MudPaper>
+                        
+                    }
+                </div>
                 <MudList T="Message">
                     @foreach (var message in Messages)
                     {
                         <MudListItem Text="" Class="MainBG" SecondaryText="" OnClick="@(async()=> {
                             await UserMessage(message);
                             UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, Receiver);
-                            await ScrollMessages();
+                            //await ScrollMessages();
                         })">
                             <h5>@(message.SenderID == CurrentUser.Id ? message.ReceiverName : message.SenderName)</h5>
                             <p>@message.MessageText</p>
@@ -53,35 +92,41 @@ else
                     }
                 </MudList>
             </div>
-        }
-        else
-        {
-            <div style="display:grid;grid-template-rows:auto 1fr auto;padding:0 0 3rem 0;flex:1;">
+            <!--DIVIDER-->
+            <div style="display:grid;grid-template-rows:auto 1fr auto;padding:0 0 3rem 0;width:100%;background-color:white;">
                 <div style="display:flex;flex-direction:row;align-items:center;justify-content:start;" class="MainBG">
-                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(()=>{Receiver = null;})" />
-                    <p>@(Receiver.FirstName == "" && Receiver.LastName == "" ? Receiver.UserName : Receiver.FirstName +" "+ Receiver.LastName)</p>
+                    @* <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(()=>{Receiver = null;UserMessages = null;})" /> *@
+                    <p>@(   Receiver != null?
+                            (Receiver.FirstName == "" && Receiver.LastName == "" ? Receiver.UserName : Receiver.FirstName +" "+ Receiver.LastName)
+                            : "")</p>
                 </div>
-                <div class="MainBG" id="messages" style="overflow-y:auto;padding:1rem;max-height:600px;">
-                    <MudStack Style="max-height:100%;">
-                        @foreach (var message in UserMessages)
-                        {
-                            <MudPaper
-                                         Style="width:max-content;border-radius:10px;margin-top:5px;margin-bottom:5px;padding:1rem;" 
-                                         Class="@(message.SenderID == this.CurrentUser.Id? "PrimaryBG senderStyle" : "SecondaryBG")">
-                                <p class="MainText">@message.MessageText</p>
-                            </MudPaper>
-                        }
-                    </MudStack>
+                <div id="messages" style="overflow-y:auto;padding:1rem;max-height:600px;">
+                    @if(UserMessages != null)
+                    {
+                        <MudStack Style="max-height:100%;">
+                            @foreach (var message in UserMessages)
+                            {
+                                <MudPaper Style="width:max-content;border-radius:10px;margin-top:5px;margin-bottom:5px;padding:1rem;"
+                                          Class="@(message.SenderID == this.CurrentUser.Id? "PrimaryBG senderStyle" : "SecondaryBG")">
+                                    <p class="MainText">@message.MessageText</p>
+                                </MudPaper>
+                            }
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <p>Please Wait</p>
+                    }
                 </div>
                 <div class="MainBG" style="padding:0;flex:1;height:100%;">
-                    <MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Lines="3" @bind-Text="@MessageText" Class="MainBG" />
+                    <textarea @bind="MessageText" @bind:event="oninput" style="width:100%;height:150px;resize:none;"/>
+                    @* <MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Lines="3"  Class="MainBG" /> *@
                     <MudButton OnClick="SendMessage" Disabled="@(Receiver != null && MessageText != ""? false : true)">Send</MudButton>
                 </div>
 
             </div>
-        }
         
-    </div>
+    </MudPaper>
     
 }
 <style>
@@ -101,6 +146,8 @@ else
     private string MessageText { get; set; } = "";
     private List<Message>? Messages { get; set; } = new();
     private bool sendbuttonDisabled = true;
+    public string TextValue { get; set; } = "";
+    public List<ApplicationUser> filteredUsers = new();
 
     //For Right Side
     private List<Message>? UserMessages { get; set; } = new();
@@ -112,7 +159,7 @@ else
         CurrentUser = await UserManager.GetUserAsync(authState.User);
         Sender = await UserManager.GetUserAsync(authState.User);
         Messages = MessageService.Messages;
-        
+
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -162,8 +209,16 @@ else
             Receiver = await db.Users.FindAsync(message.ReceiverID);
         }
     }
+
     private async Task ScrollMessages()
     {
         await JSRuntime.InvokeVoidAsync("scrollToBottom", "messages");
+    }
+
+    private void filterUser()
+    {
+        if (!string.IsNullOrEmpty(TextValue)) filteredUsers = Users.Where(x => x.Email.ToLower().Contains(TextValue.ToLower())).ToList();
+        else filteredUsers = null;
+
     }
 }
