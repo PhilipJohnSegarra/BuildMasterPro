@@ -33,7 +33,7 @@ namespace BuildMasterPro.Data
         [AllowNull]
         public string? GroupName { get; set; }
         [AllowNull]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
         //PROPERTIES 12/01/2025 END
 
         [AllowNull]
