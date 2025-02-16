@@ -10,9 +10,11 @@ namespace BuildMasterPro.Data
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
 
-        public DbSet<BuildMasterPro.Data.Project> Project { get; set; } = default!;
-        public DbSet<BuildMasterPro.Data.ProjectTask> ProjectTask { get; set; } = default!;
-        public DbSet<BuildMasterPro.Data.Resource> Resource { get; set; } = default!;
+        public DbSet<Project> Project { get; set; } = default!;
+        public DbSet<ProjectTask> ProjectTask { get; set; } = default!;
+        public DbSet<Resource> Resource { get; set; } = default!;
+
+        public DbSet<ProjectUser> ProjectUsers { get; set; } = default!;
 
     }
 }

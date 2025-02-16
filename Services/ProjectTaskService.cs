@@ -56,10 +56,7 @@ namespace BuildMasterPro.Services
         {
             using var context = _context.CreateDbContext();
             var task = await context.ProjectTask.FindAsync(id);
-            if(task == null)
-            {
-                return null;
-            }
+            if (task == null) return null;
             task.TaskName = projecttask.TaskName;
             task.TaskDescription = projecttask.TaskDescription;
             task.StartDate = projecttask.StartDate;

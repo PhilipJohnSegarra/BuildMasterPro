@@ -41,10 +41,9 @@ namespace BuildMasterPro.Services
         {
             _listeners.Remove(listener);
         }
-        public ProjectService(IDbContextFactory<ApplicationDbContext> Context)
+        public ProjectService(IDbContextFactory<ApplicationDbContext> dbContext)
         {
-            context = Context;
-
+            context = dbContext;
         }
         public async Task<List<Project>> GetProjectsAsync()
         {

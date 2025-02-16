@@ -1,38 +1,38 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BuildMasterPro.Data;
+using BuildMasterPro.Repositories;
 
 namespace BuildMasterPro.Services
 {
-    public class UserService
+    public class UserService : RepositoryBased<ApplicationUser>
     {
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserService(UserManager<ApplicationUser> userManager)
+        public UserService(IDbContextFactory<ApplicationDbContext> db) : base(db)
         {
-            _userManager = userManager;
         }
 
-        public async Task<IdentityResult> AddUserAsync(string email, string password)
+        public async Task<List<ApplicationUser>> GetAll()
         {
-            var user = new ApplicationUser { UserName = email, Email = email };
-            return await _userManager.CreateAsync(user, password);
+            var result = await GetAllAsync();
+            return result;
         }
 
-        public async Task<IdentityUser> GetUserByIdAsync(string userId)
+        public async Task<ApplicationUser> Get(string id)
         {
-            return await _userManager.FindByIdAsync(userId);
+            var result = await GetAsync(o => o.Id == id);
+            return result;
         }
 
-        public async Task<IList<ApplicationUser>> GetAllUsersAsync()
+        public async Task<ApplicationUser> Add(ApplicationUser user)
         {
-            return await _userManager.Users.ToListAsync();
+            var result = await AddAsync(user);
+            return result;
         }
 
-        public async Task<IdentityResult> DeleteUserAsync(string userId)
+        public async Task Update(ApplicationUser oldEntity, ApplicationUser newEntity)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            return await _userManager.DeleteAsync(user);
+            await UpdateAsync(oldEntity, newEntity);
         }
     }
 }

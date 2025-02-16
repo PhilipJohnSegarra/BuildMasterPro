@@ -12,55 +12,7 @@
 
 <PageTitle>Details</PageTitle>
 
-<h1>Details</h1>
-
-<div>
-    <h2>Project</h2>
-    <hr />
-    @if (project is null)
-    {
-        <p><em>Loading...</em></p>
-    }
-    else {
-        <dl class="row">
-            <dt class="col-sm-2">ProjectName</dt>
-            <dd class="col-sm-10">@project.ProjectName</dd>
-            <dt class="col-sm-2">Description</dt>
-            <dd class="col-sm-10">@project.Description</dd>
-            <dt class="col-sm-2">Startdate</dt>
-            <dd class="col-sm-10">@project.Startdate</dd>
-            <dt class="col-sm-2">Enddate</dt>
-            <dd class="col-sm-10">@project.Enddate</dd>
-            <dt class="col-sm-2">Status</dt>
-            <dd class="col-sm-10">@project.Status</dd>
-        </dl>
-        <div>
-            <a href="@($"/projects/edit?projectid={project.ProjectId}")">Edit</a> |
-            <a href="@($"/projects")">Back to List</a>
-        </div>
-    }
-</div>
-<button class="btn-outline-primary" @onclick="DisplayTaskCreate">@TCButtonText</button>
-<span style="display:@displayTaskCreate;">
-    <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Create />
-</span>
-<BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Index />
-
-@* <QuickGrid Class="table" TGridItem="ProjectTask" Items="@(Tasks == null? null : Tasks.AsQueryable())">
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.StartDate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.DueDate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Status" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Priority" />
-
-    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="projecttask">
-        <a href="@($"projecttasks/edit?taskid={projecttask.TaskId}")">Edit</a> |
-        <a href="@($"projecttasks/details?taskid={projecttask.TaskId}")">Details</a> |
-        <a href="@($"projecttasks/delete?taskid={projecttask.TaskId}")">Delete</a>
-    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</QuickGrid> *@
+<Teams/>
 
 
 @code {

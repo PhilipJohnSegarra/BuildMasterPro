@@ -1,0 +1,29 @@
+﻿@using BuildMasterPro.Services
+@using BuildMasterPro.Data
+@using Microsoft.EntityFrameworkCore
+@inject ProjectUserService puService
+@inject UserService Userservice
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
+
+<MudTable Items="Users" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Email</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Email</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    List<ProjectUser> ProjectUsers { get; set; } = new();
+    List<ApplicationUser> Users { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectUsers = await puService.GetAll();
+        Users = await Userservice.GetAll();
+    }
+}
