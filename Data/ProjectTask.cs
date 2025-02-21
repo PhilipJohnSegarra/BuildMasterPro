@@ -15,9 +15,11 @@ namespace BuildMasterPro.Data
         [Required]
         public string TaskDescription { get; set; } = string.Empty;
         [DataType(DataType.DateTime)]
-        public DateTime StartDate { get; set; } = DateTime.Now;
+        [AllowNull]
+        public DateTime? StartDate { get; set; }
         [DataType(DataType.DateTime)]
-        public DateTime DueDate { get; set; } = DateTime.Now;
+        [AllowNull]
+        public DateTime? DueDate { get; set; }
 
         //PROPERTIES 12/01/2025
         [DataType(DataType.DateTime)]

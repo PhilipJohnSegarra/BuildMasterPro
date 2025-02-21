@@ -14,7 +14,7 @@ namespace BuildMasterPro.Repositories
         public RepositoryBased(IDbContextFactory<ApplicationDbContext> context)
         {
             _context = context;
-            ApplicationDbContext _db = _context.CreateDbContext();
+            using var _db = _context.CreateDbContext();
             var entityType = _db.Model.FindEntityType(typeof(T));
             this._dbSet = _db.Set<T>();
             this.keyName = entityType.FindPrimaryKey().Properties.Select(o => o.Name).Single();
@@ -24,7 +24,7 @@ namespace BuildMasterPro.Repositories
         public async Task<T> AddAsync(T entity)
         {
             using var _db = _context.CreateDbContext();
-            await _dbSet.AddAsync(entity);
+            await _db.Set<T>().AddAsync(entity);
             await _db.SaveChangesAsync();
             return entity;
         }
@@ -32,7 +32,7 @@ namespace BuildMasterPro.Repositories
         public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> filter = null, Expression<Func<T, object>> order = null, bool isAsc = true, bool isTracked = true, Expression<Func<T, object>> include = null, Expression<Func<T, object>> include2 = null)
         {
             using var _db = _context.CreateDbContext();
-            IQueryable<T> query = _dbSet;
+            IQueryable<T> query = _db.Set<T>();
             if (!isTracked)
             {
                 query = query.AsNoTracking();
@@ -69,7 +69,7 @@ namespace BuildMasterPro.Repositories
         public async Task<T> GetAsync(Expression<Func<T, bool>> filter = null, Expression<Func<T, object>> order = null, bool isAsc = true, bool isTracked = true, Expression<Func<T, object>> include = null)
         {
             using var _db = _context.CreateDbContext();
-            IQueryable<T> query = _dbSet;
+            IQueryable<T> query = _db.Set<T>();
             if (!isTracked)
             {
                 query = query.AsNoTracking();
