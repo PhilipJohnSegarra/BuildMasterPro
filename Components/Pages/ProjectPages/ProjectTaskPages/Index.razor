@@ -2,8 +2,14 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
+@rendermode InteractiveServer
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
+@inject MudBlazor.IDialogService DialogService
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
 
 <PageTitle>Index</PageTitle>
 
@@ -40,4 +46,5 @@
     {
         Tasks = await TaskService.GetCurrentProjtasksAsync();
     }
+
 }

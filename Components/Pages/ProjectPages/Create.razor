@@ -1,54 +1,124 @@
 ﻿@page "/projects/create"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
+@rendermode InteractiveServer
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @inject BuildMasterPro.Services.ProjectService ProjectService
 
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
+
 <PageTitle>Create</PageTitle>
-
-<h1>Create</h1>
-
-<h2>Project</h2>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <EditForm method="post" Model="Project" OnValidSubmit="AddProject" FormName="create" Enhance>
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
-            <div class="mb-3">
-                <label for="projectname" class="form-label">ProjectName:</label> 
-                <InputText id="projectname" @bind-Value="Project.ProjectName" class="form-control" aria-required="true"/> 
-                <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="description" class="form-label">Description:</label> 
-                <InputTextArea id="description" @bind-Value="Project.Description" class="form-control" /> 
-                <ValidationMessage For="() => Project.Description" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="startdate" class="form-label">Startdate:</label> 
-                <InputDate id="startdate" @bind-Value="Project.Startdate" class="form-control" aria-required="true"/> 
-                <ValidationMessage For="() => Project.Startdate" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="enddate" class="form-label">Enddate:</label> 
-                <InputDate id="enddate" @bind-Value="Project.Enddate" class="form-control" /> 
-                <ValidationMessage For="() => Project.Enddate" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="status" class="form-label">Status:</label> 
-                <InputText id="status" @bind-Value="Project.Status" class="form-control" /> 
-                <ValidationMessage For="() => Project.Status" class="text-danger" /> 
-            </div>        
-            <button type="submit" class="btn btn-primary">Create</button>
-        </EditForm>
+        <MudGrid>
+            <MudItem lg="12">
+                <MudPaper Elevation="1" Class="mud-width-full" Style="padding:6rem;">
+                    <MudGrid>
+                        <MudItem lg="12">
+                            <MudPaper Elevation="0" Class="mud-width-full d-flex align-center justify-center">
+                                <h1>Create Project</h1>
+                            </MudPaper>
+                        </MudItem>
+                        <MudItem lg="12">
+                            <MudPaper Elevation="0" Class="mud-width-full d-flex flex-column align-center justify-center">
+                                <EditForm method="post" Model="Project" OnValidSubmit="AddProject" FormName="create" Enhance style="width:100%;max-width:800px;">
+                                    <MudGrid Class="mud-width-full">
+                                        <MudItem lg="12">
+                                            <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                                                <DataAnnotationsValidator />
+                                                <ValidationSummary class="text-danger" role="alert" />
+                                            </MudPaper>
+                                        </MudItem>
+                                        <MudItem lg="12">
+                                            <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                <label>Project Name:</label>
+                                                <MudTextField ShrinkLabel @bind-Value="Project.ProjectName" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                                                <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                                            </MudPaper>
+                                        </MudItem>
+                                        <MudItem lg="12">
+                                            <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                <label>Description:</label>
+                                                <MudTextField ShrinkLabel @bind-Value="Project.Description" Variant="Variant.Outlined" Class="mud-width-full" Lines="3"></MudTextField>
+                                            </MudPaper>
+                                        </MudItem>
+                                        <MudItem lg="4" md="4">
+                                            <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                <label>Start Date:</label>
+                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Startdate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                            </MudPaper>
+                                        </MudItem>
+                                        <MudItem lg="4" md="4">
+                                            <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                <label>End Date:</label>
+                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Enddate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                            </MudPaper>
+                                        </MudItem>
+                                        <MudItem lg="4" md="4" Style="width:100%;margin:0 0 0 auto;">
+                                            <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full" Style="width:100%;margin:0 0 0 auto;">
+                                                <label>Status:</label>
+                                                <MudSelect @bind-Value="Project.Status"
+                                                           Variant="Variant.Outlined" Label=" "
+                                                           style="width:200%;">
+                                                    @foreach (var state in StatusArray)
+                                                    {
+                                                        <MudSelectItem Value="state">@state</MudSelectItem>
+                                                    }
+                                                </MudSelect>
+                                            </MudPaper>
+                                        </MudItem>
+                                        <MudItem lg="12" md="12">
+                                            <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                                                <button type="submit" class="PrimaryBG btn btn-primary" style="padding:1rem;width:100%;color:white;border-radius:5px;">Create</button>
+                                            </MudPaper>
+                                        </MudItem>
+                                    </MudGrid>
+                                    
+                                    @* <div class="mb-3">
+                                        <label for="projectname" class="form-label">ProjectName:</label>
+                                        <InputText id="projectname" @bind-Value="Project.ProjectName" class="form-control" aria-required="true" />
+                                        <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                                    </div> *@
+                                    @* <div class="mb-3">
+                                        <label for="description" class="form-label">Description:</label>
+                                        <InputTextArea id="description" @bind-Value="Project.Description" class="form-control" />
+                                        <ValidationMessage For="() => Project.Description" class="text-danger" />
+                                    </div> *@
+                                    @* <div class="mb-3">
+                                        <label for="startdate" class="form-label">Startdate:</label>
+                                        <InputDate id="startdate" @bind-Value="Project.Startdate" class="form-control" aria-required="true" />
+                                        <ValidationMessage For="() => Project.Startdate" class="text-danger" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="enddate" class="form-label">Enddate:</label>
+                                        <InputDate id="enddate" @bind-Value="Project.Enddate" class="form-control" />
+                                        <ValidationMessage For="() => Project.Enddate" class="text-danger" />
+                                    </div> *@
+                                    @* <div class="mb-3">
+                                        <label for="status" class="form-label">Status:</label>
+                                        <InputText id="status" @bind-Value="Project.Status" class="form-control" />
+                                        <ValidationMessage For="() => Project.Status" class="text-danger" />
+                                    </div> *@
+                                    
+                                </EditForm>
+                            </MudPaper>
+                        </MudItem>
+                    </MudGrid>
+                    
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+        
     </div>
 </div>
 
-<div>
+@* <div>
     <a href="">Back to List</a>
-</div>
+</div> *@
 
 <h1>@exception</h1>
 
@@ -57,6 +127,8 @@
     private Project Project { get; set; } = new();
 
     string exception = "";
+    string statusValue = "";
+    string[] StatusArray = new string[] {"Not Started", "Ongoing", "Finished"};
 
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddProject()

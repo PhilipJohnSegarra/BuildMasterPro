@@ -1,61 +1,143 @@
 ﻿@page "/projecttasks/create"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
+@rendermode InteractiveServer
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
 
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
+
 <PageTitle>Create</PageTitle>
 
-<h1>Create</h1>
+<MudGrid>
+    <MudItem lg="12" sm="12" md="12">
+        <MudPaper Class="mud-width-full d-flex flex-column align-center justify-center" Style="width:100%;">
+            <EditForm method="post" Model="ProjectTask" OnValidSubmit="AddProjectTask" FormName="create" Enhance style="width:100%;">
+                <MudGrid Class="mud-width-full" Style="width:100%;">
+                    <MudItem lg="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="text-danger" role="alert" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem lg="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            @* <label>Project ID:</label> *@
+                            <MudTextField ShrinkLabel Label="Project ID" @bind-Value="ProjectTask.ProjectId" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                        </MudPaper>
+                    </MudItem>
 
-<h2>ProjectTask</h2>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <EditForm method="post" Model="ProjectTask" OnValidSubmit="AddProjectTask" FormName="create" Enhance>
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
-            <div class="mb-3">
-                <label for="projectid" class="form-label">ProjectId:</label> 
-                <InputNumber id="projectid" @bind-Value="ProjectTask.ProjectId" class="form-control" aria-required="true"/>
-                <ValidationMessage For="() => ProjectTask.ProjectId" class="text-danger" />
-            </div>        
-            <div class="mb-3">
-                <label for="taskname" class="form-label">TaskName:</label> 
-                <InputText id="taskname" @bind-Value="ProjectTask.TaskName" class="form-control" aria-required="true"/> 
-                <ValidationMessage For="() => ProjectTask.TaskName" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="taskdescription" class="form-label">TaskDescription:</label> 
-                <InputText id="taskdescription" @bind-Value="ProjectTask.TaskDescription" class="form-control" aria-required="true"/> 
-                <ValidationMessage For="() => ProjectTask.TaskDescription" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="startdate" class="form-label">StartDate:</label> 
-                <InputDate id="startdate" @bind-Value="ProjectTask.StartDate" class="form-control" /> 
-                <ValidationMessage For="() => ProjectTask.StartDate" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="duedate" class="form-label">DueDate:</label> 
-                <InputDate id="duedate" @bind-Value="ProjectTask.DueDate" class="form-control" /> 
-                <ValidationMessage For="() => ProjectTask.DueDate" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="status" class="form-label">Status:</label> 
-                <InputText id="status" @bind-Value="ProjectTask.Status" class="form-control" /> 
-                <ValidationMessage For="() => ProjectTask.Status" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="priority" class="form-label">Priority:</label> 
-                <InputText id="priority" @bind-Value="ProjectTask.Priority" class="form-control" /> 
-                <ValidationMessage For="() => ProjectTask.Priority" class="text-danger" /> 
-            </div>        
-            <button type="submit" class="btn btn-primary">Create</button>
-        </EditForm>
-    </div>
-</div>
+                    <MudItem lg="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            <MudTextField ShrinkLabel Label="Task Name" @bind-Value="ProjectTask.TaskName" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem lg="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            @* <label>Project Name:</label> *@
+                            <MudTextField ShrinkLabel Label="Description" @bind-Value="ProjectTask.TaskDescription" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem lg="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            @* <label>Project Name:</label> *@
+                            <MudDatePicker Label="Planned Start Date:" Editable="true" @bind-Value="ProjectTask.PlannedStartDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem lg="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            @* <label>Project Name:</label> *@
+                            <MudDatePicker Label="Planned End Date:" Editable="true" @bind-Value="ProjectTask.PlannedEndDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                        </MudPaper>
+                    </MudItem>
+                    
+                    <MudItem lg="6" md="12" Style="width:100%;margin:0 0 0 auto;">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full" Style="width:100%;margin:0 0 0 auto;">
+                            <label>Priority Status:</label>
+                            <MudSelect @bind-Value="ProjectTask.Priority"
+                                       Variant="Variant.Outlined" Label="Priority Status"
+                                       style="width:200%;">
+                                @foreach (var state in PriorityArray)
+                                {
+                                    <MudSelectItem Value="state" Class="mud-width-full">@state</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem lg="6" md="12" Style="width:100%;margin:0 0 0 auto;">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full" Style="width:100%;margin:0 0 0 auto;">
+                            <label>Priority Status:</label>
+                            <MudSelect T="int?" @bind-Value="ProjectTask.CategoryId"
+                                       Variant="Variant.Outlined" Label="Category"
+                                       style="width:200%;">
+                                @foreach (var cat in Categories)
+                                {
+                                    <MudSelectItem T="int?" Value="cat.Id" Class="mud-width-full">@cat.CategoryName</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem lg="12" md="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            <button type="submit" class="PrimaryBG btn btn-primary" style="padding:1rem;width:100%;color:white;border-radius:5px;">Create</button>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+
+                @* <div class="mb-3">
+                    <label for="projectid" class="form-label">ProjectId:</label>
+                    <InputNumber id="projectid" @bind-Value="ProjectTask.ProjectId" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => ProjectTask.ProjectId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="taskname" class="form-label">TaskName:</label>
+                    <InputText id="taskname" @bind-Value="ProjectTask.TaskName" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => ProjectTask.TaskName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="taskdescription" class="form-label">TaskDescription:</label>
+                    <InputText id="taskdescription" @bind-Value="ProjectTask.TaskDescription" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => ProjectTask.TaskDescription" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="startdate" class="form-label">StartDate:</label>
+                    <InputDate id="startdate" @bind-Value="ProjectTask.StartDate" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.StartDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="duedate" class="form-label">DueDate:</label>
+                    <InputDate id="duedate" @bind-Value="ProjectTask.DueDate" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.DueDate" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status:</label>
+                    <InputText id="status" @bind-Value="ProjectTask.Status" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.Status" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="priority" class="form-label">Priority:</label>
+                    <InputText id="priority" @bind-Value="ProjectTask.Priority" class="form-control" />
+                    <ValidationMessage For="() => ProjectTask.Priority" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Create</button> *@
+            </EditForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
 <div>
     <a href="/projecttasks">Back to List</a>
@@ -67,11 +149,18 @@
 
     public Project Project { get; set; } = new();
 
+    List<TaskCategory> Categories { get; set; } = new();
+
+    string[] PriorityArray = new string[] {"Urgent", "Not Priority"};
+
     protected override async Task OnInitializedAsync()
     {
         Project = ProjectService.CurrentProject;
         ProjectTask.ProjectId = Project.ProjectId;
         await TaskService.CreateProjectTaskAsync(ProjectTask);
+
+        using var db = DbFactory.CreateDbContext();
+        Categories = await db.TaskCategories.ToListAsync();
     }
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddProjectTask()

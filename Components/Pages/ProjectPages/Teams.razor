@@ -1,0 +1,64 @@
+﻿@page "/Team"
+@using BuildMasterPro.Services
+@using BuildMasterPro.Data
+@using Microsoft.EntityFrameworkCore
+@inject ProjectUserService puService
+@inject UserService Userservice
+@inject ProjectService projService
+@rendermode InteractiveServer
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
+
+<MudButton OnClick="@(()=>{_AdderOpen = !_AdderOpen;})">@(_AdderOpen ? "Close" : "Add Member")</MudButton>
+@if (_AdderOpen)
+{
+    <MudList T="string">
+        @foreach(var item in UnAssigned)
+        {
+            <MudListItem T="string" Value="item.Id" OnClick="@(async()=>{
+                                                      await puService.Add(new ProjectUser{UserId = item.Id, ProjectId = projService.CurrentProject.ProjectId});
+                                                      StateHasChanged();
+                                                    })">
+                @item.Email
+            </MudListItem>
+        }
+    </MudList>
+}
+
+<MudTable Items="Users" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Email</MudTh>
+        <MudTh>Role</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Email</MudTd>
+        <MudTd DataLabel="Nr">@context.JobTitle</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    List<ProjectUser> ProjectUsers { get; set; } = new();
+    List<ApplicationUser> Users { get; set; } = new();
+    List<ApplicationUser> UnAssigned { get; set; } = new();
+
+    bool _AdderOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var projectUsers = await puService.GetAll();
+        var users = await Userservice.GetAll();
+
+        foreach(var item in projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId))
+        {
+            Users.Add(users.SingleOrDefault(i => i.Id.Equals(item.UserId)));
+        }
+
+        var assignedUserIds = projectUsers.Select(pu => pu.UserId).ToHashSet(); // Use HashSet for faster lookups
+
+        UnAssigned = users.Where(user => !assignedUserIds.Contains(user.Id)).ToList();
+
+    }
+
+}
