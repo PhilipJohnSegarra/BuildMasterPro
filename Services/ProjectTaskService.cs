@@ -41,7 +41,10 @@ namespace BuildMasterPro.Services
         public async Task<List<ProjectTask>> GetCurrentProjtasksAsync()
         {
             using var context = _context.CreateDbContext();
-            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == _projectService.CurrentProject!.ProjectId).ToListAsync();
+            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == _projectService.CurrentProject!.ProjectId)
+                .Include(p => p.TaskCategory)
+                .OrderBy(p => p.TaskCategory.Id)
+                .ToListAsync();
             return this.CurrentProjectTasks;
         }
 

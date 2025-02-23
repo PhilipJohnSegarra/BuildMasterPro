@@ -11,15 +11,15 @@
 <MudDialogProvider />
 <MudThemeProvider />
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Tasks</PageTitle>
 
-<h1>Index</h1>
+<h1>Tasks</h1>
 
 <p>
     <a href="projecttasks/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="Tasks.AsQueryable()">
+@* <QuickGrid Class="table" Items="Tasks.AsQueryable()">
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
@@ -33,7 +33,49 @@
         <a href="@($"projecttasks/details?taskid={projecttask.TaskId}")">Details</a> |
         <a href="@($"projecttasks/delete?taskid={projecttask.TaskId}")">Delete</a>
     </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</QuickGrid>
+</QuickGrid> *@
+
+<MudTable Items="Tasks" Hover="true"
+    MultiSelection="false"
+    Virtualize="false"
+    Dense="false"
+    GroupBy="_groupDefinition">
+    <HeaderContent>
+        <MudTh>Task</MudTh>
+        <MudTh>Category</MudTh>
+        <MudTh>Planned Start Date</MudTh>
+        <MudTh>Actual Start Date</MudTh>
+        <MudTh>Planned End Date</MudTh>
+        <MudTh>Actual End Date</MudTh>
+        <MudTh>Status</MudTh>
+    </HeaderContent>
+    <GroupHeaderTemplate>
+        <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="7"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
+    </GroupHeaderTemplate>
+    <RowTemplate>
+        <MudTd><span><MudIcon Icon="@Icons.Material.Outlined.Task">sdfs</MudIcon></span>@context.TaskName</MudTd>
+        <MudTd>@(context.CategoryId != null? context.TaskCategory.CategoryName : "")</MudTd>
+        <MudTd>@context.PlannedStartDate</MudTd>
+        <MudTd>@context.ActualStartDate</MudTd>
+        <MudTd>@context.PlannedEndDate</MudTd>
+        <MudTd>@context.ActualEndDate</MudTd>
+        <MudTd>@context.Status</MudTd>
+    </RowTemplate>
+    <GroupFooterTemplate>
+        <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
+    </GroupFooterTemplate>
+</MudTable>
+
+<style>
+    .mud-table-cell-custom-group {
+        font-weight: 500;
+    }
+
+    .mud-table-cell-custom-group-footer {
+        padding-bottom: 50px;
+        text-align: right;
+    }
+</style>
 
 @code {
 
@@ -45,6 +87,15 @@
     protected override async Task OnInitializedAsync()
     {
         Tasks = await TaskService.GetCurrentProjtasksAsync();
+        Tasks.OrderBy(p => p.TaskId);
     }
+    private TableGroupDefinition<ProjectTask> _groupDefinition = new()
+        {
+            GroupName = "Category",
+            Indentation = false,
+            Expandable = true,
+            IsInitiallyExpanded = false,
+            Selector = (e) => e.TaskCategory.CategoryName
+        };
 
 }

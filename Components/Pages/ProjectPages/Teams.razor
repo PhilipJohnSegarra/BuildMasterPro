@@ -18,7 +18,10 @@
         @foreach(var item in UnAssigned)
         {
             <MudListItem T="string" Value="item.Id" OnClick="@(async()=>{
-                                                      await puService.Add(new ProjectUser{UserId = item.Id, ProjectId = projService.CurrentProject.ProjectId});
+                                                      var result = await puService.Add(new ProjectUser{UserId = item.Id, ProjectId = projService.CurrentProject.ProjectId});
+                                                      UnAssigned.Remove(item);
+                                                      Users.Add(item);
+                                                      _AdderOpen = !_AdderOpen;
                                                       StateHasChanged();
                                                     })">
                 @item.Email
