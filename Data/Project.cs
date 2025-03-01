@@ -17,5 +17,7 @@ namespace BuildMasterPro.Data
         [DataType(DataType.DateTime)]
         public DateTime Enddate { get; set; } = DateTime.Now.Date;
         public string Status { get; set; } = "Ongoing";
+
+        public ICollection<ProjectUser>? ProjectUsers { get; set; }
     }
 }

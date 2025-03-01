@@ -62,8 +62,6 @@ namespace BuildMasterPro.Services
             if (task == null) return null;
             task.TaskName = projecttask.TaskName;
             task.TaskDescription = projecttask.TaskDescription;
-            task.StartDate = projecttask.StartDate;
-            task.DueDate = projecttask.DueDate;
             task.Status = projecttask.Status;
             task.Priority = projecttask.Priority;
 

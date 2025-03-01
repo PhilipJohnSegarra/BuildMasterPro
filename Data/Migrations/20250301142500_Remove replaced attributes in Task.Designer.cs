@@ -4,6 +4,7 @@ using BuildMasterPro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuildMasterPro.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250301142500_Remove replaced attributes in Task")]
+    partial class RemovereplacedattributesinTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -457,7 +460,7 @@ namespace BuildMasterPro.Migrations
             modelBuilder.Entity("BuildMasterPro.Data.ProjectUser", b =>
                 {
                     b.HasOne("BuildMasterPro.Data.Project", "Project")
-                        .WithMany("ProjectUsers")
+                        .WithMany()
                         .HasForeignKey("ProjectId");
 
                     b.HasOne("BuildMasterPro.Data.ApplicationUser", "User")
@@ -518,11 +521,6 @@ namespace BuildMasterPro.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
-                {
-                    b.Navigation("ProjectUsers");
                 });
 #pragma warning restore 612, 618
         }

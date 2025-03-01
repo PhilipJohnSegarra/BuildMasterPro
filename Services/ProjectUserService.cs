@@ -6,9 +6,10 @@ namespace BuildMasterPro.Services
 {
     public class ProjectUserService : RepositoryBased<ProjectUser>
     {
+        IDbContextFactory<ApplicationDbContext> _db;
         public ProjectUserService(IDbContextFactory<ApplicationDbContext> dbContext) : base(dbContext) 
         { 
-
+            _db = dbContext;
         }
         public async Task<List<ProjectUser>> GetAll()
         {
@@ -26,6 +27,13 @@ namespace BuildMasterPro.Services
         {
             var result = await AddAsync(projectUser);
             return result;
+        }
+
+        public async Task AddMany(List<ProjectUser> projectUsers)
+        {
+            using var _context = _db.CreateDbContext();
+            _context.ProjectUsers.AddRange(projectUsers);
+            await _context.SaveChangesAsync();
         }
 
         public async Task Update(ProjectUser oldEntity, ProjectUser newEntity)

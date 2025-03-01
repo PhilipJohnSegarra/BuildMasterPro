@@ -52,13 +52,14 @@
     {
         var projectUsers = await puService.GetAll();
         var users = await Userservice.GetAll();
+        ProjectUsers = projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId).ToList();
 
         foreach(var item in projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId))
         {
             Users.Add(users.SingleOrDefault(i => i.Id.Equals(item.UserId)));
         }
 
-        var assignedUserIds = projectUsers.Select(pu => pu.UserId).ToHashSet(); // Use HashSet for faster lookups
+        var assignedUserIds = ProjectUsers.Select(pu => pu.UserId).ToHashSet(); // Use HashSet for faster lookups
 
         UnAssigned = users.Where(user => !assignedUserIds.Contains(user.Id)).ToList();
 
