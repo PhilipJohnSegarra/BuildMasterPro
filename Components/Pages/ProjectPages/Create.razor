@@ -5,6 +5,8 @@
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectUserService ProjUserService
+@inject BuildMasterPro.Services.UserService UserService
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -25,7 +27,7 @@
                         </MudItem>
                         <MudItem lg="12">
                             <MudPaper Elevation="0" Class="mud-width-full d-flex flex-column align-center justify-center">
-                                <EditForm method="post" Model="Project" OnValidSubmit="AddProject" FormName="create" Enhance style="width:100%;max-width:800px;">
+                                <EditForm method="post" Model="_projectViewModel" OnValidSubmit="AddProject" FormName="create" Enhance style="width:100%;max-width:800px;">
                                     <MudGrid Class="mud-width-full">
                                         <MudItem lg="12">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
@@ -36,32 +38,32 @@
                                         <MudItem lg="12">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
                                                 <label>Project Name:</label>
-                                                <MudTextField ShrinkLabel @bind-Value="Project.ProjectName" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                                                <MudTextField ShrinkLabel @bind-Value="_projectViewModel.Project.ProjectName" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
                                                 <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem lg="12">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
                                                 <label>Description:</label>
-                                                <MudTextField ShrinkLabel @bind-Value="Project.Description" Variant="Variant.Outlined" Class="mud-width-full" Lines="3"></MudTextField>
+                                                <MudTextField ShrinkLabel @bind-Value="_projectViewModel.Project.Description" Variant="Variant.Outlined" Class="mud-width-full" Lines="3"></MudTextField>
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem lg="4" md="4">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
                                                 <label>Start Date:</label>
-                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Startdate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="_projectViewModel.Project.Startdate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem lg="4" md="4">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
                                                 <label>End Date:</label>
-                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Enddate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="_projectViewModel.Project.Enddate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem lg="4" md="4" Style="width:100%;margin:0 0 0 auto;">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full" Style="width:100%;margin:0 0 0 auto;">
                                                 <label>Status:</label>
-                                                <MudSelect @bind-Value="Project.Status"
+                                                <MudSelect @bind-Value="_projectViewModel.Project.Status"
                                                            Variant="Variant.Outlined" Label=" "
                                                            style="width:200%;">
                                                     @foreach (var state in StatusArray)
@@ -70,6 +72,17 @@
                                                     }
                                                 </MudSelect>
                                             </MudPaper>
+                                        </MudItem>
+                                        <MudItem lg="12" md="4" Style="width:100%;margin:0 0 0 auto;">
+                                            <MudSelect T="string" MultiSelection="true"
+                                                       Label="Assign Members(Optional)"
+                                                       SelectedValues="@_projectViewModel.SelectedUserIds"
+                                                       SelectedValuesChanged="@(e => _projectViewModel.SelectedUserIds = e.ToList())">
+                                                @foreach (var user in Users)
+                                                {
+                                                    <MudSelectItem T="string" Value="@user.Id">@user.Email</MudSelectItem>
+                                                }
+                                            </MudSelect>
                                         </MudItem>
                                         <MudItem lg="12" md="12">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
@@ -126,16 +139,52 @@
     [SupplyParameterFromForm]
     private Project Project { get; set; } = new();
 
+    private ProjectViewModel _projectViewModel { get; set; } = new();
+
     string exception = "";
     string statusValue = "";
     string[] StatusArray = new string[] {"Not Started", "Ongoing", "Finished"};
+
+    List<ApplicationUser> Users = new();
+    List<string> SelectedUsersID = new();
+    List<ProjectUser> selectedUsers = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Users = await UserService.GetAll();
+    }
+
+    //PROPS AND METHODS FOR SELECT USER 
+    private string value { get; set; }
+    private IEnumerable<string> options { get; set; } = new HashSet<string>() { "Lion" };
+
+    private string[] felines =
+    {
+        "Jaguar", "Leopard", "Lion", "Lynx", "Panther", "Puma", "Tiger"
+    };
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        return $"{selectedValues.Count} users{(selectedValues.Count > 1 ? "s have" : " has")} been selected";
+    }
 
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddProject()
     {
         try
         {
-            await ProjectService.CreateProjectAsync(Project);
+            var savedProject = await ProjectService.CreateProjectAsync(_projectViewModel.Project!);
+            foreach(var id in _projectViewModel.SelectedUserIds!)
+            {
+                var projectUser = new ProjectUser
+                {
+                    ProjectId = savedProject.ProjectId,
+                    UserId = id
+                };
+
+                selectedUsers.Add(projectUser);
+            }
+            await ProjUserService.AddMany(selectedUsers);
             // 
         }
         catch (Exception e)
@@ -144,5 +193,11 @@
         }
 
         await InvokeAsync(() => NavigationManager.NavigateTo("/", forceLoad: true));
+    }
+
+    public class ProjectViewModel
+    {
+        public Project? Project { get; set; } = new();
+        public List<string>? SelectedUserIds { get; set; } = new(); // Store selected user IDs
     }
 }

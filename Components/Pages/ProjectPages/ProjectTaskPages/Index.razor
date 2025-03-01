@@ -15,9 +15,15 @@
 
 <h1>Tasks</h1>
 
-<p>
+@* <p>
     <a href="projecttasks/create">Create New</a>
-</p>
+</p> *@
+<MudButton OnClick="@(()=>{_taskAdderOpen = !_taskAdderOpen;})">@(_taskAdderOpen == true? "Close" : "Add task")</MudButton>
+
+@if (_taskAdderOpen)
+{
+    <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.Create />
+}
 
 @* <QuickGrid Class="table" Items="Tasks.AsQueryable()">
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
@@ -83,6 +89,8 @@
     public Project Project { get; set; } = new();
 
     public List<ProjectTask> Tasks { get; set; } = new();
+
+    bool _taskAdderOpen = false;
 
     protected override async Task OnInitializedAsync()
     {

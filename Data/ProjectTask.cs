@@ -14,12 +14,6 @@ namespace BuildMasterPro.Data
         public string TaskName { get; set; } = string.Empty;
         [Required]
         public string TaskDescription { get; set; } = string.Empty;
-        [DataType(DataType.DateTime)]
-        [AllowNull]
-        public DateTime? StartDate { get; set; }
-        [DataType(DataType.DateTime)]
-        [AllowNull]
-        public DateTime? DueDate { get; set; }
 
         //PROPERTIES 12/01/2025
         [DataType(DataType.DateTime)]
