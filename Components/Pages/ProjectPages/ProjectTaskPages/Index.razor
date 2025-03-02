@@ -13,12 +13,41 @@
 
 <PageTitle>Tasks</PageTitle>
 
-<h1>Tasks</h1>
-
 @* <p>
     <a href="projecttasks/create">Create New</a>
 </p> *@
-<MudButton OnClick="@(()=>{_taskAdderOpen = !_taskAdderOpen;})">@(_taskAdderOpen == true? "Close" : "Add task")</MudButton>
+<MudPaper Elevation="25">
+    <MudToolBar Dense="true">
+        <MudText Class="pe-5" style="font-size:14px;">Tasks</MudText>
+        <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ps-3 pe-3"
+                   OnClick="@(()=>{_taskAdderOpen = !_taskAdderOpen;})">
+            New Task
+        </MudButton>
+        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+        <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ps-3 pe-3">
+            Edit
+        </MudButton>
+        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+        <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ps-3 pe-3"
+                   OnClick="@(()=>{_multiSelection = !_multiSelection;})">
+            Select
+        </MudButton>
+        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+        <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ps-3 pe-3"
+                    Disabled="true">
+            Save
+        </MudButton>
+        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+        <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ps-3 pe-3"
+                   Disabled="@(_taskAdderOpen ? false : true)" OnClick="@(()=>{_taskAdderOpen = !_taskAdderOpen;})">
+            Cancel
+        </MudButton>
+        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+        <MudButton StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3">
+            Categories
+        </MudButton>
+    </MudToolBar>
+</MudPaper>
 
 @if (_taskAdderOpen)
 {
@@ -42,7 +71,7 @@
 </QuickGrid> *@
 
 <MudTable Items="Tasks" Hover="true"
-    MultiSelection="false"
+    MultiSelection="_multiSelection"
     Virtualize="false"
     Dense="false"
     GroupBy="_groupDefinition">
@@ -91,6 +120,7 @@
     public List<ProjectTask> Tasks { get; set; } = new();
 
     bool _taskAdderOpen = false;
+    bool _multiSelection = false;
 
     protected override async Task OnInitializedAsync()
     {
