@@ -7,9 +7,11 @@ namespace BuildMasterPro.Services
     public class ProjectUserService : RepositoryBased<ProjectUser>
     {
         IDbContextFactory<ApplicationDbContext> _db;
-        public ProjectUserService(IDbContextFactory<ApplicationDbContext> dbContext) : base(dbContext) 
+        ProjectService _projectService;
+        public ProjectUserService(IDbContextFactory<ApplicationDbContext> dbContext, ProjectService projectService) : base(dbContext) 
         { 
             _db = dbContext;
+            _projectService = projectService;
         }
         public async Task<List<ProjectUser>> GetAll()
         {
@@ -20,6 +22,14 @@ namespace BuildMasterPro.Services
         public async Task<ProjectUser> Get(int id)
         {
             var result = await GetAsync(o => o.ProjectUserId == id);
+            return result;
+        }
+
+        public async Task<List<ProjectUser>> GetAllByCurrentProject()
+        {
+            using var _context = _db.CreateDbContext();
+            var result = await _context.ProjectUsers.Where(o => o.ProjectId.Equals(_projectService.CurrentProject.ProjectId))
+                         .Include(o => o.User).ToListAsync();
             return result;
         }
 
