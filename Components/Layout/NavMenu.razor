@@ -363,7 +363,7 @@
     public async Task SetCurrentProject(Project project)
     {
 
-        Project = await ProjectService.SetCurrentProjectAsync(project);
+        await ProjectService.SetCurrentProjectAsync(project);
         NavigationManager.NavigateTo($"projects/details?projectid={project.ProjectId}", forceLoad: true);
         NavActive("Dashboard");
 

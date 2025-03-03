@@ -7,6 +7,7 @@
 @inject BuildMasterPro.Services.ProjectUserService ProjUserService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
 @inject BuildMasterPro.Services.TaskUserService TaskUserService
+@inject NavigationManager NavManager
 @inject MudBlazor.IDialogService DialogService
 
 <MudPopoverProvider />
@@ -95,10 +96,14 @@
 </QuickGrid> *@
 
 <MudTable Items="Tasks" Hover="true"
+    T="ProjectTask"
     MultiSelection="_multiSelection"
     Virtualize="false"
     Dense="_dense"
-    GroupBy="_groupDefinition">
+    GroupBy="_groupDefinition"
+    OnRowClick="GoToTask"
+    >
+
     <HeaderContent>
         <MudTh>Task</MudTh>
         <MudTh>Category</MudTh>
@@ -166,6 +171,19 @@
     bool _taskAdderOpen = false;
     bool _multiSelection = false;
     bool _dense = false;
+    private List<string> editEvents = new();
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = false;
+    private bool blockSwitch = false;
+    private string searchString = "";
+    private ProjectTask selectedItem1 = null;
+    private ProjectTask elementBeforeEdit;
+    private HashSet<ProjectTask> selectedItems1 = new HashSet<ProjectTask>();
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.RowClick;
+    private IEnumerable<ProjectTask> Elements = new List<ProjectTask>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -197,6 +215,11 @@
         if (result != null) newTasks = new();
         await InitializeProps();
         StateHasChanged();
+    }
+    async Task GoToTask(TableRowClickEventArgs<ProjectTask> eventArgs)
+    {
+        var task = eventArgs.Item;
+        NavManager.NavigateTo($"projecttasks/details?taskid={task.TaskId}");
     }
 
 }

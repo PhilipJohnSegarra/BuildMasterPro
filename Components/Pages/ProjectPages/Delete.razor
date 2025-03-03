@@ -6,7 +6,7 @@
 @inject NavigationManager NavigationManager
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
-@inject ApplicationDbContext db
+@inject IDbContextFactory<ApplicationDbContext> context
 
 <PageTitle>Delete</PageTitle>
 
@@ -63,6 +63,7 @@
         // project = await ProjectService.GetProjectAsync(projectid);
         // await ProjectService.SetCurrentProjectAsync(project);
         // Tasks = await TaskService.GetCurrentProjtasksAsync();
+        using var db = context.CreateDbContext();
         project = await db.Project.FirstOrDefaultAsync(i => i.ProjectId == projectid);
         Tasks = await db.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
 
