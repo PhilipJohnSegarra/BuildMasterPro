@@ -29,7 +29,7 @@ namespace BuildMasterPro.Data
         [AllowNull]
         public string? GroupName { get; set; }
         [AllowNull]
-        public int? CategoryId { get; set; }
+        public int? CategoryId { get; set; } = 5;
         //PROPERTIES 12/01/2025 END
 
         [AllowNull]
@@ -41,5 +41,7 @@ namespace BuildMasterPro.Data
         public Project Project { get; set; } = default!;
         [ForeignKey(nameof(CategoryId))]
         public TaskCategory TaskCategory { get; set; } = default!;
+
+        public ICollection<TaskUser>? TaskUsers { get; set; }
     }
 }

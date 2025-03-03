@@ -62,6 +62,7 @@ builder.Services.AddSingleton<MongoService>();
 builder.Services.AddSingleton<MessageService>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<ProjectUserService>();
+builder.Services.AddSingleton<TaskUserService>();
 
 var app = builder.Build();
 

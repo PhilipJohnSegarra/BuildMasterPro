@@ -12,10 +12,10 @@ namespace BuildMasterPro.Data
         public string UserId { get; set; }
 
         [Required]
-        int TaskId { get; set; }
+        public int TaskId { get; set; }
 
         [DataType(DataType.DateTime)]
-        DateTime? DateCreated { get; set; } = DateTime.Now;
+        public DateTime? DateCreated { get; set; } = DateTime.Now;
 
         [ForeignKey(nameof(UserId))]
         public ApplicationUser? User { get; set; }
