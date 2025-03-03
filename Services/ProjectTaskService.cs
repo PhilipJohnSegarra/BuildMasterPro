@@ -8,7 +8,6 @@ namespace BuildMasterPro.Services
     {
         ProjectService _projectService;
         private readonly IDbContextFactory<ApplicationDbContext> _context;
-        public Project? CurrentProject { get; set; }
         public List<ProjectTask>? AllProjectTasks { get; set; }
         public List<ProjectTask>? CurrentProjectTasks { get; set; }
         public ProjectTask? CurrentProjectTask { get; set; }
@@ -17,7 +16,6 @@ namespace BuildMasterPro.Services
         {
             _projectService = projectService;
             _context = Context;
-            this.CurrentProject = _projectService.CurrentProject;
         }
 
         public async Task<ProjectTask> GetTaskAsync(int id)
@@ -41,7 +39,8 @@ namespace BuildMasterPro.Services
         public async Task<List<ProjectTask>> GetCurrentProjtasksAsync()
         {
             using var context = _context.CreateDbContext();
-            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == _projectService.CurrentProject!.ProjectId)
+            var currProj = await _projectService.GetCurrentProjectAsync();
+            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == currProj.ProjectId)
                 .Include(p => p.TaskCategory)
                 .Include(p => p.TaskUsers)
                 .OrderBy(p => p.TaskCategory.Id)

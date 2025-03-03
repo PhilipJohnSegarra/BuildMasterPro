@@ -13,6 +13,7 @@ using BuildMasterPro.Components.Layout;
 using BuildMasterPro.Services;
 using Blazored.LocalStorage;
 using MongoDB.Driver;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,13 +57,14 @@ builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 //builder.Services.AddScoped<UserService>();
 //builder.Services.AddScoped<RoleService>();
-builder.Services.AddSingleton<ProjectService>();
-builder.Services.AddSingleton<ProjectTaskService>();
+builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<ProjectTaskService>();
 builder.Services.AddSingleton<MongoService>();
-builder.Services.AddSingleton<MessageService>();
-builder.Services.AddSingleton<UserService>();
-builder.Services.AddSingleton<ProjectUserService>();
-builder.Services.AddSingleton<TaskUserService>();
+builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ProjectUserService>();
+builder.Services.AddScoped<TaskUserService>();
+builder.Services.AddScoped<ProtectedSessionStorage>();
 
 var app = builder.Build();
 

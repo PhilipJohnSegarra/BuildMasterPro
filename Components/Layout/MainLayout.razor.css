@@ -16,6 +16,7 @@
 
 .mainlayout-maincontent {
     width:100%;
+    height:100%;
     overflow-y: auto;
     padding: 1rem 2rem 1rem 1rem;
 }

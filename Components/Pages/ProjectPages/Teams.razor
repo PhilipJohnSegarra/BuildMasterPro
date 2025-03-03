@@ -52,7 +52,8 @@
     {
         var projectUsers = await puService.GetAll();
         var users = await Userservice.GetAll();
-        ProjectUsers = projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId).ToList();
+        var currentProj = await projService.GetCurrentProjectAsync();
+        ProjectUsers = projectUsers.Where(i => i.ProjectId == currentProj.ProjectId).ToList();
 
         foreach(var item in projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId))
         {

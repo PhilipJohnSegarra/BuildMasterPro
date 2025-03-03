@@ -7,9 +7,10 @@ namespace BuildMasterPro.Services
 {
     public class UserService : RepositoryBased<ApplicationUser>
     {
-
+        IDbContextFactory<ApplicationDbContext> _db;
         public UserService(IDbContextFactory<ApplicationDbContext> db) : base(db)
         {
+            _db = db;
         }
 
         public async Task<List<ApplicationUser>> GetAll()
@@ -34,5 +35,6 @@ namespace BuildMasterPro.Services
         {
             await UpdateAsync(oldEntity, newEntity);
         }
+
     }
 }

@@ -13,8 +13,8 @@
 
     public Project? Project { get; set; } = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Project = ProjectService.CurrentProject;
+        Project = await ProjectService.GetCurrentProjectAsync();
     }
 }

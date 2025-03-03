@@ -28,7 +28,8 @@ namespace BuildMasterPro.Services
         public async Task<List<ProjectUser>> GetAllByCurrentProject()
         {
             using var _context = _db.CreateDbContext();
-            var result = await _context.ProjectUsers.Where(o => o.ProjectId.Equals(_projectService.CurrentProject.ProjectId))
+            var currProj = await _projectService.GetCurrentProjectAsync();
+            var result = await _context.ProjectUsers.Where(o => o.ProjectId.Equals(currProj.ProjectId))
                          .Include(o => o.User).ToListAsync();
             return result;
         }

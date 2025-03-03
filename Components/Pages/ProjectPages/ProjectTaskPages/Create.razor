@@ -155,7 +155,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Project = ProjectService.CurrentProject;
+        Project = await ProjectService.GetCurrentProjectAsync();
         ProjectTask.ProjectId = Project.ProjectId;
         await TaskService.CreateProjectTaskAsync(ProjectTask);
 

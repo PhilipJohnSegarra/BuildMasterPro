@@ -7,6 +7,7 @@
 @using BuildMasterPro.Services
 @inject NavigationManager NavManager
 @inject ProjectService ProjectService
+@inject ProtectedSessionStorage ProtectedSessionStore
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 
@@ -195,10 +196,10 @@
         await ProjectService.SetCurrentProjectAsync(proj);
         NavManager.NavigateTo($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}");
     }
-    private void RowMouseEnterEvent(TableRowHoverEventArgs<Project> eventArgs)
+    private async Task RowMouseEnterEvent(TableRowHoverEventArgs<Project> eventArgs)
     {
         var proj = eventArgs.Item;
-        ProjectService.SetCurrentProjectAsync(proj);
+        await ProjectService.SetCurrentProjectAsync(proj);
         NavManager.NavigateTo($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}");
     }
     public void Dispose()
