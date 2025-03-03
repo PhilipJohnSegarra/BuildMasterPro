@@ -1,0 +1,120 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Data
+@rendermode InteractiveServer
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
+@inject BuildMasterPro.Services.ProjectUserService ProjUserService
+
+            <EditForm method="post" Model="ProjectTask" FormName="create" Enhance style="width:100%;padding:0;">
+                <MudGrid Class="p-0 m-0 bg-danger" Style="width:100%;padding: 0 0 0 0;">
+                    <MudItem lg="12">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="text-danger" role="alert" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem lg="12" Style="display:none;">
+                            @* <label>Project ID:</label> *@
+                            <MudTextField ShrinkLabel Label="Project ID" @bind-Value="ProjectTask.ProjectId" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
+                    </MudItem>
+
+                    <MudItem lg="1">
+                            <MudTextField ShrinkLabel Label="Task Name" @bind-Value="ProjectTask.TaskName" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
+                    </MudItem>
+
+                    <MudItem lg="2">
+                            @* <label>Project Name:</label> *@
+                            <MudTextField ShrinkLabel Label="Description" @bind-Value="ProjectTask.TaskDescription" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
+                    </MudItem>
+
+                    <MudItem lg="2">
+                            @* <label>Project Name:</label> *@
+                            <MudDatePicker Label="Planned Start Date:" Editable="true" @bind-Value="ProjectTask.PlannedStartDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
+                    </MudItem>
+
+                    <MudItem lg="2">
+                            @* <label>Project Name:</label> *@
+                            <MudDatePicker Label="Planned End Date:" Editable="true" @bind-Value="ProjectTask.PlannedEndDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
+                    </MudItem>
+
+                    <MudItem lg="1" md="12" Style="width:100%;margin:0 0 0 auto;">
+                            @*  <label>Priority Status:</label> *@
+                            <MudSelect @bind-Value="ProjectTask.Priority"
+                                       Variant="Variant.Outlined" Label="Priority">
+                                @foreach (var state in PriorityArray)
+                                {
+                                    <MudSelectItem Value="state" Class="mud-width-full">@state</MudSelectItem>
+                                }
+                            </MudSelect>
+                    </MudItem>
+
+                    <MudItem lg="2" md="12" Style="width:100%;margin:0 0 0 auto;">
+                            @*  <label>Priority Status:</label> *@
+                            <MudSelect T="int?" @bind-Value="ProjectTask.CategoryId"
+                                       Variant="Variant.Outlined" Label="Category"
+                                       >
+                                @foreach (var cat in Categories)
+                                {
+                                    <MudSelectItem T="int?" Value="cat.Id" Class="mud-width-full">@cat.CategoryName</MudSelectItem>
+                                }
+                            </MudSelect>
+                    </MudItem>
+
+                    <MudItem lg="2" md="12" Style="width:100%;margin:0 0 0 0;">
+                            <MudSelect T="ProjectUser" MultiSelection="true"
+                                       Variant="Variant.Outlined"
+                                       Label="@(SelectedProjectUsers.Count > 0 ? $"{SelectedProjectUsers.Count} user(s) selected" : "Assign To (Optional)")"
+                                       SelectedValues="@SelectedProjectUsers"
+                                       SelectedValuesChanged="OnUsersChanged">
+                                @foreach (var user in projectUsers)
+                                {
+                                    <MudSelectItem T="ProjectUser" Class="mud-width-full" Value="@user">
+                                        @user.User.Email
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                    </MudItem>
+                </MudGrid>
+            </EditForm>
+
+@code {
+    [Parameter]
+    public ProjectTask ProjectTask { get; set; } = new();
+    public Project Project { get; set; } = new();
+    List<TaskCategory> Categories { get; set; } = new();
+    List<ProjectUser> projectUsers { get; set; } = new();
+    List<TaskUser> taskUsers { get; set; } = new();
+    string[] PriorityArray = new string[] { "Urgent", "Not Priority" };
+    private List<ProjectUser> SelectedProjectUsers { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Project = ProjectService.CurrentProject;
+        ProjectTask.ProjectId = Project.ProjectId;
+        await TaskService.CreateProjectTaskAsync(ProjectTask);
+        using var db = DbFactory.CreateDbContext();
+        Categories = await db.TaskCategories.ToListAsync();
+        projectUsers = await ProjUserService.GetAllByCurrentProject();
+    }
+
+    private void OnUsersChanged(IEnumerable<ProjectUser> selectedUsers)
+    {
+        SelectedProjectUsers = selectedUsers.ToList();
+
+        // Convert selected ProjectUsers to TaskUsers and update ProjectTask.TaskUsers
+        ProjectTask.TaskUsers = SelectedProjectUsers
+            .Select(pu => new TaskUser
+                {
+                    TaskId = ProjectTask.TaskId,
+                    UserId = pu.UserId
+                })
+            .ToList();
+    }
+}

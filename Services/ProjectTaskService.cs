@@ -43,6 +43,7 @@ namespace BuildMasterPro.Services
             using var context = _context.CreateDbContext();
             this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == _projectService.CurrentProject!.ProjectId)
                 .Include(p => p.TaskCategory)
+                .Include(p => p.TaskUsers)
                 .OrderBy(p => p.TaskCategory.Id)
                 .ToListAsync();
             return this.CurrentProjectTasks;
@@ -53,6 +54,13 @@ namespace BuildMasterPro.Services
             using var context = _context.CreateDbContext();
             await context.ProjectTask.AddAsync(task);
             return task;
+        }
+
+        public async Task<List<ProjectTask>> AddMany(List<ProjectTask> newTasks)
+        {
+            using var context = _context.CreateDbContext();
+            await context.ProjectTask.AddRangeAsync(newTasks);
+            return newTasks;
         }
 
         public async Task<ProjectTask> UpdateProjectTaskAsync(int id, ProjectTask projecttask)
