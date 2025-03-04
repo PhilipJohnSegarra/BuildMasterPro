@@ -4,6 +4,7 @@ using BuildMasterPro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuildMasterPro.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250304144032_ClientID foreignkey in Proj")]
+    partial class ClientIDforeignkeyinProj
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -541,7 +544,7 @@ namespace BuildMasterPro.Migrations
             modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
                 {
                     b.HasOne("BuildMasterPro.Data.Client", "Client")
-                        .WithMany("Projects")
+                        .WithMany()
                         .HasForeignKey("ClientId");
 
                     b.Navigation("Client");
@@ -647,11 +650,6 @@ namespace BuildMasterPro.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BuildMasterPro.Data.Client", b =>
-                {
-                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.Project", b =>

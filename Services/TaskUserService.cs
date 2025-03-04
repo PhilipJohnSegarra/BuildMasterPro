@@ -30,5 +30,20 @@ namespace BuildMasterPro.Services
             _context.TaskUsers.AddRange(taskUsers);
             await _context.SaveChangesAsync();
         }
+
+        public async Task RemoveMany(List<TaskUser> taskUsers)
+        {
+            using var _context = _db.CreateDbContext();
+            _context.TaskUsers.RemoveRange(taskUsers);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<TaskUser>> GetByTask(ProjectTask task)
+        {
+            using var _context = _db.CreateDbContext();
+            var result = await _context.TaskUsers.Where(i => i.TaskId == task.TaskId)
+                .Include(i => i.User).ToListAsync();
+            return result;
+        }
     }
 }
