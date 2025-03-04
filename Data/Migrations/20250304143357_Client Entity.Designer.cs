@@ -4,6 +4,7 @@ using BuildMasterPro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuildMasterPro.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250304143357_Client Entity")]
+    partial class ClientEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -217,9 +220,6 @@ namespace BuildMasterPro.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ClientId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -239,8 +239,6 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ProjectId");
-
-                    b.HasIndex("ClientId");
 
                     b.ToTable("Project");
                 });
@@ -538,15 +536,6 @@ namespace BuildMasterPro.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
-                {
-                    b.HasOne("BuildMasterPro.Data.Client", "Client")
-                        .WithMany("Projects")
-                        .HasForeignKey("ClientId");
-
-                    b.Navigation("Client");
-                });
-
             modelBuilder.Entity("BuildMasterPro.Data.ProjectTask", b =>
                 {
                     b.HasOne("BuildMasterPro.Data.TaskCategory", "TaskCategory")
@@ -647,11 +636,6 @@ namespace BuildMasterPro.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BuildMasterPro.Data.Client", b =>
-                {
-                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.Project", b =>

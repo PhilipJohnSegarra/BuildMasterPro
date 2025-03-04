@@ -62,19 +62,17 @@ namespace BuildMasterPro.Services
             return newTasks;
         }
 
-        public async Task<ProjectTask> UpdateProjectTaskAsync(int id, ProjectTask projecttask)
+        public async Task<ProjectTask> UpdateProjectTaskAsync(ProjectTask projecttask)
         {
             using var context = _context.CreateDbContext();
-            var task = await context.ProjectTask.FindAsync(id);
-            if (task == null) return null;
-            task.TaskName = projecttask.TaskName;
-            task.TaskDescription = projecttask.TaskDescription;
-            task.Status = projecttask.Status;
-            task.Priority = projecttask.Priority;
 
-            context.ProjectTask.Update(task);
+            var existingTask = await context.ProjectTask.FindAsync(projecttask.TaskId);
+            if (existingTask == null) throw new Exception("Project Task not found");
+
+            context.Entry(existingTask).CurrentValues.SetValues(projecttask);
             await context.SaveChangesAsync();
-            return task;
+
+            return existingTask;
 
         }
         public async Task<bool> DeleteProjectTaskAsync(int id)

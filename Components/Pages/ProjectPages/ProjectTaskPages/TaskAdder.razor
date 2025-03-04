@@ -34,13 +34,13 @@
 
                     <MudItem lg="2">
                             @* <label>Project Name:</label> *@
-                            <MudDatePicker Label="Planned Start Date:" Editable="true" @bind-Value="ProjectTask.PlannedStartDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Text" Class="mud-width-full" />
+                            <MudDatePicker Label="Planned Start Date:" Editable="true" @bind-Value="ProjectTask.PlannedStartDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@ProjectTask.PlannedStartDate.ToString()" Variant="Variant.Text" Class="mud-width-full" />
                             @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
                     </MudItem>
 
                     <MudItem lg="2">
                             @* <label>Project Name:</label> *@
-                            <MudDatePicker Label="Planned End Date:" Editable="true" @bind-Value="ProjectTask.PlannedEndDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Text" Class="mud-width-full" />
+                            <MudDatePicker Label="Planned End Date:" Editable="true" @bind-Value="ProjectTask.PlannedEndDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@ProjectTask.PlannedStartDate.ToString()" Variant="Variant.Text" Class="mud-width-full" />
                             @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
                     </MudItem>
 
@@ -96,7 +96,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Project = ProjectService.CurrentProject;
+        Project = await ProjectService.GetCurrentProjectAsync();
         ProjectTask.ProjectId = Project.ProjectId;
         await TaskService.CreateProjectTaskAsync(ProjectTask);
         using var db = DbFactory.CreateDbContext();
