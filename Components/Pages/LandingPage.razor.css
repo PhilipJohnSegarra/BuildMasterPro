@@ -1,0 +1,70 @@
+﻿﻿.content-container {
+    padding: 0;
+    margin: 0;
+}
+
+.hero-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo {
+    height: 90px;
+    width: auto;
+    margin-bottom: 1rem;
+}
+
+.headers-content {
+    text-align: center;
+    font-size: 2rem;
+}
+
+.sub-container {
+    margin: 2rem 0 1rem 0;
+    align-items: center;
+    width: 75%;
+}
+
+.sub-tagline {
+    text-align: center;
+}
+
+.button-container {
+    display: flex;
+    gap: 30px;
+}
+
+.about-button, .features-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.about-button {
+    border: solid;
+    border-color: #5A3E9F;
+    color: #5A3E9F;
+    height: 44px;
+    width: 110px;
+}
+
+    .about-button:hover {
+        border-color: #9068F2;
+        color: #9068F2;
+    }
+
+.features-button {
+    background-color: #5A3E9F;
+    color: white;
+}
+
+    .features-button:hover {
+        background: radial-gradient(circle, #9068F2, #5A3E9F);
+    }
+
+

@@ -1,0 +1,41 @@
+﻿@rendermode InteractiveServer
+
+<!--NavBar-->
+<div class="navbar-container" style="@style">
+    <div class="logolink" style="">
+        <a href=""><img id="logo" class="logo" src="/images/BlocksLogo.svg" /></a>
+        <a class="logoname" href=""><h4 class="">BuildMaster <span style="color: #5A3E9F">Pro</span></h4></a>
+        <button class="nav-button" type="button" @onclick="showNav">
+            <img src="/icons/menu_icon.png" class="menu-button" alt="Alternate Text"/>
+        </button>
+    </div>
+    <div class="@navCTAClass navbar-links">
+        <a href="Account/Register" target="_parent">Signup</a>
+        <a href="Account/Login" target="_parent">Login</a>
+    </div>
+</div>
+
+@code{
+    //Customize Navbar style
+    [Parameter]
+    public string style {get; set;} = "";
+
+    //Navbar style extension
+    string navbarStyleExt { get; set; } = "";
+
+    //DISPLAY HIDDEN BUTTONS ON CLICK
+    string navCTAClass { get; set; } = "navbar-cta";
+    bool isInvisible = true;
+    private void showNav(){
+        if (isInvisible)
+        {
+            navCTAClass = "navbar-cta-visible";
+            isInvisible = false;
+        }
+        else
+        {
+            navCTAClass = "navbar-cta";
+            isInvisible = true;
+        }
+    }
+}

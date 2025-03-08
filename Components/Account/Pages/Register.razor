@@ -1,5 +1,7 @@
 ﻿@page "/Account/Register"
 
+@inherits LayoutComponentBase
+
 @using System.ComponentModel.DataAnnotations
 @using System.Text
 @using System.Text.Encodings.Web
@@ -15,43 +17,81 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
+
 <PageTitle>Register</PageTitle>
 
-<h1>Register</h1>
+<div class="signup-container">
+    
+    <!-- External Navigation Bar -->
+    <div class="navbar-container">
+        <BuildMasterPro.Components.Layout.ExternalNavBar />
+    </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <StatusMessage Message="@Message" />
-        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-            <DataAnnotationsValidator />
-            <h2>Create a new account.</h2>
-            <hr />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label for="email">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="password">Password</label>
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
-            </div>
-            <div class="form-floating mb-3">
-                <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label for="confirm-password">Confirm Password</label>
-                <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </EditForm>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div>
+    <!--Error Message Display-->
+    @* <StatusMessage Message="@errorMessage"/> *@
+    @* <hr/> *@
+
+    <main>
+        <!--SignUp Form-->
+        <div class="signup-box">
+
+            <section>
+                <h2 class="text-center" style="color: #5A3E9F; font-size: 35px; text-align: center;">Welcome Back</h2>
+                <p class="text-center mb-6 pt-1" style="font-size: 12px; text-align: center;">Login to proceed and access your construction project management tools, tasks, and more.</p>
+
+                <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" role="alert" />
+
+                    <!--Email Field-->
+                    <div class="form-floating mb-3">
+                        @* <label for="email">Email</label> *@
+                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                        <ValidationMessage For="() => Input.Email" class="text-danger" style="font-size: 12px; color: #DC0000;" />
+                    </div>
+
+                    <!--Password Field-->
+                    <div class="form-floating mb-3">
+                        @* <label for="password">Password</label> *@
+                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <ValidationMessage For="() => Input.Password" class="text-danger" style="font-size: 12px; color: #DC0000;" />
+                    </div>
+
+                    <!--ConfirmPassword Field-->
+                    <div class="form-floating mb-3">
+                        @* <label for="confirm-password">Confirm Password</label> *@
+                        <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" style="font-size: 12px; color: #DC0000;" />
+                    </div>
+
+                    <button type="submit" class="button" style="font-weight: bold;">Register</button>
+
+                    <!--Already Have an Account-->
+                    <div>
+                        <p style="font-size: 12px; font-weight: 500; text-align: center;">
+                            Already have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" style="color: #9068F2;">Login</a>
+                        </p>
+                    </div>
+
+                </EditForm>
+            </section>
+
+        </div>
+
+    </main>
+
+    @* <div class="col-md-6 col-md-offset-2"> *@
+    @*     <section> *@
+    @*         <h3>Use another service to register.</h3> *@
+    @*         <hr /> *@
+    @*         <ExternalLoginPicker /> *@
+    @*     </section> *@
+    @* </div> *@
+
 </div>
 
 @code {

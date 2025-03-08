@@ -1,5 +1,7 @@
 ﻿@page "/Account/Login"
 
+@inherits LayoutComponentBase
+
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
@@ -10,58 +12,107 @@
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
+
 <PageTitle>Log in</PageTitle>
 
-<h1>Log in</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <StatusMessage Message="@errorMessage" />
-            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-                <DataAnnotationsValidator />
-                <h2>Use a local account to log in.</h2>
-                <hr />
-                <ValidationSummary class="text-danger" role="alert" />
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label for="email" class="form-label">Email</label>
-                    <ValidationMessage For="() => Input.Email" class="text-danger" />
-                </div>
-                <div class="form-floating mb-3">
-                    <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label for="password" class="form-label">Password</label>
-                    <ValidationMessage For="() => Input.Password" class="text-danger" />
-                </div>
-                <div class="checkbox mb-3">
-                    <label class="form-label">
-                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-                        Remember me
-                    </label>
-                </div>
-                <div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
-                    <p>
-                        <a href="Account/ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a href="Account/ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
-                </div>
-            </EditForm>
-        </section>
+<div class="login-container">
+
+    <!-- External Navigation Bar -->
+    <div class="navbar-container">
+        <BuildMasterPro.Components.Layout.ExternalNavBar/>
     </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div>
+
+    <!--Error Message Display-->
+    @* <StatusMessage Message="@errorMessage"/> *@
+    @* <hr/> *@
+
+    <main>
+        <!--Login Form-->
+        <div class="login-box">
+
+            <section>
+                <h2 class="text-center" style="color: #5A3E9F; font-size: 35px; text-align: center;">Welcome Back</h2>
+                <p class="text-center mb-6 pt-1" style="font-size: 12px; text-align: center;">Login to proceed and access your construction project management tools, tasks, and more.</p>
+
+                <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" role="alert" />
+
+                    <!--Email Field-->
+                    <div class="form-group">
+                        @* <label for="email" class="form-label">Email:</label> *@
+                        <MudTextField ShrinkLabel Label="Email" @bind-Value="Input.Email" Variant="Variant.Outlined" Margin=Margin.Dense
+                                 autocomplete="username" aria-required="true" For="(() => Input.Email)"></MudTextField>
+                        @* <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Email"/> *@
+                        <ValidationMessage For="() => Input.Email" class="text-danger" style="font-size: 12px; color: #DC0000;" />
+                    </div>
+
+
+                    <!--Password Field-->
+                    <div class="form-group mt-3">
+                        @* <label for="password" class="form-label" style="text-align:left; font-weight: bold;">Password:</label> *@
+                        <MudTextField ShrinkLabel type="password" Label="Password" @bind-Value="Input.Password" Variant="Variant.Outlined"
+                                Margin=Margin.Dense autocomplete="current-password" aria-required="true" For="(() => Input.Password)"></MudTextField>
+                        @* <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" /> *@
+                        <ValidationMessage For="() => Input.Password" class="text-danger" style="font-size: 12px; color: #DC0000;" />
+                    </div>
+
+                    @* Forgot Password Hyperlink *@
+                    <div class="mb-3">
+                        <p style="font-size: 11px; text-align: end;">
+                            <a href="Account/ForgotPassword" style="color: #9068F2;">Forgot your password?</a>
+                        </p>
+                    </div>
+
+                    <!--Login Button-->
+                    <div>
+                        <button type="submit" class="button" style="font-weight: bold;">Login</button>
+                    </div>
+
+                    <!--Checkbox Button-->
+                    <div class="checkbox mb-3 d-inline-flex mt-2">
+                        <div>
+                            <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" style="height: 15px; padding-top: 5px;" />
+                        </div>
+                        <label class="form ml-1" style="font-size: 12px; padding-bottom: 5px;">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <!--Don't Have an Account-->
+                    <div>
+                        <p style="font-size: 12px; font-weight: 500; text-align: center;">
+                            Don't have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" style="color: #9068F2;">SignUp</a>
+                        </p>
+                        @* <p> *@
+                        @*     <a href="Account/ResendEmailConfirmation">Resend email confirmation</a> *@
+                        @* </p> *@
+                    </div>
+
+
+                </EditForm>
+
+            </section>
+        </div>
+    </main>
+
+    @* <div class="col-md-6 col-md-offset-2"> *@
+    @*     <section> *@
+    @*         <h3>Use another service to log in.</h3> *@
+    @*         <hr /> *@
+    @*         <ExternalLoginPicker /> *@
+    @*     </section> *@
+    @* </div> *@
+
+    @* <div class="patterns justify-content-between"> *@
+    @*     <img src="/GenGroup.png" alt="rectangular-pattern" class="decor-imageleft"/> *@
+    @*     <img src="/GenGroup.png" alt="rectangular-pattern" class="decor-imageright" /> *@
+    @* </div> *@
+
 </div>
 
 @code {
@@ -85,7 +136,7 @@
         }
     }
 
-    public async Task LoginUser()
+    public async Task LoginUser(EditContext context)
     {
         // This doesn't count login failures towards account lockout
         // To enable password failures to trigger account lockout, set lockoutOnFailure: true
