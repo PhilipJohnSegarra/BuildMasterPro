@@ -1,0 +1,68 @@
+﻿@page "/Pages/LandingPage"
+@layout BuildMasterPro.Components.Layout.LandingLayout
+
+@* Main Container *@
+<div class="content-container">
+    @* Hero Container *@
+    <div class="hero-container">
+        @* Logo Picture *@
+        <div><img src="/images/BlocksLogo.svg" alt="BuildMaster Pro Logo" class="logo"></div>
+        
+        @* Headers Container *@
+        <div class="headers-content">
+            <h1 style="color: #5A3E9F;" class="first-tagline">
+                Think, Plan, and Track <br /><span style="color: #FFA800;" class="second-tagline">all in one place</span>
+            </h1>
+        </div>
+
+        @* Sub Taglines *@
+        <div class="sub-container">
+            <p class="sub-tagline">
+                A Construction project management system designed to efficiently manage projects ad tasks that will boosts productivivty
+            </p>
+        </div>
+
+        @* Buttons *@
+        <div class="buttons-container">
+            <button class="about-button" @onclick="AboutClick">About</button>
+            <button class="features-button" @onclick="FeaturesClick">Features</button>
+        </div>
+    </div>
+
+    @* Image Pattern Container *@
+</div>
+
+@code {
+    private void AboutClick()
+    {
+        Console.WriteLine("About button clicked");
+    }
+
+    private void FeaturesClick()
+    {
+        Console.WriteLine("Features button clicked");
+    }
+@*    [CascadingParameter] *@
+@*    private Task<AuthenticationState> authenticationStateTask { get; set; } *@
+
+@*    [Inject] *@
+@*    public NavigationManager NavigationManager { get; set; } *@
+
+@*      protected async override Task OnInitializedAsync() *@
+@*     { *@
+@*         var authenticationState = await authenticationStateTask; *@
+
+@*         if (authenticationState.User.Identity.IsAuthenticated) *@
+@*        { *@
+@*             if (authenticationState.User.IsInRole("")) *@
+@*           { *@
+@*               NavigationManager.NavigateTo("/home"); *@
+
+@*            } *@
+@*             else *@
+@*              { *@
+@*               NavigationManager.NavigateTo(""); *@
+@*              } *@
+@*          } *@
+@*      } *@
+}

@@ -1,0 +1,33 @@
+﻿﻿* {
+    padding:0;
+    margin: 0;
+}
+
+.layout-content {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    background: linear-gradient(to bottom right, #d1e8ff, #e7d8ff);
+}
+
+.custom-navbar {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    z-index: 999;
+}
+
+main {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
