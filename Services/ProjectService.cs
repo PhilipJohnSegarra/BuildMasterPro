@@ -79,9 +79,10 @@ namespace BuildMasterPro.Services
             if (result.Success && !string.IsNullOrEmpty(result.Value))
             {
                 // 🔹 Deserialize back to a Project object
-                return JsonSerializer.Deserialize<Project>(result.Value);
+                CurrentProject = JsonSerializer.Deserialize<Project>(result.Value);
+                return CurrentProject;
             }
-
+            
             return null;
         }
 
