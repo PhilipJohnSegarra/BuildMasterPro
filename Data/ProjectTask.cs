@@ -43,5 +43,6 @@ namespace BuildMasterPro.Data
         public TaskCategory TaskCategory { get; set; } = default!;
 
         public ICollection<TaskUser>? TaskUsers { get; set; }
+        public ICollection<TaskActivity>? TaskActivities { get; set; }
     }
 }

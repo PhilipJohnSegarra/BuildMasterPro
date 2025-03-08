@@ -1,12 +1,29 @@
 ﻿@page "/projecttasks/details"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
+@using BuildMasterPro.Services
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject ProjectTaskService TaskService
 
 <PageTitle>Details</PageTitle>
 
 <h1>Details</h1>
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Style="min-height:80%;">
+    <MudTabPanel Text="Tab One">
+        <MudText>Content One</MudText>
+    </MudTabPanel>
+    <MudTabPanel Text="Tab Two">
+        <MudText>Content Two</MudText>
+    </MudTabPanel>
+    <MudTabPanel Text="Tab Three">
+        <MudText>Content Three</MudText>
+    </MudTabPanel>
+    <MudTabPanel Text="Tab Disabled" Disabled="true">
+        <MudText>Content Disabled</MudText>
+    </MudTabPanel>
+</MudTabs>
 
 @* <div>
     <h2>ProjectTask</h2>
@@ -40,19 +57,19 @@
 </div> *@
 
 @code {
-    // private ProjectTask? projecttask;
+    private ProjectTask? projecttask;
 
-    // [SupplyParameterFromQuery]
-    // private int TaskId { get; set; }
+    [SupplyParameterFromQuery]
+    private int TaskId { get; set; }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     using var context = DbFactory.CreateDbContext();
-    //     projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
 
-    //     if (projecttask is null)
-    //     {
-    //         NavigationManager.NavigateTo("notfound");
-    //     }
-    // }
+        if (projecttask is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
 }

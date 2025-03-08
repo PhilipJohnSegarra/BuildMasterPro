@@ -128,7 +128,7 @@
     @if(ProjectService.CurrentProject != null)
     {
         <!--PER PROJECT NAVIGATIONS-->
-        <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1rem 1rem;background-color:#aaaaaa;" />
+        <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1.5rem 1rem;background-color:#aaaaaa;" />
         <!--Dashboard-->
         <a class="MenuLink" href="@($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}")" @onclick="@(()=>NavActive("Dashboard"))" style="@NavLinkBorder["Dashboard"]">
             <div class="Navlink-Container" style="">

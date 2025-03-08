@@ -58,8 +58,8 @@
                     <MudItem lg="2" md="12" Style="width:100%;margin:0 0 0 auto;">
                             @*  <label>Priority Status:</label> *@
                             <MudSelect T="int?" @bind-Value="ProjectTask.CategoryId"
-                                       Variant="Variant.Text" Label="Category"
-                                       >
+                                       Variant="Variant.Text" Label="Category" Placeholder="">
+                                       
                                 @foreach (var cat in Categories)
                                 {
                                     <MudSelectItem T="int?" Value="cat.Id" Class="mud-width-full">@cat.CategoryName</MudSelectItem>

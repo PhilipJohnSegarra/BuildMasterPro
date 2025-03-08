@@ -19,133 +19,140 @@
 @* <p>
     <a href="projecttasks/create">Create New</a>
 </p> *@
-<MudPaper Elevation="25" Class="mb-1">
-    <MudToolBar Dense="true">
-        <MudText Class="pe-5" style="font-size:14px;">Tasks</MudText>
-        <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ms-3 me-3"
-                   OnClick="@(()=>{
+<MudStack Style="height:100%;">
+        <MudPaper Elevation="25" Class="mb-1 sticky-lg-top" Style="position: sticky; top:0;z-index:10;">
+            <MudToolBar Dense="true">
+                <MudText Class="pe-5" style="font-size:14px;">Tasks</MudText>
+                <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ms-3 me-3"
+                           OnClick="@(()=>{
                                 ProjectTask newTask = new();
                                 _taskAdderOpen = !_taskAdderOpen;
                                 newTasks.Add(newTask);})">
-            New Task
-        </MudButton>
-        <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ms-3 me-3"
-                   OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen; _multiSelection = !_multiSelection;})">
-            Edit
-        </MudButton>
-        <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
-                   OnClick="@(()=>{_multiSelection = !_multiSelection;})">
-            Select
-        </MudButton>
-        <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
-                   Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
-                   OnClick="@(async ()=>{
+                    New Task
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ms-3 me-3"
+                           OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen; _multiSelection = !_multiSelection;})">
+                    Edit
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
+                           OnClick="@(()=>{_multiSelection = !_multiSelection;})">
+                    Select
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
+                           Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                           OnClick="@(async ()=>{
                             await SaveNewTasks();
                             })">
-            Save
-        </MudButton>
-        <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
-                   Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
-                   OnClick="@(async ()=>{
+                    Save
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
+                           Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                           OnClick="@(async ()=>{
                             newTasks = new();
                             selectedTasks = new();
                             })">
-            Cancel
-        </MudButton>
-        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
-        <MudTooltip Text="@(_dense? "Density Large" : "Density Small")">
-            <MudToggleIconButton Icon="@Icons.Material.Outlined.DensitySmall"
-                                 ToggledIcon="@Icons.Material.Outlined.DensityLarge"
-                                 Size="Size.Small" Class="ms-3 me-3"
-                                 @bind-Toggled="_dense">
-            </MudToggleIconButton>
-        </MudTooltip>
-        
-        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
-        <MudButton StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3 ms-auto">
-            Categories
-        </MudButton>
-    </MudToolBar>
-</MudPaper>
+                    Cancel
+                </MudButton>
+                <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                <MudTooltip Text="@(_dense? "Density Large" : "Density Small")">
+                    <MudToggleIconButton Icon="@Icons.Material.Outlined.DensitySmall"
+                                         ToggledIcon="@Icons.Material.Outlined.DensityLarge"
+                                         Size="Size.Small" Class="ms-3 me-3"
+                                         @bind-Toggled="_dense">
+                    </MudToggleIconButton>
+                </MudTooltip>
 
-@*Task Adder*@
-@if (newTasks.Count != 0)
-{
-    <MudPaper Class="bg-white mb-1 pb-3">
-        <MudStack Class="p-0">
-            @foreach(var task in newTasks)
-            {
-                <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskAdder ProjectTask="task" />
-            }
-        </MudStack>
-    </MudPaper>
-}
-@*Task Editor*@
-@if (selectedTasks.Count != 0)
-{
-    <MudPaper Class="bg-white mb-1 pb-3">
-        <MudStack Class="p-0">
-            @foreach (var task in selectedTasks)
-            {
-                <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskEditor ProjectTask="task" />
-            }
-        </MudStack>
-    </MudPaper>
-
-}
-
-<MudTable Items="Tasks" Hover="true"
-    T="ProjectTask"
-    MultiSelection="_multiSelection"
-    Virtualize="false"
-    Dense="_dense"
-    GroupBy="_groupDefinition"
-    OnRowClick="GoToTask"
-    @bind-SelectedItems="selectedTasks">
-    <HeaderContent>
-        <MudTh>Task</MudTh>
-        <MudTh>Category</MudTh>
-        <MudTh>Planned Start Date</MudTh>
-        <MudTh>Actual Start Date</MudTh>
-        <MudTh>Planned End Date</MudTh>
-        <MudTh>Actual End Date</MudTh>
-        <MudTh>AssignedTo</MudTh>
-        <MudTh>Status</MudTh>
-    </HeaderContent>
-    <GroupHeaderTemplate>
-        <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="8"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
-    </GroupHeaderTemplate>
-    <RowTemplate>
-        <MudTd><span><MudIcon Icon="@Icons.Material.Outlined.Task">sdfs</MudIcon></span>@context.TaskName</MudTd>
-        <MudTd>@(context.CategoryId != null? context.TaskCategory.CategoryName : "")</MudTd>
-        <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
-        <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
-        <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
-        <MudTd>@context.ActualEndDate?.Date.ToShortDateString()</MudTd>
-        <MudTd>
-            @if(context.TaskUsers != null)
-            {
-                <MudStack Row="true">
-                    @foreach (var user in context.TaskUsers.Take(3))
+                <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                <MudButton StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3 ms-auto">
+                    Categories
+                </MudButton>
+            </MudToolBar>
+        </MudPaper>
+        @*Task Adder*@
+        @if (newTasks.Count != 0)
+        {
+            <MudPaper Class="bg-white mb-1 pb-3">
+                <MudStack Class="p-0">
+                    @foreach (var task in newTasks)
                     {
-                        <MudAvatar Class="m-0 p-0" Style="" Color="Color.Success" Variant="Variant.Outlined" Size="Size.Small">
-                            @(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.Email[0])
-                        </MudAvatar>
+                        <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskAdder ProjectTask="task" />
                     }
                 </MudStack>
-            }
-            else
-            {
-                <MudText>UnAssigned</MudText>
-            }
+            </MudPaper>
+        }
+        @*Task Editor*@
+        @if (selectedTasks.Count != 0)
+        {
+            <MudPaper Class="bg-white mb-1 pb-3">
+                <MudStack Class="p-0">
+                    @foreach (var task in selectedTasks)
+                    {
+                        <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskEditor ProjectTask="task" />
+                    }
+                </MudStack>
+            </MudPaper>
 
-        </MudTd>
-        <MudTd>@context.Status</MudTd>
-    </RowTemplate>
-    <GroupFooterTemplate>
-        <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
-    </GroupFooterTemplate>
-</MudTable>
+        }
+    <MudItem>
+        <MudTable Items="Tasks" Hover="true"
+                  T="ProjectTask"
+                  MultiSelection="_multiSelection"
+                  Virtualize="false"
+                  Dense="_dense"
+                  GroupBy="_groupDefinition"
+                  OnRowClick="GoToTask"
+                  @bind-SelectedItems="selectedTasks">
+            <HeaderContent>
+                <MudTh>Task</MudTh>
+                <MudTh>Category</MudTh>
+                <MudTh>Planned Start Date</MudTh>
+                <MudTh>Actual Start Date</MudTh>
+                <MudTh>Planned End Date</MudTh>
+                <MudTh>Actual End Date</MudTh>
+                <MudTh>AssignedTo</MudTh>
+                <MudTh>Status</MudTh>
+            </HeaderContent>
+            <GroupHeaderTemplate>
+                <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="8"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd><span><MudIcon Icon="@Icons.Material.Outlined.Task">sdfs</MudIcon></span>@context.TaskName</MudTd>
+                <MudTd>@(context.CategoryId != null ? context.TaskCategory.CategoryName : "")</MudTd>
+                <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
+                <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
+                <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
+                <MudTd>@context.ActualEndDate?.Date.ToShortDateString()</MudTd>
+                <MudTd>
+                    @if (context.TaskUsers != null)
+                    {
+                        <MudStack Row="true">
+                            @foreach (var user in context.TaskUsers.Take(3))
+                            {
+                                <MudAvatar Class="m-0 p-0" Style="" Color="Color.Success" Variant="Variant.Outlined" Size="Size.Small">
+                                    @(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.Email[0])
+                                </MudAvatar>
+                            }
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudText>UnAssigned</MudText>
+                    }
+
+                </MudTd>
+                <MudTd>@context.Status</MudTd>
+            </RowTemplate>
+            <GroupFooterTemplate>
+                <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
+            </GroupFooterTemplate>
+        </MudTable>
+    </MudItem>
+</MudStack>
+
+
+
+
+
 
 <style>
     .mud-table-cell-custom-group {

@@ -56,7 +56,7 @@ h1:focus {
     font-family: "Open Sans", sans-serif;
 }
 body{
-    background-image: url("bodyBG.svg");
+    background-image: url("bodyBG.png");
     background-position:center;
     background-size:cover;
     height: 100vh;

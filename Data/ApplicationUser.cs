@@ -30,6 +30,9 @@ namespace BuildMasterPro.Data
         public bool? IsDeleted { get; set; } = false;
         public bool? HasProject { get; set; } = false;
 
+        //NAVIGATION
+        public ICollection<TaskActivity>? TaskActivities { get; set; }
+
 
     }
 
