@@ -33,14 +33,14 @@ namespace BuildMasterPro.Data
         //PROPERTIES 12/01/2025 END
 
         [AllowNull]
-        public string Status { get; set; } = "Not Started";
+        public string? Status { get; set; } = "Not Started";
         [AllowNull]
-        public string Priority { get; set; }
+        public string? Priority { get; set; }
 
         [ForeignKey(nameof(ProjectId))]
-        public Project Project { get; set; } = default!;
+        public Project? Project { get; set; } = default!;
         [ForeignKey(nameof(CategoryId))]
-        public TaskCategory TaskCategory { get; set; } = default!;
+        public TaskCategory? TaskCategory { get; set; } = default!;
 
         public ICollection<TaskUser>? TaskUsers { get; set; }
         public ICollection<TaskActivity>? TaskActivities { get; set; }
