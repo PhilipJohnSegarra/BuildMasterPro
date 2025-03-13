@@ -1,4 +1,10 @@
 ﻿@using BuildMasterPro.Data
+@using BuildMasterPro.Services
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject TaskActivityService taskActService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
 
 <MudDialog Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="dialog-background-surface py-10" ActionsClass="dialog-background-surface">
     <TitleContent>
@@ -6,7 +12,8 @@
     </TitleContent>
     <DialogContent>
         <MudForm Model="taskActivity">
-
+            <MudTextField Variant="Variant.Outlined" Placeholder="Title" @bind-Value="taskActivity.Name" Class="mb-1"/>
+            <MudTextField Variant="Variant.Outlined" Placeholder="Write something..." Lines="5" @bind-Value="taskActivity.Content"/>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -36,12 +43,30 @@
 
 @code {
     [CascadingParameter]
-    private MudDialogInstance MudDialog { get; set; }
+    private MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public int? TaskID { get; set; } = new();
+
+    private ApplicationUser? CurrentUser { get; set; }
+    private AuthenticationState? authState;
 
     private TaskActivity taskActivity { get; set; } = new();
 
-    private void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        CurrentUser = await UserManager.GetUserAsync(authState.User);
+    }
 
-    private void Cancel() => MudDialog.Cancel();
+    private async Task Submit()
+    {
+        taskActivity.TaskId = TaskID;
+        taskActivity.ActivityUserId = CurrentUser.Id;
+        await taskActService.Add(taskActivity);
+        MudDialog!.Close(DialogResult.Ok(taskActivity));
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
 }
 

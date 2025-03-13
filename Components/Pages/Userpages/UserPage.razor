@@ -161,6 +161,10 @@
         CurrentUser = (await authenticationStateTask).User;
         await GetUsers();
     }
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetUsers();
+    }
     private bool isLoadingUsers = false;
     public async Task GetUsers()
     {

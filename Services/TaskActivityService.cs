@@ -23,6 +23,11 @@ namespace BuildMasterPro.Services
             var result = await GetAsync(o => o.Id == id);
             return result;
         }
+        public async Task<TaskActivity> Add(TaskActivity TaskActivity)
+        {
+            var result = await AddAsync(TaskActivity);
+            return result;
+        }
 
         public async Task AddMany(List<TaskActivity> TaskActivities)
         {
