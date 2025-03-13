@@ -70,6 +70,15 @@ namespace BuildMasterPro.Services
             // 🔹 Serialize project before storing
             var serializedProject = JsonSerializer.Serialize(project);
             await _sessionStorage.SetAsync("currentProject", serializedProject);
+
+            var result = await _sessionStorage.GetAsync<string>("currentProject");
+
+            if (result.Success && !string.IsNullOrEmpty(result.Value))
+            {
+                // 🔹 Deserialize back to a Project object
+                CurrentProject = JsonSerializer.Deserialize<Project>(result.Value);
+            }
+
         }
 
         public async Task<Project?> GetCurrentProjectAsync()
