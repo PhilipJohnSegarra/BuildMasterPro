@@ -33,7 +33,7 @@ namespace BuildMasterPro.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("BirthDate")
+                    b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -47,7 +47,6 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Department")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -58,28 +57,27 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Gender")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool?>("HasProject")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("JobTitle")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LastLoginDate")
+                    b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -89,7 +87,6 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("MiddleMName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
@@ -104,7 +101,6 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -114,7 +110,6 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("ProfilePictureUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -140,6 +135,76 @@ namespace BuildMasterPro.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("BuildMasterPro.Data.Client", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AlternatePersonEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AlternatePersonName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AlternatePersonPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyNumber1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyNumber2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CompanyWebsite")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateEstablished")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IndustryType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PersonEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PersonName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PersonPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TaxIdentificationNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Clients");
+                });
+
             modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
                 {
                     b.Property<int>("ProjectId")
@@ -147,6 +212,13 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectId"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ClientId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -168,6 +240,8 @@ namespace BuildMasterPro.Migrations
 
                     b.HasKey("ProjectId");
 
+                    b.HasIndex("ClientId");
+
                     b.ToTable("Project");
                 });
 
@@ -188,9 +262,6 @@ namespace BuildMasterPro.Migrations
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("DueDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("GroupName")
                         .HasColumnType("nvarchar(max)");
 
@@ -201,17 +272,12 @@ namespace BuildMasterPro.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Priority")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TaskDescription")
@@ -289,6 +355,41 @@ namespace BuildMasterPro.Migrations
                     b.ToTable("Resource");
                 });
 
+            modelBuilder.Entity("BuildMasterPro.Data.TaskActivity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActivityUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImagesMongoID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TaskId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityUserId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskActivities");
+                });
+
             modelBuilder.Entity("BuildMasterPro.Data.TaskCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -308,6 +409,33 @@ namespace BuildMasterPro.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TaskCategories");
+                });
+
+            modelBuilder.Entity("BuildMasterPro.Data.TaskUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskUsers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -443,6 +571,15 @@ namespace BuildMasterPro.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
+                {
+                    b.HasOne("BuildMasterPro.Data.Client", "Client")
+                        .WithMany("Projects")
+                        .HasForeignKey("ClientId");
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("BuildMasterPro.Data.ProjectTask", b =>
                 {
                     b.HasOne("BuildMasterPro.Data.TaskCategory", "TaskCategory")
@@ -463,7 +600,7 @@ namespace BuildMasterPro.Migrations
             modelBuilder.Entity("BuildMasterPro.Data.ProjectUser", b =>
                 {
                     b.HasOne("BuildMasterPro.Data.Project", "Project")
-                        .WithMany()
+                        .WithMany("ProjectUsers")
                         .HasForeignKey("ProjectId");
 
                     b.HasOne("BuildMasterPro.Data.ApplicationUser", "User")
@@ -471,6 +608,40 @@ namespace BuildMasterPro.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BuildMasterPro.Data.TaskActivity", b =>
+                {
+                    b.HasOne("BuildMasterPro.Data.ApplicationUser", "User")
+                        .WithMany("TaskActivities")
+                        .HasForeignKey("ActivityUserId");
+
+                    b.HasOne("BuildMasterPro.Data.ProjectTask", "Task")
+                        .WithMany("TaskActivities")
+                        .HasForeignKey("TaskId");
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BuildMasterPro.Data.TaskUser", b =>
+                {
+                    b.HasOne("BuildMasterPro.Data.ProjectTask", "ProjectTask")
+                        .WithMany("TaskUsers")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BuildMasterPro.Data.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProjectTask");
 
                     b.Navigation("User");
                 });
@@ -524,6 +695,28 @@ namespace BuildMasterPro.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BuildMasterPro.Data.ApplicationUser", b =>
+                {
+                    b.Navigation("TaskActivities");
+                });
+
+            modelBuilder.Entity("BuildMasterPro.Data.Client", b =>
+                {
+                    b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
+                {
+                    b.Navigation("ProjectUsers");
+                });
+
+            modelBuilder.Entity("BuildMasterPro.Data.ProjectTask", b =>
+                {
+                    b.Navigation("TaskActivities");
+
+                    b.Navigation("TaskUsers");
                 });
 #pragma warning restore 612, 618
         }

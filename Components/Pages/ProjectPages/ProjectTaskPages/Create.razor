@@ -7,9 +7,9 @@
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
 
-<MudPopoverProvider />
+@* <MudPopoverProvider />
 <MudDialogProvider />
-<MudThemeProvider />
+<MudThemeProvider /> *@
 
 <PageTitle>Create</PageTitle>
 
@@ -17,57 +17,57 @@
     <MudItem lg="12" sm="12" md="12">
         <MudPaper Class="mud-width-full d-flex flex-column align-center justify-center" Style="width:100%;">
             <EditForm method="post" Model="ProjectTask" OnValidSubmit="AddProjectTask" FormName="create" Enhance style="width:100%;">
-                <MudGrid Class="mud-width-full" Style="width:100%;">
+                <MudGrid Class="mud-width-full" Style="width:100%;padding:1rem;">
                     <MudItem lg="12">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
                             <DataAnnotationsValidator />
                             <ValidationSummary class="text-danger" role="alert" />
                         </MudPaper>
                     </MudItem>
-                    <MudItem lg="12">
+                    <MudItem lg="12" Style="display:none;">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
                             @* <label>Project ID:</label> *@
                             <MudTextField ShrinkLabel Label="Project ID" @bind-Value="ProjectTask.ProjectId" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
-                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
                         </MudPaper>
                     </MudItem>
 
-                    <MudItem lg="12">
+                    <MudItem lg="2">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
-                            <MudTextField ShrinkLabel Label="Task Name" @bind-Value="ProjectTask.TaskName" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
-                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                            <MudTextField ShrinkLabel Label="Task Name" @bind-Value="ProjectTask.TaskName" Variant="Variant.Text" Class="mud-width-full"></MudTextField>
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
                         </MudPaper>
                     </MudItem>
 
-                    <MudItem lg="12">
-                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
-                            @* <label>Project Name:</label> *@
-                            <MudTextField ShrinkLabel Label="Description" @bind-Value="ProjectTask.TaskDescription" Variant="Variant.Outlined" Class="mud-width-full"></MudTextField>
-                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
-                        </MudPaper>
-                    </MudItem>
-
-                    <MudItem lg="12">
+                    <MudItem lg="2">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
                             @* <label>Project Name:</label> *@
-                            <MudDatePicker Label="Planned Start Date:" Editable="true" @bind-Value="ProjectTask.PlannedStartDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
-                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                            <MudTextField ShrinkLabel Label="Description" @bind-Value="ProjectTask.TaskDescription" Variant="Variant.Text" Class="mud-width-full"></MudTextField>
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
                         </MudPaper>
                     </MudItem>
 
-                    <MudItem lg="12">
+                    <MudItem lg="2">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
                             @* <label>Project Name:</label> *@
-                            <MudDatePicker Label="Planned End Date:" Editable="true" @bind-Value="ProjectTask.PlannedEndDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
-                            <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                            <MudDatePicker Label="Planned Start Date:" Editable="true" @bind-Value="ProjectTask.PlannedStartDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Text" Class="mud-width-full" />
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
+                        </MudPaper>
+                    </MudItem>
+
+                    <MudItem lg="2">
+                        <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                            @* <label>Project Name:</label> *@
+                            <MudDatePicker Label="Planned End Date:" Editable="true" @bind-Value="ProjectTask.PlannedEndDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Text" Class="mud-width-full" />
+                            @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
                         </MudPaper>
                     </MudItem>
                     
-                    <MudItem lg="6" md="12" Style="width:100%;margin:0 0 0 auto;">
+                    <MudItem lg="1" md="12" Style="width:100%;margin:0 0 0 auto;">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full" Style="width:100%;margin:0 0 0 auto;">
-                            <label>Priority Status:</label>
+                           @*  <label>Priority Status:</label> *@
                             <MudSelect @bind-Value="ProjectTask.Priority"
-                                       Variant="Variant.Outlined" Label="Priority Status"
+                                       Variant="Variant.Text" Label="Priority"
                                        style="width:200%;">
                                 @foreach (var state in PriorityArray)
                                 {
@@ -77,11 +77,11 @@
                         </MudPaper>
                     </MudItem>
 
-                    <MudItem lg="6" md="12" Style="width:100%;margin:0 0 0 auto;">
+                    <MudItem lg="2" md="12" Style="width:100%;margin:0 0 0 auto;">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full" Style="width:100%;margin:0 0 0 auto;">
-                            <label>Priority Status:</label>
+                           @*  <label>Priority Status:</label> *@
                             <MudSelect T="int?" @bind-Value="ProjectTask.CategoryId"
-                                       Variant="Variant.Outlined" Label="Category"
+                                       Variant="Variant.Text" Label="Category"
                                        style="width:200%;">
                                 @foreach (var cat in Categories)
                                 {
@@ -91,7 +91,7 @@
                         </MudPaper>
                     </MudItem>
 
-                    <MudItem lg="12" md="12">
+                    <MudItem lg="1" md="12">
                         <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
                             <button type="submit" class="PrimaryBG btn btn-primary" style="padding:1rem;width:100%;color:white;border-radius:5px;">Create</button>
                         </MudPaper>
@@ -155,7 +155,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Project = ProjectService.CurrentProject;
+        Project = await ProjectService.GetCurrentProjectAsync();
         ProjectTask.ProjectId = Project.ProjectId;
         await TaskService.CreateProjectTaskAsync(ProjectTask);
 

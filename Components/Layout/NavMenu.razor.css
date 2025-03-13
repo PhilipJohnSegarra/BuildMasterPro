@@ -8,12 +8,12 @@
     flex-direction: column;
     justify-content: start;
     align-items: start;
-    padding: 12px 3rem 1rem 5px;
+    padding: 12px 1rem 1rem 5px;
     overflow-x:auto;
     overflow-y:auto;
 }
 .MenuLink {
-    margin: 0 0 1rem 0;
+    margin: 0 0 1.5rem 0;
     padding: 0 0 0 1rem;
     border-width: 0 0 0 3px;
     border-style: solid;

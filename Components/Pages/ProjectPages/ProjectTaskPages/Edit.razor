@@ -38,16 +38,6 @@ else
                     <ValidationMessage For="() => ProjectTask.TaskDescription" class="text-danger" />
                 </div>
                 <div class="mb-3">
-                    <label for="startdate" class="form-label">StartDate:</label>
-                    <InputDate id="startdate" @bind-Value="ProjectTask.StartDate" class="form-control" />
-                    <ValidationMessage For="() => ProjectTask.StartDate" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="duedate" class="form-label">DueDate:</label>
-                    <InputDate id="duedate" @bind-Value="ProjectTask.DueDate" class="form-control" />
-                    <ValidationMessage For="() => ProjectTask.DueDate" class="text-danger" />
-                </div>
-                <div class="mb-3">
                     <label for="status" class="form-label">Status:</label>
                     <InputText id="status" @bind-Value="ProjectTask.Status" class="form-control" />
                     <ValidationMessage For="() => ProjectTask.Status" class="text-danger" />

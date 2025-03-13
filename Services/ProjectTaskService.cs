@@ -8,7 +8,6 @@ namespace BuildMasterPro.Services
     {
         ProjectService _projectService;
         private readonly IDbContextFactory<ApplicationDbContext> _context;
-        public Project? CurrentProject { get; set; }
         public List<ProjectTask>? AllProjectTasks { get; set; }
         public List<ProjectTask>? CurrentProjectTasks { get; set; }
         public ProjectTask? CurrentProjectTask { get; set; }
@@ -17,7 +16,6 @@ namespace BuildMasterPro.Services
         {
             _projectService = projectService;
             _context = Context;
-            this.CurrentProject = _projectService.CurrentProject;
         }
 
         public async Task<ProjectTask> GetTaskAsync(int id)
@@ -41,8 +39,10 @@ namespace BuildMasterPro.Services
         public async Task<List<ProjectTask>> GetCurrentProjtasksAsync()
         {
             using var context = _context.CreateDbContext();
-            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == _projectService.CurrentProject!.ProjectId)
+            var currProj = await _projectService.GetCurrentProjectAsync();
+            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == currProj.ProjectId)
                 .Include(p => p.TaskCategory)
+                .Include(p => p.TaskUsers)
                 .OrderBy(p => p.TaskCategory.Id)
                 .ToListAsync();
             return this.CurrentProjectTasks;
@@ -55,21 +55,24 @@ namespace BuildMasterPro.Services
             return task;
         }
 
-        public async Task<ProjectTask> UpdateProjectTaskAsync(int id, ProjectTask projecttask)
+        public async Task<List<ProjectTask>> AddMany(List<ProjectTask> newTasks)
         {
             using var context = _context.CreateDbContext();
-            var task = await context.ProjectTask.FindAsync(id);
-            if (task == null) return null;
-            task.TaskName = projecttask.TaskName;
-            task.TaskDescription = projecttask.TaskDescription;
-            task.StartDate = projecttask.StartDate;
-            task.DueDate = projecttask.DueDate;
-            task.Status = projecttask.Status;
-            task.Priority = projecttask.Priority;
+            await context.ProjectTask.AddRangeAsync(newTasks);
+            return newTasks;
+        }
 
-            context.ProjectTask.Update(task);
+        public async Task<ProjectTask> UpdateProjectTaskAsync(ProjectTask projecttask)
+        {
+            using var context = _context.CreateDbContext();
+
+            var existingTask = await context.ProjectTask.FindAsync(projecttask.TaskId);
+            if (existingTask == null) throw new Exception("Project Task not found");
+
+            context.Entry(existingTask).CurrentValues.SetValues(projecttask);
             await context.SaveChangesAsync();
-            return task;
+
+            return existingTask;
 
         }
         public async Task<bool> DeleteProjectTaskAsync(int id)

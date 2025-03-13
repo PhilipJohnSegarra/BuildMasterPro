@@ -12,10 +12,63 @@
 
 <PageTitle>Details</PageTitle>
 
-<h1>Under Development</h1>
+<MudContainer Class="mt-0 px-8" MaxWidth="MaxWidth.False">
+    <MudGrid>
+        @*
+            Top Banner
+        *@
+        <MudItem xs="12" sm="12" md="12">
+            <MudPaper Elevation="2" Class="pa-4 DashBoard-Banner d-flex flex-column align-start justify-center"
+                      Style="height: 150px;background-image: url('Banners/Dashboard Banner.svg');
+                             background-size:cover;background-repeat:no-repeat;background-position:center;">
+                 <MudStack Class="ps-2" AlignItems="AlignItems.Start" Justify="Justify.Center" Style="margin:auto 0 auto 0;">
+                    <MudText class="MainText" Style="font-weight:bold;font-size:35px;margin:0;">@project.ProjectName</MudText>
+                    <MudText class="MainText" Style="font-weight:lighter;font-size:15px;margin:0;">@project.Description</MudText>
+                 </MudStack>
+                 
+            </MudPaper>
+        </MudItem>
+        @*
+            Top Banner End
+        *@
+        <MudItem xs="12" sm="7">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 100%"></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                        </MudItem>
+                    </MudGrid>
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+
+        <MudItem xs="12" sm="7">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 370px;"></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 370px;"></MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
-    private Project? project = new();
+    private Project? project { get; set; } = new();
 
     [SupplyParameterFromQuery]
     private int ProjectId { get; set; }
@@ -30,7 +83,7 @@
         //using var context = DbFactory.CreateDbContext();
         // project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
         // Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
-        project = ProjectService.CurrentProject;
+        project = await ProjectService.GetCurrentProjectAsync();
         Tasks = TaskService.CurrentProjectTasks;
 
         if (project is null)

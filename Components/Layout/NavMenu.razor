@@ -31,7 +31,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@(IsActive("/")? NavLinkFont["Home"]:NavLinkFont["Home"])">Home</p>
+                    <p style="margin:0 0 0 2rem;@(IsActive("/")? NavLinkFont["Home"]:NavLinkFont["Home"])">Home</p>
                 }
 
 
@@ -45,7 +45,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@(IsActive("/AllMessages")? NavLinkFont["AllMessages"]:NavLinkFont["AllMessages"])">All Messages</p>
+                    <p style="margin:0 0 0 2rem;@(IsActive("/AllMessages")? NavLinkFont["AllMessages"]:NavLinkFont["AllMessages"])">All Messages</p>
                 }
 
             </div>
@@ -62,7 +62,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["AllResources"]">All Resources</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["AllResources"]">All Resources</p>
                 }
 
             </div>
@@ -75,7 +75,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["Users"]">Accounts</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["Users"]">Accounts</p>
                 }
 
             </div>
@@ -94,11 +94,12 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["newProject"]">New Project</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["newProject"]">New Project</p>
                 }
 
             </div>
         </a>
+        
         
     }
     @if(ProjectService.CurrentProject != null)
@@ -127,7 +128,7 @@
     @if(ProjectService.CurrentProject != null)
     {
         <!--PER PROJECT NAVIGATIONS-->
-        <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1rem 1rem;background-color:#aaaaaa;" />
+        <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1.5rem 1rem;background-color:#aaaaaa;" />
         <!--Dashboard-->
         <a class="MenuLink" href="@($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}")" @onclick="@(()=>NavActive("Dashboard"))" style="@NavLinkBorder["Dashboard"]">
             <div class="Navlink-Container" style="">
@@ -136,7 +137,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["Dashboard"]">Dashboard</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["Dashboard"]">Dashboard</p>
                 }
 
             </div>
@@ -149,7 +150,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["Gantt"]">Gantt Chart</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["Gantt"]">Gantt Chart</p>
                 }
 
             </div>
@@ -162,7 +163,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["Tasks"]">Tasks</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["Tasks"]">Tasks</p>
                 }
 
             </div>
@@ -175,7 +176,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["Channels"]">Channels</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["Channels"]">Channels</p>
                 }
 
             </div>
@@ -190,7 +191,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["Reports"]">Analytics</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["Reports"]">Analytics</p>
                 }
 
             </div>
@@ -205,7 +206,7 @@
                 </svg>
                 @if (!collapsed)
                 {
-                    <p style="margin:0 0 0 1rem;@NavLinkFont["Reports"]">Team</p>
+                    <p style="margin:0 0 0 2rem;@NavLinkFont["Reports"]">Team</p>
                 }
 
             </div>
@@ -362,7 +363,7 @@
     public async Task SetCurrentProject(Project project)
     {
 
-        Project = await ProjectService.SetCurrentProjectAsync(project);
+        await ProjectService.SetCurrentProjectAsync(project);
         NavigationManager.NavigateTo($"projects/details?projectid={project.ProjectId}", forceLoad: true);
         NavActive("Dashboard");
 

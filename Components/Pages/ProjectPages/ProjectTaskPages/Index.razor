@@ -4,7 +4,10 @@
 @using BuildMasterPro.Data
 @rendermode InteractiveServer
 @inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectUserService ProjUserService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
+@inject BuildMasterPro.Services.TaskUserService TaskUserService
+@inject NavigationManager NavManager
 @inject MudBlazor.IDialogService DialogService
 
 <MudPopoverProvider />
@@ -13,58 +16,143 @@
 
 <PageTitle>Tasks</PageTitle>
 
-<h1>Tasks</h1>
-
-<p>
+@* <p>
     <a href="projecttasks/create">Create New</a>
-</p>
+</p> *@
+<MudStack Style="height:100%;">
+        <MudPaper Elevation="25" Class="mb-1 sticky-lg-top" Style="position: sticky; top:0;z-index:10;">
+            <MudToolBar Dense="true">
+                <MudText Class="pe-5" style="font-size:14px;">Tasks</MudText>
+                <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ms-3 me-3"
+                           OnClick="@(()=>{
+                                ProjectTask newTask = new();
+                                _taskAdderOpen = !_taskAdderOpen;
+                                newTasks.Add(newTask);})">
+                    New Task
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ms-3 me-3"
+                           OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen; _multiSelection = !_multiSelection;})">
+                    Edit
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
+                           OnClick="@(()=>{_multiSelection = !_multiSelection;})">
+                    Select
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
+                           Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                           OnClick="@(async ()=>{
+                            await SaveNewTasks();
+                            })">
+                    Save
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
+                           Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                           OnClick="@(async ()=>{
+                            newTasks = new();
+                            selectedTasks = new();
+                            })">
+                    Cancel
+                </MudButton>
+                <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                <MudTooltip Text="@(_dense? "Density Large" : "Density Small")">
+                    <MudToggleIconButton Icon="@Icons.Material.Outlined.DensitySmall"
+                                         ToggledIcon="@Icons.Material.Outlined.DensityLarge"
+                                         Size="Size.Small" Class="ms-3 me-3"
+                                         @bind-Toggled="_dense">
+                    </MudToggleIconButton>
+                </MudTooltip>
 
-@* <QuickGrid Class="table" Items="Tasks.AsQueryable()">
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.ProjectId" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskName" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.TaskDescription" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.StartDate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.DueDate" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Status" />
-    <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="projecttask => projecttask.Priority" />
+                <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                <MudButton StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3 ms-auto">
+                    Categories
+                </MudButton>
+            </MudToolBar>
+        </MudPaper>
+        @*Task Adder*@
+        @if (newTasks.Count != 0)
+        {
+            <MudPaper Class="bg-white mb-1 pb-3">
+                <MudStack Class="p-0">
+                    @foreach (var task in newTasks)
+                    {
+                        <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskAdder ProjectTask="task" />
+                    }
+                </MudStack>
+            </MudPaper>
+        }
+        @*Task Editor*@
+        @if (selectedTasks.Count != 0)
+        {
+            <MudPaper Class="bg-white mb-1 pb-3">
+                <MudStack Class="p-0">
+                    @foreach (var task in selectedTasks)
+                    {
+                        <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskEditor ProjectTask="task" />
+                    }
+                </MudStack>
+            </MudPaper>
 
-    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Context="projecttask">
-        <a href="@($"projecttasks/edit?taskid={projecttask.TaskId}")">Edit</a> |
-        <a href="@($"projecttasks/details?taskid={projecttask.TaskId}")">Details</a> |
-        <a href="@($"projecttasks/delete?taskid={projecttask.TaskId}")">Delete</a>
-    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</QuickGrid> *@
+        }
+    <MudItem>
+        <MudTable Items="Tasks" Hover="true"
+                  T="ProjectTask"
+                  MultiSelection="_multiSelection"
+                  Virtualize="false"
+                  Dense="_dense"
+                  GroupBy="_groupDefinition"
+                  OnRowClick="GoToTask"
+                  @bind-SelectedItems="selectedTasks">
+            <HeaderContent>
+                <MudTh>Task</MudTh>
+                <MudTh>Category</MudTh>
+                <MudTh>Planned Start Date</MudTh>
+                <MudTh>Actual Start Date</MudTh>
+                <MudTh>Planned End Date</MudTh>
+                <MudTh>Actual End Date</MudTh>
+                <MudTh>AssignedTo</MudTh>
+                <MudTh>Status</MudTh>
+            </HeaderContent>
+            <GroupHeaderTemplate>
+                <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="8"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd><span><MudIcon Icon="@Icons.Material.Outlined.Task">sdfs</MudIcon></span>@context.TaskName</MudTd>
+                <MudTd>@(context.CategoryId != null ? context.TaskCategory.CategoryName : "")</MudTd>
+                <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
+                <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
+                <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
+                <MudTd>@context.ActualEndDate?.Date.ToShortDateString()</MudTd>
+                <MudTd>
+                    @if (context.TaskUsers != null)
+                    {
+                        <MudStack Row="true">
+                            @foreach (var user in context.TaskUsers.Take(3))
+                            {
+                                <MudAvatar Class="m-0 p-0" Style="" Color="Color.Success" Variant="Variant.Outlined" Size="Size.Small">
+                                    @(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.Email[0])
+                                </MudAvatar>
+                            }
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudText>UnAssigned</MudText>
+                    }
 
-<MudTable Items="Tasks" Hover="true"
-    MultiSelection="false"
-    Virtualize="false"
-    Dense="false"
-    GroupBy="_groupDefinition">
-    <HeaderContent>
-        <MudTh>Task</MudTh>
-        <MudTh>Category</MudTh>
-        <MudTh>Planned Start Date</MudTh>
-        <MudTh>Actual Start Date</MudTh>
-        <MudTh>Planned End Date</MudTh>
-        <MudTh>Actual End Date</MudTh>
-        <MudTh>Status</MudTh>
-    </HeaderContent>
-    <GroupHeaderTemplate>
-        <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="7"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
-    </GroupHeaderTemplate>
-    <RowTemplate>
-        <MudTd><span><MudIcon Icon="@Icons.Material.Outlined.Task">sdfs</MudIcon></span>@context.TaskName</MudTd>
-        <MudTd>@(context.CategoryId != null? context.TaskCategory.CategoryName : "")</MudTd>
-        <MudTd>@context.PlannedStartDate</MudTd>
-        <MudTd>@context.ActualStartDate</MudTd>
-        <MudTd>@context.PlannedEndDate</MudTd>
-        <MudTd>@context.ActualEndDate</MudTd>
-        <MudTd>@context.Status</MudTd>
-    </RowTemplate>
-    <GroupFooterTemplate>
-        <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
-    </GroupFooterTemplate>
-</MudTable>
+                </MudTd>
+                <MudTd>@context.Status</MudTd>
+            </RowTemplate>
+            <GroupFooterTemplate>
+                <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
+            </GroupFooterTemplate>
+        </MudTable>
+    </MudItem>
+</MudStack>
+
+
+
+
+
 
 <style>
     .mud-table-cell-custom-group {
@@ -81,21 +169,101 @@
 
     [Parameter]
     public Project Project { get; set; } = new();
-
     public List<ProjectTask> Tasks { get; set; } = new();
+    private List<ProjectTask> newTasks { get; set; } = new();
+    private List<ProjectUser> projectUsers { get; set; } = new();
+    private HashSet<ProjectTask> selectedTasks { get; set; } = new();
+
+    bool _taskAdderOpen = false;
+    bool _taskeditorOpen = false;
+    bool _multiSelection = false;
+    bool _dense = false;
+    private List<string> editEvents = new();
+    private bool hover = true;
+    private bool ronly = false;
+    private bool canCancelEdit = false;
+    private bool blockSwitch = false;
+    private string searchString = "";
+    private ProjectTask selectedItem1 = null;
+    private ProjectTask elementBeforeEdit;
+    private HashSet<ProjectTask> selectedItems1 = new HashSet<ProjectTask>();
+    private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
+    private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
+    private TableEditTrigger editTrigger = TableEditTrigger.RowClick;
+    private IEnumerable<ProjectTask> Elements = new List<ProjectTask>();
 
     protected override async Task OnInitializedAsync()
+    {
+        await InitializeProps();
+        projectUsers = await ProjUserService.GetAllByCurrentProject();
+    }
+    private async Task InitializeProps()
     {
         Tasks = await TaskService.GetCurrentProjtasksAsync();
         Tasks.OrderBy(p => p.TaskId);
     }
     private TableGroupDefinition<ProjectTask> _groupDefinition = new()
+    {
+        GroupName = "Category",
+        Indentation = false,
+        Expandable = true,
+        IsInitiallyExpanded = false,
+        Selector = (e) => e.TaskCategory?.CategoryName ?? "Uncategorized"
+    };
+
+    private async Task SaveNewTasks()
+    {
+        if (_taskAdderOpen)
         {
-            GroupName = "Category",
-            Indentation = false,
-            Expandable = true,
-            IsInitiallyExpanded = false,
-            Selector = (e) => e.TaskCategory.CategoryName
-        };
+            var result = await TaskService.AddMany(newTasks);
+            foreach (var task in newTasks)
+            {
+                if (task.TaskUsers != null) await TaskUserService.AddMany(task.TaskUsers.ToList());
+            }
+
+            if (result != null) newTasks = new();
+            await InitializeProps();
+            StateHasChanged();
+        }
+        if (_taskeditorOpen)
+        {
+            foreach(var task in selectedTasks)
+            {
+                List<TaskUser> removableTasks = new();
+                List<TaskUser> newTasks = new();
+                await TaskService.UpdateProjectTaskAsync(task);
+                var taskUsers = await TaskUserService.GetByTask(task);//get current task users in database
+                foreach(var user in taskUsers)
+                {
+                    if (!task.TaskUsers.Contains(user))
+                    {
+                        removableTasks.Add(user);
+                    }
+                }
+                foreach(var user in task.TaskUsers)
+                {
+                    if (!taskUsers.Contains(user))
+                    {
+                        var newTaskUser = new TaskUser
+                        {
+                            TaskId = user.TaskId,
+                            UserId = user.UserId
+                        };
+                        newTasks.Add(user);
+                    }
+                }
+                await TaskUserService.RemoveMany(removableTasks);
+                await TaskUserService.AddMany(newTasks);
+            }
+            await InitializeProps();
+            StateHasChanged();
+        }
+
+    }
+    async Task GoToTask(TableRowClickEventArgs<ProjectTask> eventArgs)
+    {
+        var task = eventArgs.Item;
+        NavManager.NavigateTo($"projecttasks/details?taskid={task.TaskId}");
+    }
 
 }

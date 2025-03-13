@@ -15,9 +15,9 @@ namespace BuildMasterPro.Data
         public DateTime? DateCreated { get; set; } = DateTime.Now;
 
         [ForeignKey(nameof(ProjectId))]
-        public Project Project { get; set; }
+        public Project? Project { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public ApplicationUser User { get; set; }
+        public ApplicationUser? User { get; set; }
     }
 }

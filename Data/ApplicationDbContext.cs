@@ -14,8 +14,10 @@ namespace BuildMasterPro.Data
         public DbSet<ProjectTask> ProjectTask { get; set; } = default!;
         public DbSet<Resource> Resource { get; set; } = default!;
         public DbSet<ProjectUser> ProjectUsers { get; set; } = default!;
-
         public DbSet<TaskCategory> TaskCategories { get; set; } = default!;
+        public DbSet<TaskUser> TaskUsers { get; set; } = default!;
+        public DbSet<Client> Clients { get; set; } = default!;
+        public DbSet<TaskActivity> TaskActivities { get; set; } = default!;
 
     }
 }

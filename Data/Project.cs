@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BuildMasterPro.Data
@@ -17,5 +18,12 @@ namespace BuildMasterPro.Data
         [DataType(DataType.DateTime)]
         public DateTime Enddate { get; set; } = DateTime.Now.Date;
         public string Status { get; set; } = "Ongoing";
+        public string Address {get;set;} = string.Empty;
+        public int? ClientId { get; set; }
+
+        [ForeignKey(nameof(ClientId))]
+        public Client? Client { get; set; }
+
+        public ICollection<ProjectUser>? ProjectUsers { get; set; }
     }
 }

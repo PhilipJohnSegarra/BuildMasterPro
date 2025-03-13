@@ -1,12 +1,36 @@
 ﻿@page "/projecttasks/details"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
+@using BuildMasterPro.Services
+@using BuildMasterPro.Components.Pages.Dialogs
+@rendermode InteractiveServer
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject ProjectTaskService TaskService
+@inject IDialogService DialogService
+
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.Medium"/>
+<MudThemeProvider/>
 
 <PageTitle>Details</PageTitle>
 
 <h1>Details</h1>
+
+<MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" TabHeaderClass="SecondaryBG" PanelClass="pa-0" Style="min-height:80%;">
+    <MudTabPanel Class="MainText" Text="Activities">
+        <MudPaper Height="100%" Elevation="0">
+            <MudText>Content One</MudText>
+            <MudButton OnClick="OpenDialogAsync">Add Activity</MudButton>
+        </MudPaper>
+        
+    </MudTabPanel>
+    <MudTabPanel Class="MainText" Text="Tab Two">
+        <MudText>Content Two</MudText>
+    </MudTabPanel>
+    <MudTabPanel Class="MainText" Text="Tab Three">
+        <MudText>Content Three</MudText>
+    </MudTabPanel>
+</MudTabs>
 
 @* <div>
     <h2>ProjectTask</h2>
@@ -40,19 +64,25 @@
 </div> *@
 
 @code {
-    // private ProjectTask? projecttask;
+    private ProjectTask? projecttask;
 
-    // [SupplyParameterFromQuery]
-    // private int TaskId { get; set; }
+    [SupplyParameterFromQuery]
+    private int TaskId { get; set; }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     using var context = DbFactory.CreateDbContext();
-    //     projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
 
-    //     if (projecttask is null)
-    //     {
-    //         NavigationManager.NavigateTo("notfound");
-    //     }
-    // }
+        if (projecttask is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+    private Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        return DialogService.ShowAsync<TaskActivityAdderDialog>("Simple Dialog", options);
+    }
 }
