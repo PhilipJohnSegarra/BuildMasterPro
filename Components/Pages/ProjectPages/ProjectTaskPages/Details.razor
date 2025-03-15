@@ -11,6 +11,7 @@
 
 <MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.Medium" />
 <MudThemeProvider/>
+<MudPopoverProvider />
 
 @* <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" TabHeaderClass="SecondaryBG" PanelClass="pa-0" Style="min-height:80%;">
     <MudTabPanel Class="MainText" Text="Activities">
@@ -44,7 +45,7 @@
 <MudPaper Class="TransparentBG" Elevation="0" Style="height:100%;">
     <MudGrid Style="height:100%;" Spacing="1">
         <MudItem xs="12" md="12" lg="8" Style="height:100%;">
-            <MudPaper Style="overflow-y:auto;height:100%;">
+            <MudPaper Class="pa-3" Style="overflow-y:auto;height:100%;">
                 <MudToolBar Class="justify-space-between overflow-visible sticky-top pa-2" Style="width:100%;position:sticky;top: 5px;">
                     <MudPaper Class="pa-2 d-flex flex-row justify-space-between align-center SecondaryBG" Style="width:100%;">
                         <MudText Class="MainText">@projecttask.TaskName</MudText>
@@ -56,7 +57,7 @@
                 <MudStack Class="pb-3 mt-3 d-flex flex-column justify-center align-center" Elevation="0">
                     @foreach (var act in taskActivities)
                     {
-                        <MudPaper Class="d-flex flex-column justify-start pa-6 MainBG" Elevation="0" Style="width:98%;border:1px solid gray;">
+                        <MudPaper Class="d-flex flex-column justify-start pa-6 MainBG" Elevation="2" Style="width:98%;">
                             @if (!string.IsNullOrEmpty(act.Name))
                             {
                                 <MudPaper Class="d-flex flex-row justify-space-between align-center MainBG" Elevation="0">
@@ -65,7 +66,7 @@
                                 </MudPaper>
                                 <MudDivider Class="mb-2 mt-2" />
                             }
-                            <MudText Style="font-size:14px;">@act.Content</MudText>
+                            <MudText Class="mt-3" Style="font-size:14px;">@act.Content</MudText>
                         </MudPaper>
                     }
                 </MudStack>
@@ -76,8 +77,37 @@
             <MudPaper xs="12" md="12" lg="12" Style="overflow-y:auto;height:100%;">
                 <MudTabs Centered="true" Border="true">
                     <MudTabPanel Text="Details">
-                        <MudPaper Elevation="0">
-
+                        <MudPaper Class="d-flex flex-column justify-center align-center" Elevation="0" Style="max-height:100%;overflow-y:auto;width:100%;">
+                            @*BASIC DETAILS*@
+                            <MudPaper Elevation="1" Class="pa-4 mt-2" Style="width:98%;border:1px solid gray;">
+                                    <MudTextField Label="Name" Disabled="true" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskName"/>
+                                    <MudTextField Lines="3" Label="Description" Disabled="true" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskDescription"/>
+                                    <MudSelect Variant="Variant.Outlined" T="string">
+                                        <MudSelectItem T="string">
+                                            Not Started
+                                        </MudSelectItem>
+                                        <MudSelectItem T="string">
+                                            In Progress
+                                        </MudSelectItem>
+                                        <MudSelectItem T="string">
+                                            On Hold
+                                        </MudSelectItem>
+                                        <MudSelectItem T="string">
+                                            Abandoned
+                                        </MudSelectItem>
+                                        <MudSelectItem T="string">
+                                            Finihed
+                                        </MudSelectItem>
+                                    </MudSelect>
+                            </MudPaper>
+                            @*PROGRESS SLIDER*@
+                            <MudPaper Elevation="1" Class="pa-4 mt-2" Style="width:98%;border:1px solid gray;">
+                                <MudPaper Elevation="0" Class="d-flex flex-row justify-space-between align-center">
+                                    <MudText Style="font-size:12px;">Progress</MudText>
+                                    <MudText Style="font-size:12px;">50%</MudText>
+                                </MudPaper>
+                                <MudSlider Value="50" Disabled="true" />
+                            </MudPaper>
                         </MudPaper>
                     </MudTabPanel>
                     <MudTabPanel Text="Files">
