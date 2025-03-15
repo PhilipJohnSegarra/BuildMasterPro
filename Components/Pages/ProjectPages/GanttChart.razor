@@ -3,10 +3,25 @@
 @using BuildMasterPro.Data
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
 
-@* <SfGantt DataSource="@TaskCollection" Height="100%" Width="100%">
-    <GanttTaskFields Id="TaskId" Name="TaskName" StartDate="StartDate" EndDate="EndDate" Duration="Duration" Progress="Progress" ParentID="ParentId" Dependency="Predecessor">
-    </GanttTaskFields>
-</SfGantt>
+<MudPaper Elevation="1" Class="pa-0" Style="height:100%;">
+    @if (TaskCollection.Count > 0)
+    {
+        <SfGantt DataSource="@Tasks" Height="100%" Width="100%" ScrollToTaskbarOnClick="true">
+            <GanttTaskFields Id="TaskId" Name="TaskName" StartDate="PlannedStartDate" EndDate="PlannedEndDate">
+            </GanttTaskFields>
+            <GanttColumns>
+                <GanttColumn Field="TaskId" HeaderText="Task Id"/>
+                <GanttColumn Field="TaskName" HeaderText="Task Name" />
+                <GanttColumn Field="PlannedStartDate" HeaderText="Planned Start Date" />
+                <GanttColumn Field="PlannedEndDate" HeaderText="Planned End date" />
+                <GanttColumn Field="ActualStartDate" HeaderText="Actual Start Date" />
+                <GanttColumn Field="ActualEndDate" HeaderText="Actual End date" />
+            </GanttColumns>
+        </SfGantt>
+    }
+</MudPaper>
+
+
 
 @code {
     private List<TaskData> TaskCollection { get; set; } = new();
@@ -15,7 +30,19 @@
     {
 
         Tasks = await TaskService.GetCurrentProjtasksAsync();
-        await GetTaskCollectionAsync();
+        foreach(var task in Tasks)
+        {
+            TaskCollection.Add(
+                new TaskData()
+                    {
+                        TaskId = task.TaskId,
+                        TaskName = task.TaskName,
+                        StartDate = new DateTime(task.PlannedStartDate.Year, task.PlannedStartDate.Month, task.PlannedStartDate.Day),
+                        EndDate = new DateTime(task.PlannedEndDate.Year, task.PlannedEndDate.Month, task.PlannedEndDate.Day)
+
+                    }
+            );
+        }
     }
 
     public class TaskData
@@ -38,24 +65,11 @@
         //     new TaskData() { TaskId = 3, TaskName = "Perform soil test", StartDate = new DateTime(2022, 04, 05), Duration = "4", Progress = 50, Predecessor = "2" }
         // };
 
-        foreach(var task in Tasks)
-        {
-            TaskCollection.Add(
-                new TaskData()
-                {
-                    TaskId = task.TaskId,
-                    TaskName = task.TaskName,
-                    StartDate = task.PlannedStartDate,
-                    EndDate = task.PlannedEndDate,
-                    Progress = 6,
-                    Duration = ((int)(task.PlannedEndDate - task.PlannedStartDate).TotalDays).ToString()
-                }
-            );
-        }
+        
 
 
     }
-} *@
+}
 
 
 @* @page "/gantt"
