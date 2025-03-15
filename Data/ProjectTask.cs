@@ -17,7 +17,7 @@ namespace BuildMasterPro.Data
 
         //PROPERTIES 12/01/2025
         [DataType(DataType.DateTime)]
-        public DateTime PlannedStartDate {  get; set; } = DateTime.Now;
+        public DateTime PlannedStartDate { get; set; } = DateTime.Now;
         [DataType(DataType.DateTime)]
         public DateTime PlannedEndDate { get; set; } = DateTime.Now;
         [DataType(DataType.DateTime)]

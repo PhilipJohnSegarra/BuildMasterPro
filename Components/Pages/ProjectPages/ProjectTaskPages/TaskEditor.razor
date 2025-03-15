@@ -35,13 +35,13 @@
 
         <MudItem lg="2">
             @* <label>Project Name:</label> *@
-            <MudDatePicker Label="Planned Start Date:" Editable="true" @bind-Value="ProjectTask.PlannedStartDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@ProjectTask.PlannedStartDate.ToString()" Variant="Variant.Text" Class="mud-width-full" />
+            <MudDatePicker Date="ProjectTask.PlannedStartDate" Label="Planned Start Date:" Editable="true" DateChanged="OnStartDateChanged" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@ProjectTask.PlannedStartDate.ToString()" Variant="Variant.Text" Class="mud-width-full" />
             @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
         </MudItem>
 
         <MudItem lg="2">
             @* <label>Project Name:</label> *@
-            <MudDatePicker Label="Planned End Date:" Editable="true" @bind-Value="ProjectTask.PlannedEndDate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@ProjectTask.PlannedStartDate.ToString()" Variant="Variant.Text" Class="mud-width-full" />
+            <MudDatePicker Date="ProjectTask.PlannedEndDate" Label="Planned End Date:" Editable="true" DateChanged="OnEndDateChanged" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@ProjectTask.PlannedStartDate.ToString()" Variant="Variant.Text" Class="mud-width-full" />
             @* <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
         </MudItem>
 
@@ -128,5 +128,14 @@
                     UserId = pu.UserId
                 })
             .ToList();
+    }
+
+    private void OnStartDateChanged(DateTime? newDate)
+    {
+        ProjectTask.PlannedStartDate = (DateTime)newDate!;
+    }
+    private void OnEndDateChanged(DateTime? newDate)
+    {
+        ProjectTask.PlannedEndDate = (DateTime)newDate!;
     }
 }
