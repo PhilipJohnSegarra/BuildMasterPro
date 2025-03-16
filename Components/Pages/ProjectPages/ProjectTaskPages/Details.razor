@@ -7,41 +7,13 @@
 @inject NavigationManager NavigationManager
 @inject ProjectTaskService TaskService
 @inject TaskActivityService taskActService
+@inject ProjectService ProjectService
 @inject IDialogService DialogService
 
 <MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.Medium" />
 <MudThemeProvider/>
 <MudPopoverProvider />
 
-@* <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" TabHeaderClass="SecondaryBG" PanelClass="pa-0" Style="min-height:80%;">
-    <MudTabPanel Class="MainText" Text="Activities">
-        <MudPaper Style="height:80vh;overflow-y:auto;" Elevation="0" Class="pa-6">
-            <MudButton OnClick="OpenDialogAsync">Add Activity</MudButton>
-            <MudStack>
-                @foreach(var act in taskActivities)
-                {
-                    <MudPaper Class="d-flex flex-column justify-start pa-6" Elevation="1">
-                        @if (!string.IsNullOrEmpty(act.Name))
-                        {
-                            <MudPaper Class="d-flex flex-row justify-space-between align-center" Elevation="0">
-                                <MudText Style="font-size:20px;">@act.Name</MudText>
-                                <MudText Class="ms-1" Style="color:gray;font-size:10px;">posted by @act.User.Email | @act.DateCreated.Date.ToLongDateString() - @act.DateCreated.ToLocalTime().ToShortTimeString()</MudText>
-                            </MudPaper>
-                            <MudDivider Class="mb-2 mt-2"/>
-                        }
-                        <MudText Style="font-size:14px;">@act.Content</MudText>
-                    </MudPaper>
-                }
-            </MudStack>
-        </MudPaper>
-    </MudTabPanel>
-    <MudTabPanel Class="MainText" Text="Files and Links">
-        <MudText>Content Two</MudText>
-    </MudTabPanel>
-    <MudTabPanel Class="MainText" Text="Tab Three">
-        <MudText>Content Three</MudText>
-    </MudTabPanel>
-</MudTabs> *@
 <MudPaper Class="TransparentBG" Elevation="0" Style="height:100%;">
     <MudGrid Style="height:100%;" Spacing="1">
         <MudItem xs="12" md="12" lg="8" Style="height:100%;">
@@ -82,7 +54,7 @@
                             <MudPaper Elevation="1" Class="pa-4 mt-2" Style="width:98%;border:1px solid gray;">
                                     <MudTextField Label="Name" Disabled="true" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskName"/>
                                     <MudTextField Lines="3" Label="Description" Disabled="true" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskDescription"/>
-                                    <MudSelect Variant="Variant.Outlined" T="string">
+                                    <MudSelect Variant="Variant.Outlined" T="string" @bind-Value="projecttask.Status" Style="font-size:12px;">
                                         <MudSelectItem T="string">
                                             Not Started
                                         </MudSelectItem>
