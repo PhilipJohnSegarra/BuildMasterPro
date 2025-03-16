@@ -8,6 +8,6 @@ namespace BuildMasterPro.Data
         [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
         public string? ImageArrayId { get; set; }
         [BsonElement("images")]
-        public string[]? Images { get; set; }
+        public List<string>? Images { get; set; }
     }
 }
