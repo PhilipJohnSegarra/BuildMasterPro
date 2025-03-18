@@ -1,0 +1,86 @@
+﻿@using BuildMasterPro.Data
+@using BuildMasterPro.Services
+@inject ChannelService channelService
+@inject ProjectService ProjectService
+@inject ProjectUserService projUserService
+@inject NavigationManager NavManager
+
+<MudThemeProvider />
+<MudPopoverProvider/>
+
+
+<MudDialog Style="overflow:visible;" Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="dialog-background-surface py-10" ActionsClass="dialog-background-surface">
+    <TitleContent>
+        New Channel
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="Channel">
+            <MudTextField Variant="Variant.Outlined" Placeholder="Title" @bind-Value="Channel.ChannelName" Class="mb-1" />
+            <MudTextField Variant="Variant.Outlined" Placeholder="Category" @bind-Value="Channel.Category" />
+            <MudTextField Variant="Variant.Outlined" Placeholder="Write something..." Lines="5" @bind-Value="Channel.ChannelDescription" />
+            @* <MudSelect T="string"
+                MultiSelection="true"
+                SelectedValues="Channel.ChannelMemberIds"
+                SelectedValuesChanged="e => Channel.ChannelMemberIds = e.ToList()">
+                @foreach(var u in projectUsers)
+                {
+                    <MudSelectItem Value="u.User.Id">@u.User.Email</MudSelectItem>
+                }
+            </MudSelect> *@
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@* <style>
+    .blur {
+        backdrop-filter: blur(10px);
+    }
+
+    .dialog-background {
+        background-color: transparent;
+    }
+
+    .dialog-background-title {
+        background: rgb(from var(--mud-palette-info-lighten) r g b / 50%);
+        color: var(--mud-palette-white);
+    }
+
+    .dialog-background-surface {
+        background: rgb(from var(--mud-palette-surface) r g b / 75%);
+    }
+</style> *@
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    private Channel? Channel { get; set; } = new();
+
+    private Project? Project { get; set; } = new();
+    private List<ProjectUser> projectUsers { get; set; } = new();
+    private List<string> memberIds { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Project = await ProjectService.GetCurrentProjectAsync();
+        projectUsers = await projUserService.GetAllByCurrentProject();
+        Channel.ProjectId = Project.ProjectId;
+        var members = from member in projectUsers
+                      select member.UserId;
+        memberIds = members.ToList();
+        Channel.ChannelMemberIds = memberIds;
+    }
+
+    private async Task Submit()
+    {
+        await channelService.AddNewChannelAsync(Channel);
+        MudDialog!.Close(DialogResult.Ok(true));
+        NavManager.NavigateTo("projects/channels", forceLoad: true);
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+}
