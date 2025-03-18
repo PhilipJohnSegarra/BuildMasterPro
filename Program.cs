@@ -61,6 +61,7 @@ builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<ProjectTaskService>();
 builder.Services.AddSingleton<MongoService>();
 builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<ChannelService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProjectUserService>();
 builder.Services.AddScoped<TaskUserService>();

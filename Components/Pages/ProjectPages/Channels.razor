@@ -1,5 +1,189 @@
-﻿<h3>Channels</h3>
+﻿@page "/projects/channels"
+@using BuildMasterPro.Components.Pages.Dialogs
+@using BuildMasterPro.Services
+@using BuildMasterPro.Data
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ProjectService ProjectService
+@inject ProjectUserService projUserService
+@inject ChannelService channelService
+@inject IDialogService DialogService
+@inject IJSRuntime JSRuntime
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<MudDialogProvider MaxWidth="MaxWidth.Large" FullWidth="true"/>
+@if(projectChannels != null || projectChannels.Count > 0)
+{
+    <MudPaper Class="pa-0 TransparentBG" Elevation="0" Style="height:100%;width:100%;">
+        <MudGrid Style="height:100%;width:100%;" Spacing="1">
+            <MudItem lg="3" Style="height:100%;width:100%;">
+                <MudPaper Class="MainBG d-flex flex-column justify-center align-center" Style="height:100%;width:100%;">
+                    <div style="display:grid;grid-template-rows:50px 1fr;height:100%;width:100%;">
+                        <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
+                            <MudText>
+                                Channels
+                            </MudText>
+                            <MudIconButton OnClick="OpenDialogAsync" Icon="@Icons.Material.Outlined.NoteAdd" Style="padding:3px;border-radius:0;" />
+                        </MudPaper>
+                        <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG pt-3 ps-3 pe-3 pb-3" Style="border-radius:0;height:100%;width:100%;z-index:8;overflow-y:auto;">
+                            @* @foreach (var i in projectChannels)
+                            {
+                                <MudButton Class="pa-2" Style="width:100%;">
+                                    <MudText Align="Align.Start" Style="width:100%;">
+                                        @i.ChannelName
+                                    </MudText>
+                                </MudButton>
+                            } *@
+                            <MudList T="string" Style="width:100%;">
+                                @foreach (var category in channelCategories)
+                                {
+                                    <MudListItem Text="@category">
+                                        <NestedList>
+                                            @foreach(var c in projectChannels.Where(c => c.Category.Equals(category)))
+                                            {
+                                                <MudListItem OnClick="()=>{CurrentChannel = c;}">@c.ChannelName</MudListItem>
+                                            }
+                                        </NestedList>
+                                        
+                                    </MudListItem>
+                                }
+                            </MudList>
+                            
+                        </MudPaper>
+                    </div>
+                </MudPaper>
+            </MudItem>
+            <MudItem lg="9" Style="height:100%;width:100%;">
+                <MudPaper Class="MainBG" Style="height:100%;width:100%;">
+                    <div style="display:grid;grid-template-rows:50px 1fr 70px;height:100%;width:100%;">
+                        <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
+                            <MudText>
+                                @(CurrentChannel != null? CurrentChannel.ChannelName : "No Channel Selected")
+                            </MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Menu" Style="padding:3px;border-radius:0;" />
+                        </MudPaper>
+                        <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG pt-3 ps-3 pe-3 pb-3" Style="border-radius:0;height:100%;width:100%;z-index:8;overflow-y:auto;">
+                            <div id="messages" style="overflow-y:auto;padding:1rem;height:100%;width:100%;">
+                                @if (CurrentChannel.ChannelMessages != null)
+                                {
+                                    <MudStack Style="max-height:100%;width:100%;">
+                                        @foreach (var message in CurrentChannel.ChannelMessages)
+                                        {
+                                            <MudPaper Style="width:max-content;border-radius:10px;margin-top:5px;margin-bottom:5px;padding:1rem;"
+                                                      Class="@(message.SenderID == this.CurrentUser.Id? "PrimaryBG senderStyle" : "SecondaryBG")">
+                                                <p style="font-size:10px;color:gray;">@message.SenderName</p>
+                                                <p class="MainText">@message.Message</p>
+                                            </MudPaper>
+                                        }
+                                    </MudStack>
+                                }
+                                else
+                                {
+                                    <p>Loading Messages</p>
+                                }
+                            </div>
+
+                        </MudPaper>
+                        <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
+                            <MudIconButton Icon="@Icons.Material.Filled.AttachFile" Style="padding:3px;border-radius:0;" />
+                            <MudTextField T="string" @bind-Value="MessageBoxText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined"/>
+                            <MudIconButton Icon="@Icons.Material.Filled.Send" OnClick="SendMessage" Style="padding:3px;border-radius:0;" />
+                        </MudPaper>
+                    </div>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+else
+{
+    <MudText>Loading...</MudText>
+}
+
+<style>
+    .senderStyle {
+        margin-left: auto;
+    }
+</style>
 
 @code {
+    private List<Channel> projectChannels { get; set; } = new();
+    private List<string> channelCategories { get; set; } = new();
+    private Channel? CurrentChannel { get; set; } = new();
+    private int? projId;
+
+    private string? MessageBoxText { get; set; }
+
+    private AuthenticationState? authState;
+    private ApplicationUser? CurrentUser { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        CurrentUser = await UserManager.GetUserAsync(authState.User);
+        var proj = await ProjectService.GetCurrentProjectAsync();
+        projId = proj.ProjectId;
+        projectChannels = await channelService.GetProjChannelsAsync((int)projId);
+
+        foreach(var c in projectChannels)
+        {
+            if (!channelCategories.Contains(c.Category) && c.Category != null)
+            {
+                channelCategories.Add(c.Category);
+            }
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await ScrollMessages();
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+
+    }
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var currentProject = await ProjectService.GetCurrentProjectAsync();
+        var projMembers = projUserService.GetAllByCurrentProject();
+        // member
+
+        // var parameters = new DialogParameters<ChannelAdderDialog>
+        // {
+        //     {x => x.ProjectId, currentProject.ProjectId}
+        // };
+
+        var result = await DialogService.ShowAsync<ChannelAdderDialog>("Simple Dialog", options);
+
+    }
+    private async Task ScrollMessages()
+    {
+        await JSRuntime.InvokeVoidAsync("scrollToBottom", "messages");
+    }
+    private async Task SendMessage()
+    {
+        if(!string.IsNullOrEmpty(MessageBoxText) && CurrentChannel != null)
+        {
+            ChannelMessage message = new()
+            {
+                Message = MessageBoxText,
+                SenderID = CurrentUser.Id,
+                SenderName = CurrentUser.FirstName != null && CurrentUser.LastName != null ? CurrentUser.FirstName + " " + CurrentUser.LastName : CurrentUser.Email
+            };
+
+            await channelService.AddMessageAsync(CurrentChannel.ChannelId, message);
+            CurrentChannel = await channelService.GetChannelByIdAsync(CurrentChannel.ChannelId);
+            MessageBoxText = "";
+        }
+        else
+        {
+            return;
+        }
+
+    }
 
 }

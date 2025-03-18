@@ -17,7 +17,7 @@ namespace BuildMasterPro.Data
         public List<ChannelMessage>? ChannelMessages { get; set; }
         [BsonElement("channel_category")]
         public string? Category { get; set; }
-        [BsonElement("channel_category")]
+        [BsonElement("channel_projectId")]
         public int? ProjectId { get; set; }
 
     }
