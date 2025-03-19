@@ -44,7 +44,7 @@
                                         <NestedList>
                                             @foreach(var c in projectChannels.Where(c => c.Category.Equals(category)))
                                             {
-                                                <MudListItem OnClick="()=>{CurrentChannel = c;}">@c.ChannelName</MudListItem>
+                                                <MudListItem OnClick="async()=>{await SetCurrentChannel(c);}">#@c.ChannelName</MudListItem>
                                             }
                                         </NestedList>
                                         
@@ -184,6 +184,11 @@ else
             return;
         }
 
+    }
+
+    public async Task SetCurrentChannel(Channel channel)
+    {
+        CurrentChannel = await channelService.GetChannelByIdAsync(channel.ChannelId);
     }
 
 }
