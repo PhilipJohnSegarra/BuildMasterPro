@@ -45,9 +45,9 @@
                     <!--Email Field-->
                     <div class="form-group">
                         @* <label for="email" class="form-label">Email:</label> *@
-                        <MudTextField ShrinkLabel Label="Email" @bind-Value="Input.Email" Variant="Variant.Outlined" Margin=Margin.Dense
-                                 autocomplete="username" aria-required="true" For="(() => Input.Email)"></MudTextField>
-                        @* <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Email"/> *@
+                        @* <MudTextField ShrinkLabel Label="Email" @bind-Value="Input.Email" Variant="Variant.Outlined" Margin=Margin.Dense
+                                 autocomplete="username" aria-required="true" For="(() => Input.Email)"></MudTextField> *@
+                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Email"/>
                         <ValidationMessage For="() => Input.Email" class="text-danger" style="font-size: 12px; color: #DC0000;" />
                     </div>
 
@@ -55,9 +55,9 @@
                     <!--Password Field-->
                     <div class="form-group mt-3">
                         @* <label for="password" class="form-label" style="text-align:left; font-weight: bold;">Password:</label> *@
-                        <MudTextField ShrinkLabel type="password" Label="Password" @bind-Value="Input.Password" Variant="Variant.Outlined"
-                                Margin=Margin.Dense autocomplete="current-password" aria-required="true" For="(() => Input.Password)"></MudTextField>
-                        @* <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" /> *@
+                        @* <MudTextField ShrinkLabel type="password" Label="Password" @bind-Value="Input.Password" Variant="Variant.Outlined"
+                                Margin=Margin.Dense autocomplete="current-password" aria-required="true" For="(() => Input.Password)"></MudTextField> *@
+                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
                         <ValidationMessage For="() => Input.Password" class="text-danger" style="font-size: 12px; color: #DC0000;" />
                     </div>
 

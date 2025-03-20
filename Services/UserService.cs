@@ -2,15 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using BuildMasterPro.Data;
 using BuildMasterPro.Repositories;
+using System.Security.Claims;
 
 namespace BuildMasterPro.Services
 {
     public class UserService : RepositoryBased<ApplicationUser>
     {
         IDbContextFactory<ApplicationDbContext> _db;
-        public UserService(IDbContextFactory<ApplicationDbContext> db) : base(db)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public UserService(IDbContextFactory<ApplicationDbContext> db, UserManager<ApplicationUser> userManager) : base(db)
         {
             _db = db;
+            _userManager = userManager;
         }
 
         public async Task<List<ApplicationUser>> GetAll()
@@ -35,6 +38,9 @@ namespace BuildMasterPro.Services
         {
             await UpdateAsync(oldEntity, newEntity);
         }
-
+        public async Task<ApplicationUser> GetCurrentUserAsync(ClaimsPrincipal user)
+        {
+            return await _userManager.GetUserAsync(user);
+        }
     }
 }

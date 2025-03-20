@@ -204,7 +204,7 @@ else
         Users = await db.Users.ToListAsync();
         CurrentUser = await UserManager.GetUserAsync(authState.User);
         Sender = await UserManager.GetUserAsync(authState.User);
-        Messages = MessageService.Messages;
+        Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
 
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -223,7 +223,7 @@ else
                 await messageCollection.InsertOneAsync(message);
                 MessageText = "";
                 await MessageService.GetLatestMessagesForUser(CurrentUser);
-                Messages = MessageService.Messages;
+                Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
                 UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, this.Receiver);
                 await ScrollMessages();
             }
