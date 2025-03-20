@@ -66,6 +66,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProjectUserService>();
 builder.Services.AddScoped<TaskUserService>();
 builder.Services.AddScoped<TaskActivityService>();
+builder.Services.AddScoped<ResourceService>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 
 var app = builder.Build();

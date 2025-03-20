@@ -2,9 +2,10 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
-@using BuildMasterPro.Data
+@using BuildMasterPro.Services
 @implements IAsyncDisposable
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject ResourceService resourceService
 @using Microsoft.AspNetCore.Authorization
 
 <PageTitle>Index</PageTitle>
@@ -38,12 +39,30 @@
     </Columns>
 </MudDataGrid> *@
 
+@* <MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Nr</MudTh>
+        <MudTh>Sign</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Position</MudTh>
+        <MudTh>Molar mass</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Number</MudTd>
+        <MudTd DataLabel="Sign">@context.Sign</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Position" HideSmall="_hidePosition">@context.Position</MudTd>
+        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
+    </RowTemplate>
+</MudTable> *@
+
 @code {
     private ApplicationDbContext context = default!;
+    private List<Resource> resources { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
