@@ -1,19 +1,38 @@
 ﻿@rendermode InteractiveServer
 
 <!--NavBar-->
-<div class="navbar-container" style="@style">
-    <div class="logolink" style="">
+@* <div class="navbar-container" style="@style"> *@
+@*     <div class="logolink" style=""> *@
+@*         <a href="pages/LandingPage"><img id="logo" class="logo" src="/images/BlocksLogo.svg" /></a> *@
+@*         <a class="logoname" href="pages/LandingPage" style="font-size: 16px; font-weight: bold"><h4>BuildMaster <span style="color: #5A3E9F">Pro</span></h4></a> *@
+@*     </div> *@
+@*     <div></div> *@
+@*     <div class="@navCTAClass navbar-links"> *@
+@*         <a href="Account/Register" target="_parent" style="font-size: 16px; font-weight: bold">About</a> *@
+@*         <a href="Account/Login" target="_parent" style="font-size: 16px; font-weight: bold">Features</a> *@
+@*         <button class="nav-button" type="button" @onclick="showNav"> *@
+@*             <img src="/icons/menu_icon.png" class="menu-button" alt="Alternate Text" /> *@
+@*         </button> *@
+@*     </div> *@
+@* </div> *@
+
+<div class="navbar-container">
+    <div class="logolink">
         <a href="pages/LandingPage"><img id="logo" class="logo" src="/images/BlocksLogo.svg" /></a>
         <a class="logoname" href="pages/LandingPage" style="font-size: 16px; font-weight: bold"><h4>BuildMaster <span style="color: #5A3E9F">Pro</span></h4></a>
-    </div>
-    <div class="@navCTAClass navbar-links">
-        <a href="Account/Register" target="_parent" style="font-size: 16px; font-weight: bold">About</a>
-        <a href="Account/Login" target="_parent" style="font-size: 16px; font-weight: bold">Features</a>
         <button class="nav-button" type="button" @onclick="showNav">
             <img src="/icons/menu_icon.png" class="menu-button" alt="Alternate Text" />
         </button>
     </div>
+
+    <div></div>
+
+    <div class="@navCTAClass navbar-links">
+        <a href="/Account/Register" target="_parent">About</a>
+        <a href="/Account/Login" target="_parent">Features</a>
+    </div>
 </div>
+
 
 @code {
     //Customize Navbar style
