@@ -41,8 +41,8 @@ namespace BuildMasterPro.Services
                 .Project(g => g.LatestMessage.m)
                 .ToListAsync();
 
-            this.Messages = messages.OrderByDescending(m => m.Timestamp).ToList();
-            return this.Messages;
+            return messages.OrderByDescending(m => m.Timestamp).ToList();
+            
         }
         public async Task<List<Message>> GetAllMessagesForUsers(ApplicationUser user, ApplicationUser? user2)
         {
