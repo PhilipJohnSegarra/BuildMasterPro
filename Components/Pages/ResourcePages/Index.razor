@@ -16,7 +16,7 @@
     <a href="resources/create">Create New</a>
 </p>
 
-<Microsoft.AspNetCore.Components.QuickGrid.QuickGrid Class="table" Items="context.Resource">
+@* <Microsoft.AspNetCore.Components.QuickGrid.QuickGrid Class="table" Items="context.Resource">
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="resource => resource.Name" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="resource => resource.Description" />
     <Microsoft.AspNetCore.Components.QuickGrid.PropertyColumn Property="resource => resource.Type" />
@@ -28,7 +28,7 @@
         <a href="@($"resources/details?resourceid={resource.ResourceId}")">Details</a> |
         <a href="@($"resources/delete?resourceid={resource.ResourceId}")">Delete</a>
     </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-</Microsoft.AspNetCore.Components.QuickGrid.QuickGrid>
+</Microsoft.AspNetCore.Components.QuickGrid.QuickGrid> *@
 @* <MudDataGrid Items="context.Resource">
     <Columns>
         <MudBlazor.PropertyColumn Property="resource => resource.Name" />
@@ -41,18 +41,18 @@
 
 @* <MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
-        <MudTh>Nr</MudTh>
-        <MudTh>Sign</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Descrp</MudTh>
         <MudTh>Name</MudTh>
         <MudTh>Position</MudTh>
         <MudTh>Molar mass</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nr">@context.Number</MudTd>
-        <MudTd DataLabel="Sign">@context.Sign</MudTd>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Position" HideSmall="_hidePosition">@context.Position</MudTd>
-        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
+        <MudTd DataLabel="Nr">@context..Name</MudTd>
+        <MudTd DataLabel="Sign">@context.Description</MudTd>
+        <MudTd DataLabel="Name">@context.Type</MudTd>
+        <MudTd DataLabel="Name">@context.Status</MudTd>
+        <MudTd DataLabel="Name">@context.Quantity</MudTd>
     </RowTemplate>
 </MudTable> *@
 
