@@ -59,9 +59,10 @@ main {
 
 .form-control {
     width: 100%;
-    padding: 10px;
+    padding: 100px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    outline: solid;
 }
 
 .button {
@@ -85,24 +86,3 @@ main {
         font-size: 16px;
         cursor: pointer;
     }
-
-/*Elements for Images*/
-.decor-imageleft {
-    margin-right: 500px;
-    margin-top: 500px;
-    position: absolute;
-    z-index: 0;
-    bottom: 0px;
-    left: 0px;
-    width: 750px;
-    height: 750px;
-}
-
-.decor-imageright {
-    position: absolute;
-    z-index: 0;
-    bottom: 0px;
-    right: 0px;
-    width: 750px;
-    height: 750px;
-}
