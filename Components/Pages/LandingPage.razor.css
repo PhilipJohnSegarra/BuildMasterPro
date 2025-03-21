@@ -12,12 +12,12 @@
 .logo {
     height: 90px;
     width: auto;
-    margin-bottom: 1rem;
 }
 
 .headers-content {
     text-align: center;
     font-size: 2rem;
+    margin-top: 1rem;
 }
 
 .sub-container {
@@ -35,7 +35,8 @@
     gap: 30px;
 }
 
-.about-button, .features-button {
+.login-button, .signup-button {
+    margin: 5px;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
@@ -45,7 +46,7 @@
     transition: 0.3s ease-in-out;
 }
 
-.about-button {
+.login-button {
     border: solid;
     border-color: #5A3E9F;
     color: #5A3E9F;
@@ -53,22 +54,35 @@
     width: 110px;
 }
 
-    .about-button:hover {
+    .login-button:hover {
         border-color: #9068F2;
         color: #9068F2;
     }
 
-.features-button {
+.signup-button {
+    padding: 11px 25px;
     background-color: #5A3E9F;
     color: white;
 }
 
-    .features-button:hover {
+    .signup-button:hover {
         background: radial-gradient(circle, #9068F2, #5A3E9F);
     }
 
 @media(max-width:768px) {
+    .logo {
+        margin-top: 50px;
+    }
 
+    .headers-content {
+        font-size: 1.5rem;
+    }
+
+    .sub-container {
+        font-size: 1rem;
+        width: 80%;
+        margin-bottom: 20px;
+    }
 }
 
 

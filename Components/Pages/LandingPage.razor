@@ -1,4 +1,5 @@
 ﻿@page "/Pages/LandingPage"
+@inject NavigationManager Navigation
 @layout BuildMasterPro.Components.Layout.LandingLayout
 
 @* Main Container *@
@@ -7,7 +8,7 @@
     <div class="hero-container">
         @* Logo Picture *@
         <div><img src="/images/BlocksLogo.svg" alt="BuildMaster Pro Logo" class="logo"></div>
-        
+
         @* Headers Container *@
         <div class="headers-content">
             <h1 style="color: #5A3E9F;" class="first-tagline">
@@ -24,8 +25,8 @@
 
         @* Buttons *@
         <div class="buttons-container">
-            <button class="about-button" @onclick="AboutClick">About</button>
-            <button class="features-button" @onclick="FeaturesClick">Features</button>
+            <button class="login-button" @onclick="AboutClick">Login</button>
+            <button class="signup-button" @onclick="FeaturesClick">Sign Up</button>
         </div>
     </div>
 
@@ -35,34 +36,11 @@
 @code {
     private void AboutClick()
     {
-        Console.WriteLine("About button clicked");
+        Navigation.NavigateTo("Account/Login");
     }
 
     private void FeaturesClick()
     {
-        Console.WriteLine("Features button clicked");
+        Navigation.NavigateTo("Account/Register");
     }
-@*    [CascadingParameter] *@
-@*    private Task<AuthenticationState> authenticationStateTask { get; set; } *@
-
-@*    [Inject] *@
-@*    public NavigationManager NavigationManager { get; set; } *@
-
-@*      protected async override Task OnInitializedAsync() *@
-@*     { *@
-@*         var authenticationState = await authenticationStateTask; *@
-
-@*         if (authenticationState.User.Identity.IsAuthenticated) *@
-@*        { *@
-@*             if (authenticationState.User.IsInRole("")) *@
-@*           { *@
-@*               NavigationManager.NavigateTo("/home"); *@
-
-@*            } *@
-@*             else *@
-@*              { *@
-@*               NavigationManager.NavigateTo(""); *@
-@*              } *@
-@*          } *@
-@*      } *@
 }
