@@ -280,7 +280,7 @@ else
         if ((newMessage.SenderID == Sender.Id && newMessage.ReceiverID == Receiver.Id) ||
             (newMessage.SenderID == Receiver.Id && newMessage.ReceiverID == Sender.Id))
         {
-            Messages.Add(newMessage);
+            UserMessages.Add(newMessage);
             InvokeAsync(StateHasChanged);
         }
     }
