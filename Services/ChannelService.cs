@@ -17,6 +17,7 @@ namespace BuildMasterPro.Services
         {
             _mongoService = mongoService;
             _channels = _mongoService.GetCollection<Channel>("Channels");
+            StartListeningForChanges();
         }
 
         public async Task<List<Channel>> GetProjChannelsAsync(int projectId)
@@ -58,7 +59,7 @@ namespace BuildMasterPro.Services
 
             return result.DeletedCount > 0;
         }
-        public async Task<Channel?> GetChannelByIdAsync(string channelId)
+        public async Task<Channel> GetChannelByIdAsync(string channelId)
         {
             var filter = Builders<Channel>.Filter.Eq(c => c.ChannelId, channelId);
             return await _channels.Find(filter).FirstOrDefaultAsync();
@@ -71,7 +72,7 @@ namespace BuildMasterPro.Services
         private void StartListeningForChanges()
         {
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Channel>>()
-            .Match("{ operationType: 'insert' }");
+            .Match("{ operationType: 'update' }");
 
             var cursor = _channels.Watch(pipeline);
 

@@ -15,7 +15,7 @@
 @rendermode InteractiveServer
 
 <MudDialogProvider MaxWidth="MaxWidth.Large" FullWidth="true"/>
-@if(projectChannels != null || projectChannels.Count > 0)
+@if(projectChannels != null && projectChannels.Count > 0)
 {
     <MudPaper Class="pa-0 TransparentBG" Elevation="0" Style="height:100%;width:100%;">
         <MudGrid Style="height:100%;width:100%;" Spacing="1">
@@ -82,7 +82,7 @@
                                 }
                                 else
                                 {
-                                    <p>Loading Messages</p>
+                                    <p>No Messages Yet</p>
                                 }
                             </div>
 
@@ -201,7 +201,7 @@ else
 
     private void NewMessageReceived(Channel channel)
     {
-        SetCurrentChannel(channel);
+        SetCurrentChannel(CurrentChannel);
         InvokeAsync(StateHasChanged);
     }
 
