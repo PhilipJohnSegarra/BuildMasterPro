@@ -29,15 +29,15 @@
                             <MudIconButton OnClick="OpenDialogAsync" Icon="@Icons.Material.Outlined.NoteAdd" Style="padding:3px;border-radius:0;" />
                         </MudPaper>
                         <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG pt-3 ps-3 pe-3 pb-3" Style="border-radius:0;height:100%;width:100%;z-index:8;overflow-y:auto;">
-                            @foreach (var i in projectChannels)
+                            @* @foreach (var i in projectChannels)
                             {
                                 <MudButton Class="pa-2" Style="width:100%;">
                                     <MudText Align="Align.Start" Style="width:100%;">
                                         @i.ChannelName
                                     </MudText>
                                 </MudButton>
-                            }
-                            @* <MudList T="string" Style="width:100%;">
+                            } *@
+                            <MudList T="string" Style="width:100%;">
                                 @foreach (var category in channelCategories)
                                 {
                                     <MudListItem Text="@category">
@@ -50,7 +50,7 @@
                                         
                                     </MudListItem>
                                 }
-                            </MudList> *@
+                            </MudList>
                             
                         </MudPaper>
                     </div>
@@ -134,7 +134,15 @@ else
             {
                 channelCategories.Add(c.Category);
             }
+            else if(c.Category == null)
+            {
+                c.Category = "General";
+                if (!channelCategories.Contains(c.Category)) channelCategories.Add(c.Category);
+                
+            }
         }
+
+        channelService.SubscribeToMessages(NewMessageReceived);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -189,6 +197,12 @@ else
     public async Task SetCurrentChannel(Channel channel)
     {
         CurrentChannel = await channelService.GetChannelByIdAsync(channel.ChannelId);
+    }
+
+    private void NewMessageReceived(Channel channel)
+    {
+        SetCurrentChannel(channel);
+        InvokeAsync(StateHasChanged);
     }
 
 }

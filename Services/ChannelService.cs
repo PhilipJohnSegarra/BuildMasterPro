@@ -1,8 +1,10 @@
 ﻿
+using BuildMasterPro.Components.Pages.MessagePages;
 using BuildMasterPro.Data;
 using Microsoft.CodeAnalysis;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Collections.Concurrent;
 
 namespace BuildMasterPro.Services
 {
@@ -10,6 +12,7 @@ namespace BuildMasterPro.Services
     {
         MongoService _mongoService;
         IMongoCollection<Channel> _channels;
+        private readonly ConcurrentBag<Action<Channel>> _subscribers = new();
         public ChannelService(MongoService mongoService)
         {
             _mongoService = mongoService;
@@ -59,6 +62,30 @@ namespace BuildMasterPro.Services
         {
             var filter = Builders<Channel>.Filter.Eq(c => c.ChannelId, channelId);
             return await _channels.Find(filter).FirstOrDefaultAsync();
+        }
+        public void SubscribeToMessages(Action<Channel> callback)
+        {
+            _subscribers.Add(callback);
+        }
+
+        private void StartListeningForChanges()
+        {
+            var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Channel>>()
+            .Match("{ operationType: 'insert' }");
+
+            var cursor = _channels.Watch(pipeline);
+
+            Task.Run(async () =>
+            {
+                await cursor.ForEachAsync(change =>
+                {
+                    var newMessage = change.FullDocument;
+                    foreach (var subscriber in _subscribers)
+                    {
+                        subscriber.Invoke(newMessage);
+                    }
+                });
+            });
         }
 
 
