@@ -1,10 +1,12 @@
 ﻿* {
-    padding: 0;
     margin: 0;
+    padding: 0;
 }
 
 /* Main container */
 .login-container {
+    height: 100vh;
+    overflow: hidden;
     position: relative;
     display: flex;
     width: 100%;
@@ -32,6 +34,7 @@ main {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    z-index: 5;
 }
 
 /* Login Box */
@@ -48,8 +51,10 @@ main {
 
 /* Form Styling */
 .form-group {
+    display: flex;
+    flex-direction: column;
     text-align: left;
-    margin-bottom: 5px;
+    margin: 10px 0;
 }
 
     .form-group label {
@@ -57,12 +62,19 @@ main {
         text-align: left;
     }
 
-.form-control {
+InputText {
     width: 100%;
     padding: 10px;
+    border: 2px solid;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;
 }
+
+    .form-control:focus {
+        border-color: #9068F2;
+        box-shadow: 0 0 5px rgba(90, 62, 159, 0.5);
+    }
 
 .button {
     background: radial-gradient(circle, #5A3E9F, #9068F2);
@@ -86,23 +98,20 @@ main {
         cursor: pointer;
     }
 
-/*Elements for Images*/
-.decor-imageleft {
-    margin-right: 500px;
-    margin-top: 500px;
+.background-pattern {
+    margin-top: 400px;
     position: absolute;
-    z-index: 0;
-    bottom: 0px;
-    left: 0px;
-    width: 750px;
-    height: 750px;
+    opacity: 0.5;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    z-index: -1;
 }
 
-.decor-imageright {
-    position: absolute;
-    z-index: 0;
-    bottom: 0px;
-    right: 0px;
-    width: 750px;
-    height: 750px;
+@media(max-width:768px) {
+    .background-pattern {
+        vertical-align: bottom;
+        width: 100%;
+        height: 60%;
+    }
 }
