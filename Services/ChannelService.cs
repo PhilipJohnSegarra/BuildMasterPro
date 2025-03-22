@@ -8,16 +8,16 @@ using System.Collections.Concurrent;
 
 namespace BuildMasterPro.Services
 {
-    public class ChannelService
+    public class ChannelService : BackgroundService
     {
         MongoService _mongoService;
         IMongoCollection<Channel> _channels;
         private readonly ConcurrentBag<Action<Channel>> _subscribers = new();
+        public event Action<string>? OnChannelUpdated;
         public ChannelService(MongoService mongoService)
         {
             _mongoService = mongoService;
             _channels = _mongoService.GetCollection<Channel>("Channels");
-            StartListeningForChanges();
         }
 
         public async Task<List<Channel>> GetProjChannelsAsync(int projectId)
@@ -69,24 +69,21 @@ namespace BuildMasterPro.Services
             _subscribers.Add(callback);
         }
 
-        private void StartListeningForChanges()
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Channel>>()
-            .Match("{ operationType: 'update' }");
+        .Match("{ operationType: 'update' }"); // Detect only updates
 
-            var cursor = _channels.Watch(pipeline);
+            using var cursor = await _channels.WatchAsync(pipeline, cancellationToken: stoppingToken);
 
-            Task.Run(async () =>
+            while (await cursor.MoveNextAsync(stoppingToken))
             {
-                await cursor.ForEachAsync(change =>
+                foreach (var change in cursor.Current) // Cursor.Current gives a batch of changes
                 {
-                    var newMessage = change.FullDocument;
-                    foreach (var subscriber in _subscribers)
-                    {
-                        subscriber.Invoke(newMessage);
-                    }
-                });
-            });
+                    var updatedChannelId = change.DocumentKey["_id"].AsString;
+                    OnChannelUpdated?.Invoke(updatedChannelId); // Notify Blazor UI
+                }
+            }
         }
 
 

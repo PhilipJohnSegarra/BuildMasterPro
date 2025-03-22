@@ -70,7 +70,7 @@
                                 @if (CurrentChannel.ChannelMessages != null)
                                 {
                                     <MudStack Style="max-height:100%;width:100%;">
-                                        @foreach (var message in CurrentChannel.ChannelMessages)
+                                        @foreach (var message in Messages)
                                         {
                                             <MudPaper Style="width:max-content;border-radius:10px;margin-top:5px;margin-bottom:5px;padding:1rem;"
                                                       Class="@(message.SenderID == this.CurrentUser.Id? "PrimaryBG senderStyle" : "SecondaryBG")">
@@ -90,7 +90,7 @@
                         <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
                             <MudIconButton Icon="@Icons.Material.Filled.AttachFile" Style="padding:3px;border-radius:0;" />
                             <MudTextField T="string" @bind-Value="MessageBoxText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined"/>
-                            <MudIconButton Icon="@Icons.Material.Filled.Send" OnClick="SendMessage" Style="padding:3px;border-radius:0;" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Send" OnClick="async()=>{await SendMessage(CurrentChannel);}" Style="padding:3px;border-radius:0;" />
                         </MudPaper>
                     </div>
                 </MudPaper>
@@ -112,6 +112,7 @@ else
 @code {
     private List<Channel> projectChannels { get; set; } = new();
     private List<string> channelCategories { get; set; } = new();
+    private List<ChannelMessage> Messages { get; set; } = new();
     private Channel? CurrentChannel { get; set; } = new();
     private int? projId;
 
@@ -138,11 +139,18 @@ else
             {
                 c.Category = "General";
                 if (!channelCategories.Contains(c.Category)) channelCategories.Add(c.Category);
-                
+
             }
         }
 
-        channelService.SubscribeToMessages(NewMessageReceived);
+        channelService.OnChannelUpdated += async (channelId) =>
+        {
+            if (channelId == CurrentChannel.ChannelId && CurrentChannel != null)
+            {
+                await LoadMessages();
+                StateHasChanged();
+            }
+        };
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -172,7 +180,7 @@ else
     {
         await JSRuntime.InvokeVoidAsync("scrollToBottom", "messages");
     }
-    private async Task SendMessage()
+    private async Task SendMessage(Channel channel)
     {
         if(!string.IsNullOrEmpty(MessageBoxText) && CurrentChannel != null)
         {
@@ -183,9 +191,10 @@ else
                 SenderName = CurrentUser.FirstName != null && CurrentUser.LastName != null ? CurrentUser.FirstName + " " + CurrentUser.LastName : CurrentUser.Email
             };
 
-            await channelService.AddMessageAsync(CurrentChannel.ChannelId, message);
-            CurrentChannel = await channelService.GetChannelByIdAsync(CurrentChannel.ChannelId);
+            await channelService.AddMessageAsync(channel.ChannelId, message);
+            CurrentChannel = await channelService.GetChannelByIdAsync(channel.ChannelId);
             MessageBoxText = "";
+            InvokeAsync(StateHasChanged);
         }
         else
         {
@@ -196,13 +205,18 @@ else
 
     public async Task SetCurrentChannel(Channel channel)
     {
+        CurrentChannel = new();
         CurrentChannel = await channelService.GetChannelByIdAsync(channel.ChannelId);
+        Messages = CurrentChannel.ChannelMessages;
     }
 
-    private void NewMessageReceived(Channel channel)
+    private void NewMessageReceived(Channel message)
     {
-        SetCurrentChannel(CurrentChannel);
         InvokeAsync(StateHasChanged);
     }
-
+    private Task LoadMessages()
+    {
+        Messages = CurrentChannel.ChannelMessages;
+        return Task.CompletedTask; // Since there's no async operation, return a completed task
+    }
 }
