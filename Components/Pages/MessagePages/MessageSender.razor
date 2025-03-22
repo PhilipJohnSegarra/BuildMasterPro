@@ -205,6 +205,7 @@ else
         CurrentUser = await UserManager.GetUserAsync(authState.User);
         Sender = await UserManager.GetUserAsync(authState.User);
         Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
+        MessageService.SubscribeToMessages(NewMessageReceived);
 
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -219,8 +220,7 @@ else
             var message = await ComposeMessage();
             if (message != null && Receiver != null)
             {
-                var messageCollection = MongoService.GetCollection<Message>("Messages");
-                await messageCollection.InsertOneAsync(message);
+                await MessageService.SendMessageAsync(message);
                 MessageText = "";
                 await MessageService.GetLatestMessagesForUser(CurrentUser);
                 Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
@@ -273,5 +273,15 @@ else
         if (!string.IsNullOrEmpty(TextValue)) filteredUsers = Users.Where(x => x.Email.ToLower().Contains(TextValue.ToLower())).ToList();
         else filteredUsers = null;
 
+    }
+
+    private void NewMessageReceived(Message newMessage)
+    {
+        if ((newMessage.SenderID == Sender.Id && newMessage.ReceiverID == Receiver.Id) ||
+            (newMessage.SenderID == Receiver.Id && newMessage.ReceiverID == Sender.Id))
+        {
+            Messages.Add(newMessage);
+            InvokeAsync(StateHasChanged);
+        }
     }
 }
