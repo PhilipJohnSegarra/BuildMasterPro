@@ -17,16 +17,27 @@
 <MudPaper Class="TransparentBG" Elevation="0" Style="height:100%;">
     <MudGrid Style="height:100%;" Spacing="1">
         <MudItem xs="12" md="12" lg="8" Style="height:100%;">
-            <MudPaper Class="pa-3" Style="overflow-y:auto;height:100%;">
-                <MudToolBar Class="justify-space-between overflow-visible sticky-top pa-2" Style="width:100%;position:sticky;top: 5px;">
-                    <MudPaper Class="pa-2 d-flex flex-row justify-space-between align-center SecondaryBG" Style="width:100%;">
-                        <MudText Class="MainText">@projecttask.TaskName</MudText>
-                        <MudButton OnClick="OpenDialogAsync" Class="PrimaryBG MainText customFabButton" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small">
-                            Add Activity
+            <MudPaper Class="pa-0 pt-0" Style="overflow-y:auto;height:100%;">
+                <MudToolBar Class="justify-space-between overflow-visible sticky-top pa-0" Style="width:100%;position:sticky;top: 0;">
+                    <MudPaper Class="pa-2 d-flex flex-row justify-space-between align-center" Style="width:100%;border-radius:0;">
+                        <MudText Class="SecondaryText" Style="font-size:15px;font-weight:bold;">@projecttask.TaskName</MudText>
+                        <MudButton OnClick="OpenDialogAsync" Class="PrimaryBG MainText customFabButton" Style="padding:4px 15px 4px 15px;margin:0 10px 0 auto;" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small">
+                            Activity
                         </MudButton>
+                        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+                            <MudButton>@projecttask.Status</MudButton>
+                            <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
+                                <MudMenuItem OnClick="@(() => {projecttask.Status = "Not Started";projecttask.Progress = 0;UpdateTask();})">Mark as Not Started</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {projecttask.Status = "In Progress";UpdateTask();})">Mark as In Progress</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {projecttask.Status = "On Hold";UpdateTask();})">Mark as On Hold</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {projecttask.Status = "Abandoned";UpdateTask();})">Mark as Abandoned</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {projecttask.Status = "Finished";projecttask.Progress = 100;UpdateTask();})">Mark as Finished</MudMenuItem>
+                            </MudMenu>
+                        </MudButtonGroup>
                     </MudPaper>
                 </MudToolBar>
-                <MudStack Class="pb-3 mt-3 d-flex flex-column justify-center align-center" Elevation="0">
+                <MudStack Class="pb-3 mt-3 pa-3 d-flex flex-column justify-center align-center" Elevation="0">
+                    <MudText Style="margin:0 auto 0 0;">Activities & Updates</MudText>
                     @foreach (var act in taskActivities)
                     {
                         <MudPaper Class="d-flex flex-column justify-start pa-6 MainBG" Elevation="2" Style="width:98%;">
@@ -52,9 +63,16 @@
                         <MudPaper Class="d-flex flex-column justify-center align-center" Elevation="0" Style="max-height:100%;overflow-y:auto;width:100%;">
                             @*BASIC DETAILS*@
                             <MudPaper Elevation="1" Class="pa-4 mt-2" Style="width:98%;border:1px solid gray;">
-                                    <MudTextField Label="Name" Disabled="true" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskName"/>
-                                    <MudTextField Lines="3" Label="Description" Disabled="true" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskDescription"/>
-                                    <MudSelect Variant="Variant.Outlined" T="string" @bind-Value="projecttask.Status" Style="font-size:12px;">
+                                    <MudPaper Elevation="0" Style="width:100%;">
+                                        <MudToolBar Class="justify-end">
+                                            <MudIconButton OnClick="() => {editDetails = !editDetails;}" hidden="@(editDetails == false? true : false)" Icon="@Icons.Material.Outlined.Edit" />
+                                        <MudIconButton OnClick="async() => {await UpdateTask();editDetails = !editDetails;}" hidden="@editDetails" Icon="@Icons.Material.Outlined.Save" />
+                                            <MudIconButton OnClick="() => {editDetails = !editDetails;}" hidden="@editDetails" Icon="@Icons.Material.Outlined.Cancel" />
+                                        </MudToolBar>
+                                    </MudPaper>
+                                    <MudTextField Label="Name" Disabled="editDetails" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskName"/>
+                                    <MudTextField Lines="3" Label="Description" Disabled="editDetails" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskDescription"/>
+                                    @* <MudSelect Variant="Variant.Outlined" T="string" @bind-Value="projecttask.Status" Style="font-size:12px;">
                                         <MudSelectItem T="string">
                                             Not Started
                                         </MudSelectItem>
@@ -68,18 +86,19 @@
                                             Abandoned
                                         </MudSelectItem>
                                         <MudSelectItem T="string">
-                                            Finihed
+                                            Finished
                                         </MudSelectItem>
-                                    </MudSelect>
+                                    </MudSelect> *@
+                                    @*PROGRESS SLIDER*@
+                                    <MudPaper Elevation="1" Class="pa-4 mt-2" Style="width:100%;border:1px solid gray;">
+                                        <MudPaper Elevation="0" Class="d-flex flex-row justify-space-between align-center">
+                                            <MudText Style="font-size:12px;">Progress</MudText>
+                                            <MudText Style="font-size:12px;">@projecttask.Progress.ToString()</MudText>
+                                        </MudPaper>
+                                        <MudSlider T="int" Min="0" Max="100" @bind-Value="@projecttask.Progress" Disabled="editDetails" />
+                                    </MudPaper>
                             </MudPaper>
-                            @*PROGRESS SLIDER*@
-                            <MudPaper Elevation="1" Class="pa-4 mt-2" Style="width:98%;border:1px solid gray;">
-                                <MudPaper Elevation="0" Class="d-flex flex-row justify-space-between align-center">
-                                    <MudText Style="font-size:12px;">Progress</MudText>
-                                    <MudText Style="font-size:12px;">50%</MudText>
-                                </MudPaper>
-                                <MudSlider Value="50" Disabled="true" />
-                            </MudPaper>
+                            
                         </MudPaper>
                     </MudTabPanel>
                     <MudTabPanel Text="Files">
@@ -109,10 +128,12 @@
 
     private List<TaskActivity> taskActivities { get; set; } = new();
 
+    private bool editDetails = true;
+
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        projecttask = await context.ProjectTask.FirstOrDefaultAsync(m => m.TaskId == TaskId);
+        projecttask = await TaskService.GetTaskAsync(TaskId);
         taskActivities = await taskActService.GetByTask(projecttask);
 
         if (projecttask is null)
@@ -131,5 +152,24 @@
 
         var result = await DialogService.ShowAsync<TaskActivityAdderDialog>("Simple Dialog",parameters, options);
 
+    }
+    private async Task UpdateTask()
+    {
+        // if(projecttask.Progress < 100 && projecttask.Status != "In Progress")
+        // {
+        //     projecttask.Status = "In Progress";
+        // }
+        // else if((projecttask.Progress >= 100) && projecttask.Status != "Finished")
+        // {
+        //     projecttask.Status = "Finished";
+        // }
+        // else if(projecttask.Status == "In Progress" && projecttask.Progress >= 100)
+        // {
+        //     projecttask.Progress -= 1;
+        // }
+
+        await TaskService.UpdateProjectTaskAsync(projecttask);
+
+        await InvokeAsync(StateHasChanged);
     }
 }

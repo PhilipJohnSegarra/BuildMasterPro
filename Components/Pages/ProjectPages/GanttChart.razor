@@ -25,6 +25,8 @@
 
 @code {
     private List<TaskData> TaskCollection { get; set; } = new();
+
+    [Parameter]
     public List<ProjectTask> Tasks { get; set; } = new();
     protected override async Task OnInitializedAsync()
     {
