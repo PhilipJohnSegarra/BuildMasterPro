@@ -1,0 +1,56 @@
+﻿@page "/equipment"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BuildMasterPro.Data
+@using BuildMasterPro.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="equipment/create">Create New</a>
+</p>
+
+<MudTable Items="@context.Equipments" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Description</MudTh>
+        <MudTh>Cost Per Hour</MudTh>
+        <MudTh>Status</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Name</MudTd>
+        <MudTd DataLabel="Sign">@context.Description</MudTd>
+        <MudTd DataLabel="Name">@context.CostPerHour</MudTd>
+        <MudTd DataLabel="Position">@context.Status</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@* <QuickGrid Class="table" Items="context.Equipments">
+    <PropertyColumn Property="equipment => equipment.Name" />
+    <PropertyColumn Property="equipment => equipment.Description" />
+    <PropertyColumn Property="equipment => equipment.CostPerHour" />
+    <PropertyColumn Property="equipment => equipment.Status" />
+    <PropertyColumn Property="equipment => equipment.CreatedAt" />
+    <PropertyColumn Property="equipment => equipment.UpdatedAt" />
+
+    <TemplateColumn Context="equipment">
+        <a href="@($"equipment/edit?equipmentid={equipment.EquipmentId}")">Edit</a> |
+        <a href="@($"equipment/details?equipmentid={equipment.EquipmentId}")">Details</a> |
+        <a href="@($"equipment/delete?equipmentid={equipment.EquipmentId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid> *@
+
+@code {
+    private ApplicationDbContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

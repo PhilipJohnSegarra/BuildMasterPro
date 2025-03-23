@@ -4,6 +4,7 @@ using BuildMasterPro.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BuildMasterPro.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250323135634_Equipment")]
+    partial class Equipment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -280,55 +283,6 @@ namespace BuildMasterPro.Migrations
                     b.HasIndex("ClientId");
 
                     b.ToTable("Project");
-                });
-
-            modelBuilder.Entity("BuildMasterPro.Data.ProjectEquipment", b =>
-                {
-                    b.Property<int>("ProjectEquipmentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectEquipmentId"));
-
-                    b.Property<decimal>("CostPerHour")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EquipmentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("UsageHours")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("ProjectEquipmentId");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectEquipments");
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.ProjectTask", b =>
@@ -669,25 +623,6 @@ namespace BuildMasterPro.Migrations
                     b.Navigation("Client");
                 });
 
-            modelBuilder.Entity("BuildMasterPro.Data.ProjectEquipment", b =>
-                {
-                    b.HasOne("BuildMasterPro.Data.Equipment", "Equipment")
-                        .WithMany("ProjectEquipment")
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BuildMasterPro.Data.Project", "Project")
-                        .WithMany("ProjectEquipments")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Equipment");
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("BuildMasterPro.Data.ProjectTask", b =>
                 {
                     b.HasOne("BuildMasterPro.Data.TaskCategory", "TaskCategory")
@@ -815,15 +750,8 @@ namespace BuildMasterPro.Migrations
                     b.Navigation("Projects");
                 });
 
-            modelBuilder.Entity("BuildMasterPro.Data.Equipment", b =>
-                {
-                    b.Navigation("ProjectEquipment");
-                });
-
             modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
                 {
-                    b.Navigation("ProjectEquipments");
-
                     b.Navigation("ProjectUsers");
                 });
 
