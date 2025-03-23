@@ -125,7 +125,7 @@
             </MudListItem>
         </MudList>
     } *@
-    @if(ProjectService.CurrentProject != null)
+    @if (CurrentProject != null || ProjectService.CurrentProject != null)
     {
         <!--PER PROJECT NAVIGATIONS-->
         <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1.5rem 1rem;background-color:#aaaaaa;" />
@@ -296,6 +296,7 @@
         currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
         Project = ProjectService.CurrentProject;
+        CurrentProject = await ProjectService.GetCurrentProjectAsync();
         if(Project != null)
         {
             NavActive("Dashboard");

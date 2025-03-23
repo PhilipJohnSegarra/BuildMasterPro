@@ -112,10 +112,9 @@
                           FixedHeader="true">
                     <HeaderContent>
                         <MudTh>Task</MudTh>
-                        <MudTh>Category</MudTh>
                         <MudTh>Planned Start Date</MudTh>
-                        <MudTh>Actual Start Date</MudTh>
                         <MudTh>Planned End Date</MudTh>
+                        <MudTh>Actual Start Date</MudTh>
                         <MudTh>Actual End Date</MudTh>
                         <MudTh>AssignedTo</MudTh>
                         <MudTh>Status</MudTh>
@@ -125,10 +124,9 @@
                     </GroupHeaderTemplate>
                     <RowTemplate>
                         <MudTd><span><MudIcon Icon="@Icons.Material.Outlined.Task">sdfs</MudIcon></span>@context.TaskName</MudTd>
-                        <MudTd>@(context.CategoryId != null ? context.TaskCategory.CategoryName : "")</MudTd>
                         <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
-                        <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
                         <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
+                        <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
                         <MudTd>@context.ActualEndDate?.Date.ToShortDateString()</MudTd>
                         <MudTd>
                             @if (context.TaskUsers != null)
@@ -157,7 +155,7 @@
             </MudItem>
         </MudTabPanel>
         <MudTabPanel Text="Gantt Chart">
-            <GanttChart/>
+            <GanttChart Tasks="Tasks"/>
         </MudTabPanel>
     </MudTabs>
     

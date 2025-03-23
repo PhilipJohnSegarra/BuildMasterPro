@@ -100,9 +100,16 @@ else
                         })">
                                         @{
                                             var timeSpan = DateTime.Now.ToUniversalTime() - message.Timestamp.Value.ToUniversalTime();
+                                            string timeDisplay = "";
+                                            var secondSpan = (int)timeSpan.TotalSeconds;
                                             var minSpan = (int)timeSpan.TotalMinutes;
                                             var hourSpan = (int)timeSpan.TotalHours;
                                             var daySpan = (int)timeSpan.TotalDays;
+                                            if (minSpan < 1) timeDisplay = secondSpan.ToString() + "s";
+                                            if (minSpan >= 1) timeDisplay = minSpan.ToString() + "min";
+                                            if (minSpan > 60) timeDisplay = hourSpan.ToString() + "h";
+                                            if (hourSpan > 24) timeDisplay = daySpan.ToString() + "d";
+
                                         }
                                         <MudGrid>
                                             <MudItem lg="2" Class="d-flex flex-column justify-center align-center">
@@ -113,7 +120,7 @@ else
                                             <MudItem lg="10">
                                                 <MudPaper Elevation="0" Class="d-flex flex-row justify-space-between align-center TransparentBG">
                                                     <h5>@(message.SenderID == CurrentUser.Id ? message.ReceiverName : message.SenderName)</h5>
-                                                    <p style="font-size:12px;">@(hourSpan > 24 ? daySpan.ToString() + " day(s) ago" :" Today")</p>
+                                                    <p style="font-size:12px;">@timeDisplay</p>
                                                 </MudPaper>
                                                 <p style="font-size:11px;">@message.MessageText</p>
                                             </MudItem>

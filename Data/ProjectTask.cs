@@ -36,6 +36,7 @@ namespace BuildMasterPro.Data
         public string? Status { get; set; } = "Not Started";
         [AllowNull]
         public string? Priority { get; set; }
+        public int Progress { get; set; } = 0;
 
         [ForeignKey(nameof(ProjectId))]
         public Project? Project { get; set; } = default!;

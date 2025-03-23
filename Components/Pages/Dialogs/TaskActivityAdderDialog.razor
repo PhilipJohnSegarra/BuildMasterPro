@@ -3,17 +3,45 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @inject TaskActivityService taskActService
+@inject ProjectTaskService taskService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavManager
 
-<MudDialog Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="dialog-background-surface py-10" ActionsClass="dialog-background-surface">
+<MudDialog Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="MainBG py-10" ActionsClass="dialog-background-surface">
     <TitleContent>
         New Activity
     </TitleContent>
     <DialogContent>
+        <MudNumericField @bind-Value="ProgressValue" Label="Add to Progress" Variant="Variant.Outlined" Min="0" Max="100" />
         <MudForm Model="taskActivity">
             <MudTextField Variant="Variant.Outlined" Placeholder="Title" @bind-Value="taskActivity.Name" Class="mb-1"/>
             <MudTextField Variant="Variant.Outlined" Placeholder="Write something..." Lines="5" @bind-Value="taskActivity.Content"/>
+            <MudItem lg="12">
+                <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles">
+                    <ActivatorContent>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload">
+                            Upload Here
+                        </MudButton>
+                    </ActivatorContent>
+                </MudFileUpload>
+            </MudItem>
+            @if (files != null)
+            {
+                <MudItem lg="12">
+                    <MudList T="string">
+                        @foreach (var file in files)
+                        {
+                            <MudListItem Icon="@Icons.Material.Filled.AttachFile">
+                                @file.Name <code>@file.Size bytes</code>
+                            </MudListItem>
+                        }
+                    </MudList>
+                </MudItem>
+            }
+            
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -47,26 +75,64 @@
 
     [Parameter]
     public int? TaskID { get; set; } = new();
+    private ProjectTask Currenttask { get; set; } = new();
 
     private ApplicationUser? CurrentUser { get; set; }
     private AuthenticationState? authState;
 
     private TaskActivity taskActivity { get; set; } = new();
+    private int ProgressValue = 0;
 
     protected override async Task OnInitializedAsync()
     {
         authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         CurrentUser = await UserManager.GetUserAsync(authState.User);
+        Currenttask = await taskService.GetTaskAsync((int)TaskID!);
     }
 
     private async Task Submit()
     {
         taskActivity.TaskId = TaskID;
         taskActivity.ActivityUserId = CurrentUser.Id;
+        if((Currenttask.Progress + ProgressValue) <= 100)
+        {
+            Currenttask.Progress += ProgressValue;
+            if(Currenttask.Status == "Not Started")
+            {
+                Currenttask.Status = "In Progress";
+                Currenttask.ActualStartDate = DateTime.UtcNow;
+            }
+
+        }
+        else
+        {
+            Currenttask.Progress = 100;
+            Currenttask.Status = "Finished";
+            Currenttask.ActualEndDate = DateTime.UtcNow;
+        }
+        await taskService.UpdateProjectTaskAsync(Currenttask);
         await taskActService.Add(taskActivity);
         MudDialog!.Close(DialogResult.Ok(taskActivity));
+        NavManager.NavigateTo($"projecttasks/details?taskid={TaskID}", forceLoad:true);
     }
 
     private void Cancel() => MudDialog!.Cancel();
+
+    //File upload Section
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+    private void UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+        {
+            this.files.Add(file);
+        }
+        //TODO upload the files to the server
+    }
+
+    private void UploadFiles2(IBrowserFile file)
+    {
+        files.Add(file);
+        //TODO upload the files to the server
+    }
 }
 
