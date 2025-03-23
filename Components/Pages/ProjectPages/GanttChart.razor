@@ -6,8 +6,8 @@
 <MudPaper Elevation="1" Class="pa-0" Style="height:100%;">
     @if (TaskCollection.Count > 0)
     {
-        <SfGantt DataSource="@Tasks" Height="100%" Width="100%" ScrollToTaskbarOnClick="true">
-            <GanttTaskFields Id="TaskId" Name="TaskName" StartDate="PlannedStartDate" EndDate="PlannedEndDate">
+        <SfGantt DataSource="@Tasks" Height="100%" Width="100%" ScrollToTaskbarOnClick="true" RenderBaseline BaselineColor="Orange">
+            <GanttTaskFields Id="TaskId" Name="TaskName" StartDate="ActualStartDate" EndDate="ActualEndDate" BaselineStartDate="PlannedStartDate" BaselineEndDate="PlannedEndDate">
             </GanttTaskFields>
             <GanttColumns>
                 <GanttColumn Field="TaskId" HeaderText="Task Id"/>
