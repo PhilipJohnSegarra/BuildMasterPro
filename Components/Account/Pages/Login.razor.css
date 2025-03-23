@@ -71,7 +71,7 @@ InputText {
     font-size: 14px;
 }
 
-    .form-control:focus {
+    InputText:focus {
         border-color: #9068F2;
         box-shadow: 0 0 5px rgba(90, 62, 159, 0.5);
     }
