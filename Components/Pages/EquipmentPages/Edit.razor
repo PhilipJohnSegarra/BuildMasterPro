@@ -1,0 +1,114 @@
+﻿@page "/equipment/edit"
+@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Data
+@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Equipment</h2>
+<hr />
+@if (Equipment is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Equipment" OnValidSubmit="UpdateEquipment" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Equipment.EquipmentId" value="@Equipment.EquipmentId" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="Equipment.Name" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Equipment.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Equipment.Description" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Equipment.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="costperhour" class="form-label">CostPerHour:</label>
+                    <InputNumber id="costperhour" @bind-Value="Equipment.CostPerHour" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Equipment.CostPerHour" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status:</label>
+                    <InputText id="status" @bind-Value="Equipment.Status" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Equipment.Status" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="createdat" class="form-label">CreatedAt:</label>
+                    <InputDate id="createdat" @bind-Value="Equipment.CreatedAt" class="form-control" />
+                    <ValidationMessage For="() => Equipment.CreatedAt" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="updatedat" class="form-label">UpdatedAt:</label>
+                    <InputDate id="updatedat" @bind-Value="Equipment.UpdatedAt" class="form-control" />
+                    <ValidationMessage For="() => Equipment.UpdatedAt" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/equipment">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int EquipmentId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Equipment? Equipment { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Equipment ??= await context.Equipments.FirstOrDefaultAsync(m => m.EquipmentId == EquipmentId);
+
+        if (Equipment is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateEquipment()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Equipment!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!EquipmentExists(Equipment!.EquipmentId))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/equipment");
+    }
+
+    private bool EquipmentExists(int equipmentid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Equipments.Any(e => e.EquipmentId == equipmentid);
+    }
+}
