@@ -6,8 +6,8 @@
 <MudPaper Elevation="1" Class="pa-0" Style="height:100%;">
     @if (TaskCollection.Count > 0)
     {
-        <SfGantt DataSource="@Tasks" Height="100%" Width="100%" ScrollToTaskbarOnClick="true" RenderBaseline BaselineColor="Orange">
-            <GanttTaskFields Id="TaskId" Name="TaskName" StartDate="ActualStartDate" EndDate="ActualEndDate" BaselineStartDate="PlannedStartDate" BaselineEndDate="PlannedEndDate">
+        <SfGantt DataSource="@Tasks" Height="100%" Width="100%" ScrollToTaskbarOnClick="true" RenderBaseline BaselineColor="Orange" >
+            <GanttTaskFields Id="TaskId" Name="TaskName" BaselineStartDate="ActualStartDate" BaselineEndDate="ActualEndDate" StartDate="PlannedStartDate" EndDate="PlannedEndDate">
             </GanttTaskFields>
             <GanttColumns>
                 <GanttColumn Field="TaskId" HeaderText="Task Id"/>
@@ -39,8 +39,10 @@
                     {
                         TaskId = task.TaskId,
                         TaskName = task.TaskName,
-                        StartDate = new DateTime(task.PlannedStartDate.Year, task.PlannedStartDate.Month, task.PlannedStartDate.Day),
-                        EndDate = new DateTime(task.PlannedEndDate.Year, task.PlannedEndDate.Month, task.PlannedEndDate.Day)
+                        ActualStartDate = task.ActualStartDate != null? (DateTime)task.ActualStartDate.Value.ToUniversalTime() : task.PlannedStartDate.ToUniversalTime(),
+                        ActualEndDate = task.ActualEndDate != null ? (DateTime)task.ActualEndDate.Value.ToUniversalTime() : task.PlannedStartDate.ToUniversalTime(),
+                        PlannedStartDate = task.PlannedStartDate.ToUniversalTime(),
+                        PlannedEndDate = task.PlannedEndDate.ToUniversalTime()
 
                     }
             );
@@ -51,8 +53,10 @@
     {
         public int TaskId { get; set; }
         public string TaskName { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime ActualStartDate { get; set; }
+        public DateTime ActualEndDate { get; set; }
+        public DateTime PlannedStartDate { get; set; }
+        public DateTime PlannedEndDate { get; set; }
         public string Duration { get; set; }
         public int Progress { get; set; }
         public string Predecessor { get; set; }

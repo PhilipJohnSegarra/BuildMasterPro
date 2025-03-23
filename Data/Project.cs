@@ -25,5 +25,6 @@ namespace BuildMasterPro.Data
         public Client? Client { get; set; }
 
         public ICollection<ProjectUser>? ProjectUsers { get; set; }
+        public ICollection<ProjectEquipment>? ProjectEquipments { get; set; }
     }
 }
