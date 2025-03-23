@@ -9,6 +9,7 @@
 @inject TaskActivityService taskActService
 @inject ProjectService ProjectService
 @inject IDialogService DialogService
+@inject TaskActivityImagesService actImagesService
 
 <MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.Medium" />
 <MudThemeProvider/>
@@ -40,6 +41,7 @@
                     <MudText Style="margin:0 auto 0 0;">Activities & Updates</MudText>
                     @foreach (var act in taskActivities)
                     {
+                        
                         <MudPaper Class="d-flex flex-column justify-start pa-6 MainBG" Elevation="2" Style="width:98%;">
                             @if (!string.IsNullOrEmpty(act.Name))
                             {
@@ -50,6 +52,19 @@
                                 <MudDivider Class="mb-2 mt-2" />
                             }
                             <MudText Class="mt-3" Style="font-size:14px;">@act.Content</MudText>
+                            @foreach(var item in Images)
+                            {
+                                if(item.TaskActivityID == act.Id)
+                                {
+                                    foreach(var link in item.ImageArray)
+                                    {
+                                        <MudImage Width="300" Src="@link" />
+                                    }
+                                    
+                                }
+                            }
+
+                            
                         </MudPaper>
                     }
                 </MudStack>
@@ -127,6 +142,7 @@
     private int TaskId { get; set; }
 
     private List<TaskActivity> taskActivities { get; set; } = new();
+    private List<TaskActivityImages> Images { get; set; } = new();
 
     private bool editDetails = true;
 
@@ -135,7 +151,10 @@
         using var context = DbFactory.CreateDbContext();
         projecttask = await TaskService.GetTaskAsync(TaskId);
         taskActivities = await taskActService.GetByTask(projecttask);
-
+        foreach(var act in taskActivities)
+        {
+            Images = await actImagesService.GetAllAsync();
+        }
         if (projecttask is null)
         {
             NavigationManager.NavigateTo("notfound");
@@ -170,5 +189,15 @@
         await TaskService.UpdateProjectTaskAsync(projecttask);
 
         await InvokeAsync(StateHasChanged);
+    }
+    private async Task<List<string>> GetImageList(TaskActivity item)
+    {
+        var items = await actImagesService.GetByTaskActivityId(item.Id);
+        if(items != null)
+        {
+            return items.ImageArray;
+        }
+        return null;
+
     }
 }
