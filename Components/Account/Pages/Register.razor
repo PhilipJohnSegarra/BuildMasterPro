@@ -39,8 +39,8 @@
         <div class="signup-box">
 
             <section>
-                <h2 class="text-center" style="color: #5A3E9F; font-size: 35px; text-align: center;">Welcome Back</h2>
-                <p class="text-center mb-6 pt-1" style="font-size: 12px; text-align: center;">Login to proceed and access your construction project management tools, tasks, and more.</p>
+                <h2 class="text-center" style="color: #5A3E9F; font-size: 28px; text-align: center;">Create New Account</h2>
+                <p class="text-center mb-6 pt-1 mt-1" style="font-size: 12px; text-align: center;">Create an account to manage your construction projects, tasks, and collaborate efficiently</p>
 
                 <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
 
@@ -48,30 +48,30 @@
                     <ValidationSummary class="text-danger" role="alert" />
 
                     <!--Email Field-->
-                    <div class="form-floating mb-3">
+                    <div class="form-group mb-3">
+                        <InputText style="padding: 10px; border: 1px solid grey; border-radius: 5px;" @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Email" />
                         @* <label for="email">Email</label> *@
-                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                         <ValidationMessage For="() => Input.Email" class="text-danger" style="font-size: 12px; color: #DC0000;" />
                     </div>
 
                     <!--Password Field-->
-                    <div class="form-floating mb-3">
+                    <div class="form-group mb-3">
+                        <InputText style="padding: 10px; border: 1px solid grey; border-radius: 5px;" type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
                         @* <label for="password">Password</label> *@
-                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
                         <ValidationMessage For="() => Input.Password" class="text-danger" style="font-size: 12px; color: #DC0000;" />
                     </div>
 
                     <!--ConfirmPassword Field-->
-                    <div class="form-floating mb-3">
+                    <div class="form-group mb-5">
+                        <InputText style="padding: 10px; border: 1px solid grey; border-radius: 5px;" type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Confirm Password" />
                         @* <label for="confirm-password">Confirm Password</label> *@
-                        <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
                         <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" style="font-size: 12px; color: #DC0000;" />
                     </div>
 
                     <button type="submit" class="button" style="font-weight: bold;">Register</button>
 
                     <!--Already Have an Account-->
-                    <div>
+                    <div class="mt-5">
                         <p style="font-size: 12px; font-weight: 500; text-align: center;">
                             Already have an account? <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))" style="color: #9068F2;">Login</a>
                         </p>
@@ -82,6 +82,7 @@
 
         </div>
 
+        <img src="/images/polygonPattern.png" alt="pattern" class="background-pattern" />
     </main>
 
     @* <div class="col-md-6 col-md-offset-2"> *@
