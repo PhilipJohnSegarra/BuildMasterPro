@@ -59,6 +59,13 @@ namespace BuildMasterPro.Services
         {
             using var context = _context.CreateDbContext();
             await context.ProjectTask.AddRangeAsync(newTasks);
+            foreach(var task in newTasks)
+            {
+                if(task.TaskUsers != null)
+                {
+                    await context.TaskUsers.AddRangeAsync(task.TaskUsers);
+                }
+            }
             await context.SaveChangesAsync();
             return newTasks;
         }

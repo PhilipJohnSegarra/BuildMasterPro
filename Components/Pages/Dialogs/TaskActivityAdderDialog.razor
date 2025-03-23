@@ -94,7 +94,7 @@
     {
         taskActivity.TaskId = TaskID;
         taskActivity.ActivityUserId = CurrentUser.Id;
-        if((Currenttask.Progress + ProgressValue) <= 100)
+        if((Currenttask.Progress + ProgressValue) < 100)
         {
             Currenttask.Progress += ProgressValue;
             if(Currenttask.Status == "Not Started")

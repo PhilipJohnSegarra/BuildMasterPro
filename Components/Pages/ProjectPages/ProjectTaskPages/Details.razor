@@ -20,7 +20,7 @@
             <MudPaper Class="pa-0 pt-0" Style="overflow-y:auto;height:100%;">
                 <MudToolBar Class="justify-space-between overflow-visible sticky-top pa-0" Style="width:100%;position:sticky;top: 0;">
                     <MudPaper Class="pa-2 d-flex flex-row justify-space-between align-center" Style="width:100%;border-radius:0;">
-                        <MudText Class="SecondaryText" Style="font-size:15px;font-weight:bold;">@projecttask.TaskName</MudText>
+                        <MudText Class="SecondaryText" Style="font-size:18px;font-weight:bold;">@projecttask.TaskName</MudText>
                         <MudButton OnClick="OpenDialogAsync" Class="PrimaryBG MainText customFabButton" Style="padding:4px 15px 4px 15px;margin:0 10px 0 auto;" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small">
                             Activity
                         </MudButton>
@@ -155,18 +155,16 @@
     }
     private async Task UpdateTask()
     {
-        // if(projecttask.Progress < 100 && projecttask.Status != "In Progress")
-        // {
-        //     projecttask.Status = "In Progress";
-        // }
-        // else if((projecttask.Progress >= 100) && projecttask.Status != "Finished")
-        // {
-        //     projecttask.Status = "Finished";
-        // }
-        // else if(projecttask.Status == "In Progress" && projecttask.Progress >= 100)
-        // {
-        //     projecttask.Progress -= 1;
-        // }
+        if (projecttask.Progress > 0 && projecttask.Progress < 100 && projecttask.Status != "In Progress")
+        {
+            projecttask.Status = "In Progress";
+            if (projecttask.ActualStartDate == null) projecttask.ActualStartDate = DateTime.UtcNow;
+        }
+        else if((projecttask.Progress >= 100) && projecttask.Status != "Finished")
+        {
+            projecttask.Status = "Finished";
+            if (projecttask.ActualEndDate == null) projecttask.ActualEndDate = DateTime.UtcNow;
+        }
 
         await TaskService.UpdateProjectTaskAsync(projecttask);
 

@@ -3,8 +3,6 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
 @using BuildMasterPro.Services
-@implements IAsyncDisposable
-@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject ResourceService resourceService
 @using Microsoft.AspNetCore.Authorization
 
@@ -57,13 +55,13 @@
 </MudTable> *@
 
 @code {
-    private ApplicationDbContext context = default!;
-    private List<Resource> resources { get; set; }
+    // private ApplicationDbContext context = default!;
+    // private List<Resource> resources { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
+    // protected override async Task OnInitializedAsync()
+    // {
         
-    }
+    // }
 
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    // public async ValueTask DisposeAsync() => await context.DisposeAsync();
 }

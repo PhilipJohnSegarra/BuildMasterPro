@@ -37,7 +37,7 @@
                 Edit
             </MudButton>
             <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
-                        OnClick="@(()=>{_multiSelection = !_multiSelection;})">
+                       OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;})">
                 Select
             </MudButton>
             <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
@@ -218,6 +218,7 @@
     {
         Tasks = await TaskService.GetCurrentProjtasksAsync();
         Tasks.OrderBy(p => p.TaskId);
+        selectedTasks = new();
     }
     private TableGroupDefinition<ProjectTask> _groupDefinition = new()
     {
@@ -233,10 +234,10 @@
         if (_taskAdderOpen)
         {
             var result = await TaskService.AddMany(newTasks);
-            foreach (var task in newTasks)
-            {
-                if (task.TaskUsers != null) await TaskUserService.AddMany(task.TaskUsers.ToList());
-            }
+            // foreach (var task in newTasks)
+            // {
+            //     if (task.TaskUsers != null) await TaskUserService.AddMany(task.TaskUsers.ToList());
+            // }
 
             if (result != null) newTasks = new();
             await InitializeProps();
@@ -275,6 +276,7 @@
                 await TaskUserService.AddMany(newTasks);
             }
             await InitializeProps();
+            
             StateHasChanged();
         }
 

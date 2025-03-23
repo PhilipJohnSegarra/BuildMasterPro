@@ -27,7 +27,11 @@ namespace BuildMasterPro.Services
         public async Task AddMany(List<TaskUser> taskUsers)
         {
             using var _context = _db.CreateDbContext();
-            _context.TaskUsers.AddRange(taskUsers);
+            foreach(var user in taskUsers)
+            {
+                user.ProjectTask = null;
+                await _context.TaskUsers.AddAsync(user);
+            }
             await _context.SaveChangesAsync();
         }
 
