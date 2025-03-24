@@ -57,17 +57,20 @@
                             {
                                 if(item.TaskActivityID == act.Id)
                                 {
-                                    foreach(var link in item.ImageArray)
-                                    {
-                                        <MudImage Width="300" Src="@link" />
-                                    }
+                                    <MudGrid Class="mt-3" Style="width:100%;" Spacing="1">
+                                        @foreach(var link in item.ImageArray)
+                                        {
+                                            <MudItem lg="4">
+                                                <MudImage Width="300" Src="@link" />
+                                            </MudItem>
+                                        
+                                        }
+                                        
+                                    </MudGrid>
+                                    
                                     
                                 }
                             }
-
-                            
-
-                            <MudText Class="mt-3" Style="font-size:14px;">@act.Content </MudText>
 
                         </MudPaper>
                     }
