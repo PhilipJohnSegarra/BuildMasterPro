@@ -51,7 +51,14 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 builder.Services.AddSyncfusionBlazor();
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NMaF1cWGhIfEx1RHxQdld5ZFRHallYTnNWUj0eQnxTdEBjWn5acXVRTmFfUkB1Vw==");
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
+builder.Services.AddSignalR(e => {
+    e.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+});
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options =>
+    {
+        options.MaximumReceiveMessageSize = 10 * 1024 * 1024; // 10MB
+    });
 builder.Services.AddSyncfusionBlazor();
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
