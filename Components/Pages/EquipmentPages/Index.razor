@@ -2,9 +2,9 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using BuildMasterPro.Data
-@using BuildMasterPro.Data
-@implements IAsyncDisposable
-@inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
+@using BuildMasterPro.Services
+@inject EquipmentService EquipmentService
+@inject NavigationManager NavManager
 
 <PageTitle>Index</PageTitle>
 
@@ -14,18 +14,23 @@
     <a href="equipment/create">Create New</a>
 </p>
 
-<MudTable Items="@context.Equipments" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+<MudTable T="Equipment" Items="@Equipments" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" OnRowClick="GoToDetails">
     <HeaderContent>
         <MudTh>Name</MudTh>
         <MudTh>Description</MudTh>
         <MudTh>Cost Per Hour</MudTh>
         <MudTh>Status</MudTh>
+        <MudTh>Actions</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nr">@context.Name</MudTd>
-        <MudTd DataLabel="Sign">@context.Description</MudTd>
-        <MudTd DataLabel="Name">@context.CostPerHour</MudTd>
-        <MudTd DataLabel="Position">@context.Status</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.Description</MudTd>
+        <MudTd>@context.CostPerHour</MudTd>
+        <MudTd>@context.Status</MudTd>
+        <MudTd>
+            <MudButton StartIcon="@Icons.Material.Outlined.Edit" OnClick="@(()=>{NavManager.NavigateTo($"equipment/edit?equipmentid={context.EquipmentId}");})">Edit</MudButton>
+            <MudButton StartIcon="@Icons.Material.Outlined.Delete" OnClick="@(()=>{NavManager.NavigateTo($"equipment/delete?equipmentid={context.EquipmentId}");})">Delete</MudButton>
+        </MudTd>
     </RowTemplate>
 </MudTable>
 
@@ -46,11 +51,14 @@
 
 @code {
     private ApplicationDbContext context = default!;
+    private List<Equipment> Equipments { get; set; } = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        context = DbFactory.CreateDbContext();
+        Equipments = await EquipmentService.GetAllAsync();
     }
-
-    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+    private void GoToDetails(TableRowClickEventArgs<Equipment> args)
+    {
+        NavManager.NavigateTo($"equipment/details?equipmentid={args.Item.EquipmentId}");
+    }
 }

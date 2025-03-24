@@ -7,6 +7,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<ApplicationUser> UserManager
 @inject NavigationManager NavManager
+@inject BlobStorageService blobService
+@inject TaskActivityImagesService imageService
 
 <MudDialog Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="MainBG py-10" ActionsClass="dialog-background-surface">
     <TitleContent>
@@ -112,6 +114,22 @@
         }
         await taskService.UpdateProjectTaskAsync(Currenttask);
         await taskActService.Add(taskActivity);
+
+        if(files != null)
+        {
+            var taskActImages = new TaskActivityImages();
+            taskActImages.TaskActivityID = taskActivity.Id;
+            taskActImages.TaskID = Currenttask.TaskId;
+            foreach (var file in files)
+            {
+                using var stream = file.OpenReadStream(); // ✅ Correct way to get Stream
+                string imageUrl = await blobService.UploadFileAsync(stream, file.Name, file.ContentType); // Upload to Azure
+                taskActImages.ImageArray.Add(imageUrl);
+            }
+            imageService.Insert(taskActImages);
+        }
+        
+
         MudDialog!.Close(DialogResult.Ok(taskActivity));
         NavManager.NavigateTo($"projecttasks/details?taskid={TaskID}", forceLoad:true);
     }

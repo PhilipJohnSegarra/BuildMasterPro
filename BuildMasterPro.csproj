@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\Pages\ResourcePages\**" />
+    <Content Remove="Components\Pages\ResourcePages\**" />
+    <EmbeddedResource Remove="Components\Pages\ResourcePages\**" />
+    <None Remove="Components\Pages\ResourcePages\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.11" />
@@ -31,10 +39,6 @@
     <PackageReference Include="Syncfusion.Blazor.Lists" Version="28.2.5" />
     <PackageReference Include="Syncfusion.Blazor.Navigations" Version="28.2.5" />
     <PackageReference Include="Syncfusion.Blazor.Themes" Version="28.2.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Components\Pages\ResourcePages\" />
   </ItemGroup>
 
 </Project>
