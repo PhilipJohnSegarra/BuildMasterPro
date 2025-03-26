@@ -9,10 +9,14 @@ namespace BuildMasterPro.Data
         public string? MessageId { get; set; }
         [BsonElement("sender_id")]
         public string? SenderID { get; set; }
+        [BsonElement("sender_picture")]
+        public string? SenderPicture { get; set; }
         [BsonElement("sender_name")]
         public string? SenderName { get; set; } = "";
         [BsonElement("receiver_id")]
         public string? ReceiverID { get; set; }
+        [BsonElement("receiver_picture")]
+        public string? ReceiverPicture { get; set; }
         [BsonElement("receiver_name")]
         public string? ReceiverName { get; set; } = "";
         [BsonElement("message_text")]
