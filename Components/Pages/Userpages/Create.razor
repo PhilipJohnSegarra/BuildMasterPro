@@ -13,12 +13,12 @@
 @inject BlobStorageService imageService
 @using System.Net.Http.Json
 @inject HttpClient httpClient
+@inject UserService userService
 
 <MudPopoverProvider />
-<h3>Create New User</h3>
 
 <!-- This is the popup to create or edit a user -->
-<div class="modal" tabindex="-1" style="display:block" role="dialog">
+@* <div class="modal" tabindex="-1" style="display:block" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -58,55 +58,86 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
 
 <MudPaper Class="d-flex flex-column justify-start align-start pt-7 ps-5 pe-5 pb-5 MainBG" Style="width:100%;height:100%;overflow-y:auto;">
+    <MudPaper Class="d-flex flex-column justify-start align-start pa-3 MainBG mb-7" Elevation="0" Style="width:100%;">
+        <MudText>New User</MudText>
+    </MudPaper>
     <MudGrid Style="width:100%;height:100%;overflow-y:auto;">
-        <MudItem lg="2" Class="d-flex flex-column justify-start align-end" Style="width:100%;height:100%;overflow-y:auto;">
+        <MudItem lg="3" Class="d-flex flex-column justify-start align-center" Style="width:100%;height:100%;overflow-y:auto;">
             <MudPaper Class="d-flex flex-column justify-center align-center" Style="height:200px;width:200px;">
-                <MudImage Style="width:100%;height:100%;object-fit:contain;object-position:center;" Src="@imagePreview" />
+                <MudImage Style="width:auto;height:100%;object-fit:contain;object-position:center;" Src="@imagePreview" />
             </MudPaper>
-            <MudFileUpload T="IBrowserFile" MaxFileSize="10485760" Accept=".png, .jpg" FilesChanged="UploadFiles2" MaximumFileCount="1">
-                <ActivatorContent>
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.CloudUpload">
-                        Only image files
+            <MudFileUpload Style="width:200px;margin:10px 0 0 0;" T="IBrowserFile" Accept=".png, .jpg" FilesChanged="UploadFiles2" MaximumFileCount="1">
+                <ActivatorContent >
+                    <MudButton Variant="Variant.Outlined"
+                               StartIcon="@Icons.Material.Filled.AttachFile"
+                               Style="width:200px;color:gray;">
+                    Upload Image
                     </MudButton>
                 </ActivatorContent>
             </MudFileUpload>
         </MudItem>
-        <MudItem lg="10" Class="d-flex flex-column justify-start align-start" Style="width:100%;height:100%;overflow-y:auto;">
+        <MudItem lg="3" Class="d-flex flex-column justify-start align-center" Style="width:100%;height:100%;overflow-y:auto;">
             <MudStack>
                 <MudText Class="mb-2 SecondaryText">Personal Information</MudText>
                 <MudInputLabel>First Name</MudInputLabel>
-                <MudTextField @bind-Value="OBJUser.FirstName" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
+                <MudTextField @bind-Value="OBJUser.FirstName" Variant="Variant.Outlined" Style="height:40px; min-width:90%;" Required Clearable />
                 <MudInputLabel>Middle Name (optional)</MudInputLabel>
                 <MudTextField @bind-Value="OBJUser.MiddleMName" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
                 <MudInputLabel>Last Name</MudInputLabel>
                 <MudTextField @bind-Value="OBJUser.LastName" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
                 <MudInputLabel>Birth Date</MudInputLabel>
-                <MudDatePicker Date="OBJUser.BirthDate" Editable="true" DateChanged="OnDateChanged" Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd.MM.yyyy" Variant="Variant.Outlined" Class="mud-width-full" Style="height:40px; min-width:300px;" />
+                <MudDatePicker Date="OBJUser.BirthDate" Editable="true" Required DateChanged="OnDateChanged" Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd.MM.yyyy" Variant="Variant.Outlined" Class="mud-width-full" Style="height:40px; min-width:300px;" />
                 <MudInputLabel>Gender</MudInputLabel>
-                <MudSelect Dense T="string" @bind-Value="OBJUser.Gender" Variant="Variant.Outlined" Style="height:40px; min-width:300px;">
-                    <MudSelectItem Style="height:40px; min-width:300px;" T="string">Male</MudSelectItem>
-                    <MudSelectItem Style="height:40px; min-width:300px;" T="string">Female</MudSelectItem>
-                    <MudSelectItem Style="height:40px; min-width:300px;" T="string">Prefer Not to Say</MudSelectItem>
+                <MudSelect Dense T="string" @bind-Value="OBJUser.Gender" TextChanged="OnGenderChanged" Variant="Variant.Outlined" Style="height:40px; min-width:300px;">
+                    @foreach(var gender in GenderOptions)
+                    {
+                        <MudSelectItem Style="height:40px; min-width:300px;" Value="gender">@gender</MudSelectItem>
+                    }
                 </MudSelect>
+            </MudStack>
+            
+        </MudItem>
+        <MudItem lg="3" Class="d-flex flex-column justify-start align-center" Style="width:100%;height:100%;overflow-y:auto;">
+            <MudStack>
 
-                <MudText Class="mb-2 SecondaryText" Style="margin:3rem 0 0 0;">Contact Information</MudText>
+                <MudText Class="mb-2 SecondaryText" Style="margin:0 0 0 0;">Contact Information</MudText>
                 <MudInputLabel>Phone</MudInputLabel>
                 <MudTextField @bind-Value="OBJUser.PhoneNumber" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
                 <MudInputLabel>Email</MudInputLabel>
-                <MudTextField @bind-Value="OBJUser.Email" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
+                <MudTextField @bind-Value="OBJUser.Email" InputType="MudBlazor.InputType.Email" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
 
                 <MudText Class="mb-2 SecondaryText" Style="margin:3rem 0 0 0;">Job Details</MudText>
                 <MudInputLabel>Job Title</MudInputLabel>
-                <MudTextField @bind-Value="OBJUser.JobTitle" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
+                <MudTextField @bind-Value="OBJUser.JobTitle" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
                 <MudInputLabel>Department</MudInputLabel>
-                <MudTextField @bind-Value="OBJUser.Department" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
+                <MudTextField @bind-Value="OBJUser.Department" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
             </MudStack>
-            
+
+        </MudItem>
+        <MudItem lg="3" Class="d-flex flex-column justify-start align-center" Style="width:100%;height:100%;overflow-y:auto;">
+            <MudStack>
+                <MudText Class="mb-2 SecondaryText" Style="margin:0 0 0 0;">Account Information</MudText>
+                <MudInputLabel>System Role</MudInputLabel>
+                <MudSelect Dense T="string" @bind-Value="CurrentUserRole" Required Variant="Variant.Outlined" Style="height:40px; min-width:300px;margin:0 0 1rem 0;">
+                    @foreach (var role in Options)
+                    {
+                        <MudSelectItem Style="height:40px; min-width:300px;" Value="role">@role</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudInputLabel>Username</MudInputLabel>
+                <MudTextField Required @bind-Value="OBJUser.UserName" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
+                <MudInputLabel>Password</MudInputLabel>
+                <MudTextField InputType="MudBlazor.InputType.Password" Required @bind-Value="OBJUser.PasswordHash" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
+                <MudStack Row Class="mt-8">
+                    <MudButton Variant="Variant.Filled" Color="@Color.Dark" StartIcon="@Icons.Material.Outlined.Cancel">Cancel</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="@Color.Primary" StartIcon="@Icons.Material.Outlined.Save"
+                    OnClick="CreateUser">Save</MudButton>
+                </MudStack>
+            </MudStack>
+
         </MudItem>
     </MudGrid>
     
@@ -121,6 +152,7 @@
     private List<string> Roles = new List<string> { "Users", "Administrators", "Project Manager" };
     private string ErrorMessage = "";
     List<string> Options = new List<string>() { "Users", "Administrators", "Project Manager" };
+    List<string> GenderOptions = new List<string>() { "Male", "Female", "Prefer Not to Say" };
     string CurrentUserRole { get; set; } = "Users";
     string strError = "";
     string ADMINISTRATION_ROLE = "Administrators";
@@ -129,51 +161,43 @@
     protected override async Task OnInitializedAsync()
     {
 
-        OBJUser = new ApplicationUser();
-
 
     }
 
     private async Task CreateUser()
     {
-        var NewUser =
-                    new ApplicationUser
-                        {
-                            UserName = OBJUser.UserName,
-                            Email = OBJUser.Email
-                        };
-        var CreateResult =
-            await _UserManager
-            .CreateAsync(NewUser, OBJUser.PasswordHash);
-        if (!CreateResult.Succeeded)
+        var NewUser = OBJUser;
+
+        var file = files.FirstOrDefault();
+        if (file != null)
         {
-            if (CreateResult
-                .Errors
-                .FirstOrDefault() != null)
-            {
-                strError =
-                    CreateResult
-                    .Errors
-                    .FirstOrDefault()
-                    .Description;
-            }
-            else
-            {
-                strError = "Create error";
-            }
-            // Keep the popup opened
-            return;
+            using var stream = file.OpenReadStream();
+            var url = await imageService.UploadFileAsync(stream, file.Name, file.ContentType);
+            OBJUser.ProfilePictureUrl = url; // Save the uploaded image URL
         }
-        else
+
+        //var CreateResult = await _UserManager.CreateAsync(NewUser, NewUser.PasswordHash);
+
+        // if (!CreateResult.Succeeded)
+        // {
+        //     strError = CreateResult.Errors.FirstOrDefault()?.Description ?? "Create error";
+        //     return;
+        // }
+
+        var user = await userService.Add(OBJUser);
+
+        // ✅ Check if the role exists, if not, create it
+        if (!await _RoleManager.RoleExistsAsync(CurrentUserRole))
         {
-            // Handle Roles
-            if (CurrentUserRole == ADMINISTRATION_ROLE)
-            {
-                // Put admin in Administrator role
-                await _UserManager
-                    .AddToRoleAsync(NewUser, ADMINISTRATION_ROLE);
-            }
+            await _RoleManager.CreateAsync(new IdentityRole(CurrentUserRole));
         }
+
+        // ✅ Assign the user to the role
+        await _UserManager.AddToRoleAsync(user, CurrentUserRole);
+
+        //SAVE IMAGE IN CLOUD
+
+
         NM.NavigateTo("users");
     }
 
@@ -182,23 +206,37 @@
         OBJUser.BirthDate = (DateTime)newDate!;
     }
 
+    private void OnGenderChanged(string gender)
+    {
+        OBJUser.Gender = gender;
+    }
+
     private string? imagePreview; // Holds image preview URL
     private IBrowserFile? selectedFile; // Stores the selected file
 
     private async void UploadFiles2(IBrowserFile file)
     {
-        files.Add(file); // Store the file
-        if(!string.IsNullOrEmpty(imagePreview))
-        {
-            await imageService.DeleteFileAsync(imagePreview);
-        }
-        // Generate Image Preview
-        if (file != null)
-        {
-            using var stream = file.OpenReadStream();
-            var url = await imageService.UploadFileAsync(stream, file.Name, file.ContentType);
-            imagePreview = url; // Save the uploaded image URL
-        }
+        files.Add(file); // Store the file // Get the selected file
+
+        const long maxFileSize = 5 * 1024 * 1024;
+        using var stream = file.OpenReadStream(maxFileSize);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+
+        // Convert image to Base64 string
+        string base64String = Convert.ToBase64String(memoryStream.ToArray());
+        imagePreview = $"data:{file.ContentType};base64,{base64String}";
+        // if(!string.IsNullOrEmpty(imagePreview))
+        // {
+        //     await imageService.DeleteFileAsync(imagePreview);
+        // }
+        // // Generate Image Preview
+        // if (file != null)
+        // {
+        //     using var stream = file.OpenReadStream();
+        //     var url = await imageService.UploadFileAsync(stream, file.Name, file.ContentType);
+        //     imagePreview = url; // Save the uploaded image URL
+        // }
 
         await InvokeAsync(StateHasChanged);
     }
