@@ -5,7 +5,7 @@
 @inject ProjectService ProjectService
 @inject NavigationManager NavManager
 
-<div style="width:100%;height:70px;display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+<div class="main-container">
     @* @if(ProjectService.CurrentProject != null)
     {
         <button @onclick="@HandleProjectClick">
@@ -19,6 +19,16 @@
     {
         <a></a>
     } *@
+    <div class="logo-area">
+        <div class="logo-container">
+            <img id="logo" class="logo mr-2" src="/images/BlocksLogo.svg" />
+            <h4 class="logo-text">BuildMaster <span style="color: #5A3E9F">Pro</span></h4>
+        </div>
+    </div>
+    <div class="profile-container">
+        <a href=""><img id="notification" class="notification" src="/images/NotifcationsIcon.png"/></a>
+        <a href=""><img id="profile" class="profile pl-3" src="/images/profileIcon.png" /></a>
+    </div>
 </div>
 
 @code {
