@@ -18,7 +18,7 @@ namespace BuildMasterPro.Services
 
         public async Task<List<ApplicationUser>> GetAll()
         {
-            var result = await GetAllAsync();
+            var result = await GetAllAsync(i => i.IsDeleted.Equals(false));
             return result;
         }
 
