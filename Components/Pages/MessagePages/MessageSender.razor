@@ -60,7 +60,7 @@ else
                                     {
                                         <MudPaper Elevation="2" Style="position:absolute;left:0;top:100%;z-index:1000;width:100%;">
                                             <MudList T="ApplicationUser" Class="MainBG">
-                                                @foreach (var user in Users.Where(x => x.Email.ToLower().Contains(TextValue.ToLower())).ToList())
+                                                @foreach (var user in Users.Where(x => x.IsDeleted.Equals(false) && x.Email.ToLower().Contains(TextValue.ToLower())).ToList())
                                                 {
                                                     if (user != null)
                                                     {

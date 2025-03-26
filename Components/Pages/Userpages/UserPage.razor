@@ -26,16 +26,22 @@
 </div>
 <MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
               CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
-             Bordered="false" Dense="false" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="border:1px solid gray;border-radius:10px;overflow:auto;" Hover="true" RowClick="GoToUserDetails">
+             Bordered="false" Dense="false" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="border:1px solid gray;border-radius:3px;overflow:auto;" Hover="true" RowClick="GoToUserDetails">
     <Columns>
-        <PropertyColumn Property="x => x.UserName" Title="Username" CellClass="row" StickyLeft="true" Class="SecondaryBG MainText"/>
-        <PropertyColumn Property="x => x.LastName" Title="Last Name" CellClass="row" />
-        <PropertyColumn Property="x => x.FirstName" Title="First Name" CellClass="row" />
-        <PropertyColumn Property="x => x.MiddleMName" Title="Middle Name" CellClass="row" />
+        <TemplateColumn>
+            <CellTemplate>
+                <MudAvatar>
+                    <MudImage Src="@context.Item.ProfilePictureUrl"/>
+                </MudAvatar>
+            </CellTemplate>
+        </TemplateColumn>
+        <TemplateColumn Title="Full Name">
+            <CellTemplate>
+                <MudText><span>@context.Item.LastName</span>, <span>@context.Item.FirstName</span> <span>@context.Item.MiddleMName</span></MudText>
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="x => x.Email" Title="Email" CellClass="row" />
         <PropertyColumn Property="x => x.Phone" CellClass="row" />
-        <PropertyColumn Property="x => x.JobTitle" Title="Job Title" CellClass="row" />
-        <PropertyColumn Property="x => x.DateCreated" Title="Date Added" CellClass="row" />
         <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end action-column" StickyRight="true">
             <CellTemplate>
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => NM.NavigateTo($"/user/edit?userid={context.Item.Id}"))" />
@@ -126,10 +132,12 @@
             {
                 // Delete the user
                 user.IsDeleted = true;
+                isLoadingUsers = true;
                 await _UserManager.UpdateAsync(user);
             }
             // Refresh Users
-            GetUsers();
+            await GetUsers();
+            isLoadingUsers = false;
             StateHasChanged();
         }
 

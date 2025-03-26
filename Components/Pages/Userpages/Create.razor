@@ -16,6 +16,8 @@
 @inject UserService userService
 
 <MudPopoverProvider />
+<MudThemeProvider />
+<MudDialogProvider/>
 
 <!-- This is the popup to create or edit a user -->
 @* <div class="modal" tabindex="-1" style="display:block" role="dialog">
@@ -89,7 +91,7 @@
                 <MudInputLabel>Last Name</MudInputLabel>
                 <MudTextField @bind-Value="OBJUser.LastName" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Required Clearable />
                 <MudInputLabel>Birth Date</MudInputLabel>
-                <MudDatePicker Date="OBJUser.BirthDate" Editable="true" Required DateChanged="OnDateChanged" Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd.MM.yyyy" Variant="Variant.Outlined" Class="mud-width-full" Style="height:40px; min-width:300px;" />
+                <MudDatePicker Date="OBJUser.BirthDate" Editable="true" Required DateChanged="OnDateChanged" Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd.MM.yyyy" Variant="Variant.Outlined" Class="mud-width-full" Style="min-width:300px;" />
                 <MudInputLabel>Gender</MudInputLabel>
                 <MudSelect Dense T="string" @bind-Value="OBJUser.Gender" TextChanged="OnGenderChanged" Variant="Variant.Outlined" Style="height:40px; min-width:300px;">
                     @foreach(var gender in GenderOptions)
@@ -132,7 +134,8 @@
                 <MudInputLabel>Password</MudInputLabel>
                 <MudTextField InputType="MudBlazor.InputType.Password" Required @bind-Value="OBJUser.PasswordHash" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
                 <MudStack Row Class="mt-8">
-                    <MudButton Variant="Variant.Filled" Color="@Color.Dark" StartIcon="@Icons.Material.Outlined.Cancel">Cancel</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="@Color.Dark" StartIcon="@Icons.Material.Outlined.Cancel"
+                    OnClick="BackToUsers">Cancel</MudButton>
                     <MudButton Variant="Variant.Filled" Color="@Color.Primary" StartIcon="@Icons.Material.Outlined.Save"
                     OnClick="CreateUser">Save</MudButton>
                 </MudStack>
@@ -166,39 +169,50 @@
 
     private async Task CreateUser()
     {
-        var NewUser = OBJUser;
-
-        var file = files.FirstOrDefault();
-        if (file != null)
+        if(string.IsNullOrEmpty(OBJUser.FirstName) ||
+           string.IsNullOrEmpty(OBJUser.LastName) ||
+           string.IsNullOrEmpty(OBJUser.UserName) ||
+           string.IsNullOrEmpty(OBJUser.Email) ||
+           string.IsNullOrEmpty(OBJUser.PasswordHash) ||
+           string.IsNullOrEmpty(CurrentUserRole))
         {
-            using var stream = file.OpenReadStream();
-            var url = await imageService.UploadFileAsync(stream, file.Name, file.ContentType);
-            OBJUser.ProfilePictureUrl = url; // Save the uploaded image URL
+            return;
+        }
+        else
+        {
+            var file = files.FirstOrDefault();
+            if (file != null)
+            {
+                using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
+                var url = await imageService.UploadFileAsync(stream, file.Name, file.ContentType);
+                OBJUser.ProfilePictureUrl = url; // Save the uploaded image URL
+            }
+
+            //var CreateResult = await _UserManager.CreateAsync(NewUser, NewUser.PasswordHash);
+
+            // if (!CreateResult.Succeeded)
+            // {
+            //     strError = CreateResult.Errors.FirstOrDefault()?.Description ?? "Create error";
+            //     return;
+            // }
+
+            var user = await userService.Add(OBJUser);
+
+            // ✅ Check if the role exists, if not, create it
+            if (!await _RoleManager.RoleExistsAsync(CurrentUserRole))
+            {
+                await _RoleManager.CreateAsync(new IdentityRole(CurrentUserRole));
+            }
+
+            // ✅ Assign the user to the role
+            await _UserManager.AddToRoleAsync(user, CurrentUserRole);
+
+            //SAVE IMAGE IN CLOUD
+
+            BackToUsers();
         }
 
-        //var CreateResult = await _UserManager.CreateAsync(NewUser, NewUser.PasswordHash);
 
-        // if (!CreateResult.Succeeded)
-        // {
-        //     strError = CreateResult.Errors.FirstOrDefault()?.Description ?? "Create error";
-        //     return;
-        // }
-
-        var user = await userService.Add(OBJUser);
-
-        // ✅ Check if the role exists, if not, create it
-        if (!await _RoleManager.RoleExistsAsync(CurrentUserRole))
-        {
-            await _RoleManager.CreateAsync(new IdentityRole(CurrentUserRole));
-        }
-
-        // ✅ Assign the user to the role
-        await _UserManager.AddToRoleAsync(user, CurrentUserRole);
-
-        //SAVE IMAGE IN CLOUD
-
-
-        NM.NavigateTo("users");
     }
 
     private void OnDateChanged(DateTime? newDate)
@@ -219,7 +233,7 @@
         files.Add(file); // Store the file // Get the selected file
 
         const long maxFileSize = 5 * 1024 * 1024;
-        using var stream = file.OpenReadStream(maxFileSize);
+        using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
         using var memoryStream = new MemoryStream();
         await stream.CopyToAsync(memoryStream);
 
@@ -241,7 +255,7 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    
+
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {
@@ -253,6 +267,11 @@
 
         string base64String = Convert.ToBase64String(buffer);
         imagePreview = $"data:{selectedFile.ContentType};base64,{base64String}";
+    }
+
+    private void BackToUsers()
+    {
+        NM.NavigateTo("users");
     }
 }
 
