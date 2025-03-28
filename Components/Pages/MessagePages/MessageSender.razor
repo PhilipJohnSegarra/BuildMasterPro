@@ -12,6 +12,7 @@
 @inject MongoService MongoService
 @inject UserManager<ApplicationUser> UserManager
 @inject MessageService MessageService
+@inject UserService userService
 @inject IJSRuntime JSRuntime
 
 
@@ -114,7 +115,14 @@ else
                                         <MudGrid>
                                             <MudItem lg="2" Class="d-flex flex-column justify-center align-center">
                                                 <MudAvatar Size="Size.Medium">
-                                                    <MudIcon Icon="@Icons.Material.Filled.Person"/>
+                                                    @if(message.ReceiverID == CurrentUser.Id)
+                                                    {
+                                                        <MudImage Src="@message.SenderPicture"/>
+                                                    }
+                                                    else
+                                                    {
+                                                        <MudImage Src="@message.ReceiverPicture" />
+                                                    }
                                                 </MudAvatar>
                                             </MudItem>
                                             <MudItem lg="10">
@@ -139,6 +147,13 @@ else
                 <MudPaper Class="MainBG" Style="height:100%;width:100%;">
                     <div style="display:grid;grid-template-rows:50px 1fr 70px;height:100%;width:100%;">
                         <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
+                            @if(Receiver != null)
+                            {
+                                <MudAvatar>
+                                    <MudImage Src="@Receiver.ProfilePictureUrl" />
+                                </MudAvatar>
+                            }
+                            
                             <MudText>
                                 @(Receiver != null ?
                                     (Receiver.FirstName == "" && Receiver.LastName == "" ? Receiver.UserName : Receiver.FirstName + " " + Receiver.LastName)
@@ -250,8 +265,10 @@ else
     {
         var newMessage = new Message();
         newMessage.SenderID = Sender!.Id;
+        newMessage.SenderPicture = Sender.ProfilePictureUrl;
         newMessage.SenderName = Sender.FirstName == "" && Sender.LastName == "" ? Sender.Email : Sender.LastName + " " + Sender.FirstName;
         newMessage.ReceiverID = Receiver!.Id;
+        newMessage.ReceiverPicture = Receiver.ProfilePictureUrl;
         newMessage.ReceiverName = Receiver.FirstName == "" && Receiver.LastName == "" ? Receiver.Email : Receiver.LastName + " " + Receiver.FirstName;
         newMessage.MessageText = this.MessageText;
         return newMessage;

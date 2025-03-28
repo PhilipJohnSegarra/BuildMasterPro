@@ -57,7 +57,12 @@
 
         foreach(var item in projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId))
         {
-            Users.Add(users.SingleOrDefault(i => i.Id.Equals(item.UserId)));
+            if(item != null)
+            {
+                var user = users.SingleOrDefault(i => i.Id.Equals(item.UserId));
+                if (user != null) Users.Add(user);
+            }
+            
         }
 
         var assignedUserIds = ProjectUsers.Select(pu => pu.UserId).ToHashSet(); // Use HashSet for faster lookups
