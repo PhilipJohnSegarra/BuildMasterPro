@@ -126,7 +126,7 @@
                 string imageUrl = await blobService.UploadFileAsync(stream, file.Name, file.ContentType); // Upload to Azure
                 taskActImages.ImageArray.Add(imageUrl);
             }
-            imageService.Insert(taskActImages);
+            await imageService.Insert(taskActImages);
         }
         
 

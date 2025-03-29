@@ -1,19 +1,17 @@
-﻿
-using BuildMasterPro.Components.Pages.MessagePages;
-using BuildMasterPro.Data;
-using Microsoft.CodeAnalysis;
+﻿using MongoDB.Driver;
 using MongoDB.Bson;
-using MongoDB.Driver;
 using System.Collections.Concurrent;
+using BuildMasterPro.Data;
 
 namespace BuildMasterPro.Services
 {
     public class ChannelService : BackgroundService
     {
-        MongoService _mongoService;
-        IMongoCollection<Channel> _channels;
+        private readonly MongoService _mongoService;
+        private readonly IMongoCollection<Channel> _channels;
         private readonly ConcurrentBag<Action<Channel>> _subscribers = new();
-        public event Action<string>? OnChannelUpdated;
+        public event Action<Channel>? OnChannelUpdated;
+
         public ChannelService(MongoService mongoService)
         {
             _mongoService = mongoService;
@@ -22,10 +20,8 @@ namespace BuildMasterPro.Services
 
         public async Task<List<Channel>> GetProjChannelsAsync(int projectId)
         {
-            var result = await _channels.Aggregate()
-                .Match(Builders<Channel>.Filter.Eq(i => i.ProjectId, projectId))
-                .ToListAsync();
-            return result;
+            var filter = Builders<Channel>.Filter.Eq(i => i.ProjectId, projectId);
+            return await _channels.Find(filter).ToListAsync();
         }
 
         public async Task AddNewChannelAsync(Channel newChannel)
@@ -37,7 +33,7 @@ namespace BuildMasterPro.Services
         {
             var filter = Builders<Channel>.Filter.Eq(c => c.ChannelId, channelId);
 
-            // Step 1: Ensure 'channel_messages' is an array if it's null
+            // Ensure 'channel_messages' is an array if it's null
             var check = await _channels.Find(filter).FirstOrDefaultAsync();
             if (check != null && check.ChannelMessages == null)
             {
@@ -45,25 +41,24 @@ namespace BuildMasterPro.Services
                 await _channels.UpdateOneAsync(filter, initUpdate);
             }
 
-            // Step 2: Now safely push the message
+            // Push the new message
             var pushUpdate = Builders<Channel>.Update.Push(c => c.ChannelMessages, message);
             await _channels.UpdateOneAsync(filter, pushUpdate);
         }
 
-
-
         public async Task<bool> DeleteChannelByIdAsync(string id)
         {
-            var objectId = ObjectId.Parse(id); // Convert string to ObjectId
+            var objectId = ObjectId.Parse(id);
             var result = await _channels.DeleteOneAsync(Builders<Channel>.Filter.Eq("_id", objectId));
-
             return result.DeletedCount > 0;
         }
-        public async Task<Channel> GetChannelByIdAsync(string channelId)
+
+        public async Task<Channel?> GetChannelByIdAsync(string channelId)
         {
             var filter = Builders<Channel>.Filter.Eq(c => c.ChannelId, channelId);
             return await _channels.Find(filter).FirstOrDefaultAsync();
         }
+
         public void SubscribeToMessages(Action<Channel> callback)
         {
             _subscribers.Add(callback);
@@ -72,20 +67,26 @@ namespace BuildMasterPro.Services
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<Channel>>()
-        .Match("{ operationType: 'update' }"); // Detect only updates
+        .Match(Builders<ChangeStreamDocument<Channel>>.Filter.In(
+            cs => cs.OperationType,
+            new[] { ChangeStreamOperationType.Update, ChangeStreamOperationType.Insert }
+        ));
 
             using var cursor = await _channels.WatchAsync(pipeline, cancellationToken: stoppingToken);
 
-            while (await cursor.MoveNextAsync(stoppingToken))
+            while (!stoppingToken.IsCancellationRequested && await cursor.MoveNextAsync(stoppingToken))
             {
-                foreach (var change in cursor.Current) // Cursor.Current gives a batch of changes
+                foreach (var change in cursor.Current)
                 {
-                    var updatedChannelId = change.DocumentKey["_id"].AsString;
-                    OnChannelUpdated?.Invoke(updatedChannelId); // Notify Blazor UI
+                    var updatedChannelId = change.DocumentKey["_id"].AsObjectId.ToString();
+                    var updatedChannel = await GetChannelByIdAsync(updatedChannelId);
+
+                    if (updatedChannel != null)
+                    {
+                        OnChannelUpdated?.Invoke(updatedChannel); // Notify Blazor UI
+                    }
                 }
             }
         }
-
-
     }
 }
