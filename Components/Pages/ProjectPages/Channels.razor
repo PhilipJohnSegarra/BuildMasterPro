@@ -22,9 +22,9 @@
             <MudItem lg="3" Style="height:100%;width:100%;">
                 <MudPaper Class="MainBG d-flex flex-column justify-center align-center" Style="height:100%;width:100%;">
                     <div style="display:grid;grid-template-rows:50px 1fr;height:100%;width:100%;">
-                        <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
-                            <MudText>
-                                Channels
+                        <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-5 pe-5" Style="border-radius:0;height:100%;width:100%;z-index:8;">
+                            <MudText Style="font-weight:bold;font-size:25px;">
+                                @ProjectService.CurrentProject.ProjectName
                             </MudText>
                             <MudIconButton OnClick="OpenDialogAsync" Icon="@Icons.Material.Outlined.NoteAdd" Style="padding:3px;border-radius:0;" />
                         </MudPaper>
@@ -44,7 +44,7 @@
                                         <NestedList>
                                             @foreach(var c in projectChannels.Where(c => c.Category.Equals(category)))
                                             {
-                                                <MudListItem OnClick="async()=>{await SetCurrentChannel(c);}">#@c.ChannelName</MudListItem>
+                                                <MudListItem OnClick="async()=>{await SetCurrentChannel(c);}"><span><MudAvatar Size="Size.Small">#</MudAvatar></span> @c.ChannelName</MudListItem>
                                             }
                                         </NestedList>
                                         
@@ -61,6 +61,7 @@
                     <div style="display:grid;grid-template-rows:50px 1fr 70px;height:100%;width:100%;">
                         <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
                             <MudText>
+                                <span><MudAvatar Size="Size.Medium">#</MudAvatar></span>
                                 @(CurrentChannel != null? CurrentChannel.ChannelName : "No Channel Selected")
                             </MudText>
                             <MudIconButton Icon="@Icons.Material.Filled.Menu" Style="padding:3px;border-radius:0;" />
