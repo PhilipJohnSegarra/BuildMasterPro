@@ -10,11 +10,15 @@ namespace BuildMasterPro.Data
         [BsonElement("channel_message")]
         public string? Message { get; set; }
         [BsonElement("image_array")]
-        public MongoImageArray? ImageArray { get; set; }
+        public List<string>? ImageArray { get; set; } = new();
+        [BsonElement("files")]
+        public List<string>? Files { get; set; } = new();
         [BsonElement("sender_id")]
         public string? SenderID { get; set; }
         [BsonElement("sender_name")]
         public string? SenderName { get; set; } = "";
+        [BsonElement("sender_image")]
+        public string? SenderImage { get; set; } = "";
         [BsonElement("timestamp")]
         public DateTime? Timestamp { get; set; } = DateTime.Now;
     }
