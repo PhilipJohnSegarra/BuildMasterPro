@@ -17,14 +17,14 @@
 
 <PageTitle>Index</PageTitle>
 
-<h3 style="margin:0 0 1rem 0;">PROJECTS</h3>
+<h4 style="margin:0 0 1rem 0;">PROJECTS</h4>
 
-<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="false" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Class="full-height-datagrid">
+<MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="false" Striped="true" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Groupable="false" Class="full-height-datagrid">
     <Columns>
-        <HierarchyColumn T="Project"/>
-        <MudBlazor.PropertyColumn Property="project => project.ProjectName" CellClass="row" HeaderStyle="height:60px;width:50%;font-weight:bold;"/>
-        <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
-        <MudBlazor.PropertyColumn Property="project => project.Enddate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
+        @* <HierarchyColumn T="Project"/> *@
+        <MudBlazor.PropertyColumn Property="project => project.ProjectName" CellClass="row" HeaderStyle="height:60px;width:40%;font-weight:bold;"/>
+        <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
+        <MudBlazor.PropertyColumn Property="project => project.Enddate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
         <MudBlazor.PropertyColumn Property="project => project.Status" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
         <MudBlazor.TemplateColumn CellClass="d-flex justify-center " HeaderStyle="height:60px;width:5%;font-weight:bold;">
             <CellTemplate Context="context">
@@ -45,17 +45,17 @@
             </CellTemplate>
         </MudBlazor.TemplateColumn>
     </Columns>
-    <ChildRowContent>
-        <MudCard Class="MainBG">
-            <MudCardHeader>
-                <MudText Typo="Typo.h6">@context.Item.ProjectName</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudText>Date Started: @context.Item.Startdate</MudText>
-                <MudText>CreatedBy: </MudText>
-            </MudCardContent>
-        </MudCard>
-    </ChildRowContent>
+    @* <ChildRowContent> *@
+    @*     <MudCard Class="MainBG"> *@
+    @*         <MudCardHeader> *@
+    @*             <MudText Typo="Typo.h6">@context.Item.ProjectName</MudText> *@
+    @*         </MudCardHeader> *@
+    @*         <MudCardContent> *@
+    @*             <MudText>Date Started: @context.Item.Startdate</MudText> *@
+    @*             <MudText>CreatedBy: </MudText> *@
+    @*         </MudCardContent> *@
+    @*     </MudCard> *@
+    @* </ChildRowContent> *@
 </MudDataGrid>
 
 @* <MudTable Items="@ProjectService.Projects" 
@@ -142,12 +142,12 @@
     .full-height-datagrid {
         display: flex;
         flex-direction: column;
-        height: 100%; /* Ensure the grid takes the full height of its container */
+        height: 100%;
     }
 
         .full-height-datagrid .mud-datagrid-table {
-            flex-grow: 1; /* Make the rows container fill available space */
-            overflow-y: auto; /* Add scrolling if the content overflows */
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         .full-height-datagrid .mud-datagrid-pager {
@@ -187,7 +187,7 @@
     {
         if (e.PropertyName == nameof(ProjectService.CurrentProject))
         {
-            InvokeAsync(StateHasChanged); // Trigger re-render
+            InvokeAsync(StateHasChanged);
         }
     }
     async Task GoToProject(DataGridRowClickEventArgs<Project> args)
