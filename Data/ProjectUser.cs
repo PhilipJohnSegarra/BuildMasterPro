@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BuildMasterPro.Data
 {
@@ -15,6 +16,7 @@ namespace BuildMasterPro.Data
         public DateTime? DateCreated { get; set; } = DateTime.Now;
 
         [ForeignKey(nameof(ProjectId))]
+        [JsonIgnore]
         public Project? Project { get; set; }
 
         [ForeignKey(nameof(UserId))]

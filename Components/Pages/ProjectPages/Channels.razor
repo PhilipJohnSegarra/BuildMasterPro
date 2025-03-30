@@ -16,7 +16,7 @@
 @rendermode InteractiveServer
 
 <MudDialogProvider MaxWidth="MaxWidth.Medium" FullWidth="true"/>
-@if(projectChannels != null && projectChannels.Count > 0)
+@if(true)
 {
     <MudPaper Class="pa-0 TransparentBG" Elevation="0" Style="height:100%;width:100%;overflow:hidden;position:relative;">
         @if(CurrentChannel != null)
@@ -104,7 +104,7 @@
                                                                 <MudImage Src="@message.SenderImage" Style="width:100%;"/>
                                                             }
                                                             
-                                                        </MudAvatar></span>  John Doe</MudText>
+                                                        </MudAvatar></span>@message.SenderName</MudText>
                                                     <p class="MainText">@message.Message</p>
 
                                                     @if (message.Files != null && message.Files.Count > 0)

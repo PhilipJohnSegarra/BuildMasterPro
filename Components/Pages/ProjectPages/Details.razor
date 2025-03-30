@@ -9,6 +9,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
+@inject BuildMasterPro.Services.ProjectUserService projUserService
 
 <PageTitle>Details</PageTitle>
 
@@ -32,26 +33,93 @@
             Top Banner End
         *@
         <MudItem xs="12" sm="7">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 100%"></MudPaper>
+            <MudPaper Elevation="2" Class="pa-4 d-flex flex-column justify-start align-start" Style="height: 100%">
+                <MudText Class="mb-4" Style="font-weight:bold;font-size:20px;">Project Info</MudText>
+                <MudText Class="mb-4">
+                    @project.Description
+                </MudText>
+                <table style="width:100%;margin:0 0 3rem 0;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Start Date</th>
+                            <th style="text-align:left;">End Date</th>
+                            <th style="text-align:left;">Team Members</th>
+                        </tr>
+                        
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align:left;">@project.Startdate.Date.ToString("MMMM dd, yyyy")</td>
+                            <td style="text-align:left;">@project.Enddate.Date.ToString("MMMM dd, yyyy")</td>
+                            <td style="text-align:left;">@(project.ProjectUsers != null ? project.ProjectUsers.Count.ToString() : "0")</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table style="width:100%;margin:0 0 0 0;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Project Manager</th>
+                            <th style="text-align:left;">Client</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align:left;">No Data</td>
+                            <td style="text-align:left;">No Data</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <MudIconButton Class="mt-auto ms-auto" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small" OnClick="GoToProjectDetails"/>
+            </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="5">
             <MudGrid>
                 <MudItem xs="12">
-                    <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                    <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-start justify-center" Style="height: 100px;">
+                        <MudStack Row Justify="Justify.SpaceBetween" Class="mud-width-full">
+                            <MudText Class="mb-4" Style="font-weight:bold;font-size:20px;">Overall Progress</MudText>
+                            <MudText Class="mb-4" Style="font-weight:bold;font-size:20px;">@(overallProgress >= 0 ? overallProgress.ToString("0.0") : 0)<span>%</span></MudText>
+                        </MudStack>
+                        <MudProgressLinear Color="Color.Success" Rounded="true" Size="Size.Large" Value="@(overallProgress >= 0 ? overallProgress : 0)" />
+                    </MudPaper>
                 </MudItem>
                 <MudItem xs="12">
                     <MudGrid>
                         <MudItem xs="6">
-                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;">
+                                <MudText Class="mb-4" Style="font-size:15px;">Time Remaining</MudText>
+                                <MudStack Row Justify="Justify.SpaceBetween" Class="mud-width-full">
+                                    <MudText Style="font-size:18px;font-weight:bold;" Color="Color.Error"><span>@(timeRemaining > 0 ? timeRemaining : 0)</span> Days</MudText>
+                                    <MudIcon Size="Size.Small" Color="Color.Error" Icon="@Icons.Material.Filled.Alarm"/>
+                                </MudStack>
+                            </MudPaper>
                         </MudItem>
                         <MudItem xs="6">
-                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;">
+                                <MudText Class="mb-4" Style="font-size:15px;">Total Tasks</MudText>
+                                <MudStack Row Justify="Justify.SpaceBetween" Class="mud-width-full">
+                                    <MudText Style="font-size:18px;font-weight:bold;" Class="SecondaryText">@(Tasks != null ? Tasks.Count : 0)</MudText>
+                                    <MudIcon Size="Size.Small" Class="SecondaryText" Icon="@Icons.Material.Filled.PlayArrow" />
+                                </MudStack>
+                            </MudPaper>
                         </MudItem>
                         <MudItem xs="6">
-                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;">
+                                <MudText Class="mb-4" Style="font-size:15px;">Tasks Completed</MudText>
+                                <MudStack Row Justify="Justify.SpaceBetween" Class="mud-width-full">
+                                    <MudText Style="font-size:18px;font-weight:bold;" Color="Color.Success">@(tasksCompleted)</MudText>
+                                    <MudIcon Size="Size.Small" Color="Color.Success" Icon="@Icons.Material.Filled.Done" />
+                                </MudStack>
+                            </MudPaper>
                         </MudItem>
                         <MudItem xs="6">
-                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;"></MudPaper>
+                            <MudPaper Elevation="2" Class="pa-4" Style="height: 100px;">
+                                <MudText Class="mb-4" Style="font-size:15px;">On-going Tasks</MudText>
+                                <MudStack Row Justify="Justify.SpaceBetween" Class="mud-width-full">
+                                    <MudText Style="font-size:18px;font-weight:bold;" Color="Color.Warning">@(ongoingTasks)</MudText>
+                                    <MudIcon Size="Size.Small" Color="Color.Warning" Icon="@Icons.Material.Filled.LockClock" />
+                                </MudStack>
+                            </MudPaper>
                         </MudItem>
                     </MudGrid>
                 </MudItem>
@@ -59,10 +127,40 @@
         </MudItem>
 
         <MudItem xs="12" sm="7">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 370px;"></MudPaper>
+            <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-start overflow-auto" Style="height: 370px;position:relative;">
+                <MudToolBar Class="mud-width-full align-center justify-space-between sticky-top" Style="position:sticky top;">
+                    <MudText>Tasks</MudText>
+                    <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Filled.AddCircle" OnClick="GoToTasks"/>
+                </MudToolBar>
+                <MudTable T="ProjectTask" Items="Tasks" Hover Class="mud-width-full" Style="flex-grow:1">
+                    <HeaderContent>
+                        <MudTh>Task</MudTh>
+                        <MudTh>Status</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.TaskName</MudTd>
+                        <MudTd>@context.Status</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="5">
-            <MudPaper Elevation="2" Class="pa-4" Style="height: 370px;"></MudPaper>
+            <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-start overflow-auto" Style="height: 370px;">
+                <MudToolBar Class="mud-width-full align-center justify-space-between">
+                    <MudText>Members</MudText>
+                    <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Filled.AddCircle" OnClick="GoToTeam"/>
+                </MudToolBar>
+                <MudTable T="ProjectUser" Items="Members" Hover Class="mud-width-full" Style="flex-grow:1">
+                    <HeaderContent>
+                        <MudTh></MudTh>
+                        <MudTh>Member</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTh><MudAvatar Size="Size.Small"><MudImage Src="@context.User.ProfilePictureUrl" Style="width:100%;"/></MudAvatar></MudTh>
+                        <MudTd>@(context.User.FirstName + " " + context.User.LastName)</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -74,6 +172,12 @@
     private int ProjectId { get; set; }
 
     private List<ProjectTask> Tasks { get; set; } = new();
+    private List<ProjectUser> Members { get; set; } = new();
+
+    private double overallProgress { get; set; } = 0D;
+    private int timeRemaining { get; set; } = 0;
+    private int tasksCompleted { get; set; } = 0;
+    private int ongoingTasks { get; set; } = 0;
 
     private string displayTaskCreate = "none";
     private string TCButtonText = "Add Task";
@@ -84,23 +188,54 @@
         // project = await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
         // Tasks = await context.ProjectTask.Where(i => i.ProjectId == project.ProjectId).ToListAsync();
         project = await ProjectService.GetCurrentProjectAsync();
-        Tasks = TaskService.CurrentProjectTasks;
+        Tasks = await TaskService.GetCurrentProjtasksAsync();
+        Members = await projUserService.GetAllByCurrentProject();
+
+        double total = 0;
+        foreach(var task in Tasks)
+        {
+            total += task.Progress;
+            if(task.Status == "Finished")
+            {
+                tasksCompleted += 1;
+            }
+            else if(task.Status == "In Progress")
+            {
+                ongoingTasks += 1;
+            }
+        }
+        overallProgress = total / Tasks.Count;
 
         if (project is null)
         {
             NavigationManager.NavigateTo("notfound");
         }
+
+        var timeSpan = project.Enddate - DateTime.Now;
+        timeRemaining = (int)timeSpan.TotalDays;
     }
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     project = await LocalStorage.GetItemAsync<Project>("CurrentProjectKey");
     //     Tasks = await LocalStorage.GetItemAsync<List<ProjectTask>>("ProjectTasksKey");
-        
+
     // }
 
     private void DisplayTaskCreate()
     {
         displayTaskCreate = displayTaskCreate == "none" ? "block" : "none";
         TCButtonText = TCButtonText == "Add Task" ? "Close" : "Add Task";
+    }
+    private void GoToProjectDetails()
+    {
+        NavigationManager.NavigateTo($"projects/edit?projectid={project.ProjectId}");
+    }
+    private void GoToTasks()
+    {
+        NavigationManager.NavigateTo("/projecttasks");
+    }
+    private void GoToTeam()
+    {
+        NavigationManager.NavigateTo("/team");
     }
 }

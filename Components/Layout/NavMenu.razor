@@ -134,10 +134,14 @@
             firstLoad = !firstLoad;
             
         }
-        
-        
+
+
         <!--PER PROJECT NAVIGATIONS-->
-        <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1.5rem 1rem;background-color:#aaaaaa;" />
+        @if (!collapsed)
+        {
+            <hr style="width:90%;height:1px;background-color:black;margin:0 auto 1.5rem 1rem;background-color:#aaaaaa;" />
+        }
+        
         <!--Dashboard-->
         <a class="MenuLink" href="@($"projects/details?projectid={ProjectService.CurrentProject.ProjectId}")" @onclick="@(()=>NavActive("Dashboard"))" style="@NavLinkBorder["Dashboard"]">
             <div class="Navlink-Container" style="">
