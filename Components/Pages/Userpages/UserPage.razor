@@ -41,7 +41,7 @@
             </CellTemplate>
         </TemplateColumn>
         <PropertyColumn Property="x => x.Email" Title="Email" CellClass="row" />
-        <PropertyColumn Property="x => x.Phone" CellClass="row" />
+        <PropertyColumn Property="x => x.PhoneNumber" CellClass="row" />
         <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end action-column" StickyRight="true">
             <CellTemplate>
                 <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => NM.NavigateTo($"/user/edit?userid={context.Item.Id}"))" />
@@ -138,7 +138,7 @@
             // Refresh Users
             await GetUsers();
             isLoadingUsers = false;
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
 
 
