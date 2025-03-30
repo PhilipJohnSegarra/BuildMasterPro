@@ -14,6 +14,7 @@
 @using System.Net.Http.Json
 @inject HttpClient httpClient
 @inject UserService userService
+@inject IUserStore<ApplicationUser> UserStore
 
 <MudPopoverProvider />
 <MudThemeProvider />
@@ -129,8 +130,8 @@
                         <MudSelectItem Style="height:40px; min-width:300px;" Value="role">@role</MudSelectItem>
                     }
                 </MudSelect>
-                <MudInputLabel>Username</MudInputLabel>
-                <MudTextField Required @bind-Value="OBJUser.UserName" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
+                @* <MudInputLabel>Username</MudInputLabel>
+                <MudTextField Required @bind-Value="OBJUser.UserName" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable /> *@
                 <MudInputLabel>Password</MudInputLabel>
                 <MudTextField InputType="MudBlazor.InputType.Password" Required @bind-Value="OBJUser.PasswordHash" Variant="Variant.Outlined" Style="height:40px; min-width:300px;" Clearable />
                 <MudStack Row Class="mt-8">
@@ -171,7 +172,6 @@
     {
         if(string.IsNullOrEmpty(OBJUser.FirstName) ||
            string.IsNullOrEmpty(OBJUser.LastName) ||
-           string.IsNullOrEmpty(OBJUser.UserName) ||
            string.IsNullOrEmpty(OBJUser.Email) ||
            string.IsNullOrEmpty(OBJUser.PasswordHash) ||
            string.IsNullOrEmpty(CurrentUserRole))
@@ -180,6 +180,7 @@
         }
         else
         {
+            var newUser = CreateUserInstance();
             var file = files.FirstOrDefault();
             if (file != null)
             {
@@ -187,6 +188,19 @@
                 var url = await imageService.UploadFileAsync(stream, file.Name, file.ContentType);
                 OBJUser.ProfilePictureUrl = url; // Save the uploaded image URL
             }
+            await UserStore.SetUserNameAsync(newUser, OBJUser.Email, CancellationToken.None);
+            var emailStore = GetEmailStore();
+            await emailStore.SetEmailAsync(newUser, OBJUser.Email, CancellationToken.None);
+            newUser.ProfilePictureUrl = OBJUser.ProfilePictureUrl;
+            newUser.FirstName = OBJUser.FirstName;
+            newUser.LastName = OBJUser.LastName;
+            newUser.MiddleMName = OBJUser.MiddleMName;
+            newUser.BirthDate = OBJUser.BirthDate;
+            newUser.Gender = OBJUser.Gender;
+            newUser.PhoneNumber = OBJUser.PhoneNumber;
+            newUser.JobTitle = OBJUser.JobTitle;
+            newUser.Department = OBJUser.Department;
+            newUser.Address = OBJUser.Address;
 
             //var CreateResult = await _UserManager.CreateAsync(NewUser, NewUser.PasswordHash);
 
@@ -196,7 +210,8 @@
             //     return;
             // }
 
-            var user = await userService.Add(OBJUser);
+            var user = await _UserManager.CreateAsync(newUser, OBJUser.PasswordHash);
+
 
             // ✅ Check if the role exists, if not, create it
             if (!await _RoleManager.RoleExistsAsync(CurrentUserRole))
@@ -205,7 +220,9 @@
             }
 
             // ✅ Assign the user to the role
-            await _UserManager.AddToRoleAsync(user, CurrentUserRole);
+            var createdUser = await _UserManager.FindByEmailAsync(OBJUser.Email);
+            if (user.Succeeded) await _UserManager.AddToRoleAsync(newUser, CurrentUserRole);
+            
 
             //SAVE IMAGE IN CLOUD
 
@@ -272,6 +289,26 @@
     private void BackToUsers()
     {
         NM.NavigateTo("users");
+    }
+    private ApplicationUser CreateUserInstance()
+    {
+        try
+        {
+            return Activator.CreateInstance<ApplicationUser>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+        }
+    }
+    private IUserEmailStore<ApplicationUser> GetEmailStore()
+    {
+        if (!_UserManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<ApplicationUser>)UserStore;
     }
 }
 

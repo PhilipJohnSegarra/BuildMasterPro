@@ -231,6 +231,15 @@
 
             </div>
         </a>
+        <div class="nav-item px-3">
+            <form action="Account/Logout" method="post">
+                <AntiforgeryToken />
+                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                <button type="submit" class="nav-link">
+                    <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                </button>
+            </form>
+        </div>
         <!--Back-->
 @*         <a class="MenuLink" href="projects/create" @onclick="@(()=>{ProjectService.CurrentProject = null;NavigationManager.NavigateTo(""); StateHasChanged();})" style="border:none;margin:auto 0 0 0;">
             <div class="Navlink-Container" style="">
