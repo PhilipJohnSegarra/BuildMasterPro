@@ -51,13 +51,13 @@
                                         <MudItem lg="4" md="4">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
                                                 <label>Start Date:</label>
-                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="_projectViewModel.Project.Startdate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                                <MudDatePicker Date="_projectViewModel.Project.Startdate" DateChanged="OnStartDateChanged" Label="dd/mm/yyyy" Editable="true" @bind-Value="_projectViewModel.Project.Startdate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem lg="4" md="4">
                                             <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
                                                 <label>End Date:</label>
-                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="_projectViewModel.Project.Enddate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                                <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="_projectViewModel.Project.Enddate" Mask="@(new DateMask("dd.MM.yyyy"))" DateChanged="OnEndDateChanged" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
                                             </MudPaper>
                                         </MudItem>
                                         <MudItem lg="4" md="4" Style="width:100%;margin:0 0 0 auto;">
@@ -199,5 +199,13 @@
     {
         public Project? Project { get; set; } = new();
         public List<string>? SelectedUserIds { get; set; } = new(); // Store selected user IDs
+    }
+    private void OnStartDateChanged(DateTime? newDate)
+    {
+        _projectViewModel.Project.Startdate = (DateTime)newDate!;
+    }
+    private void OnEndDateChanged(DateTime? newDate)
+    {
+        _projectViewModel.Project.Enddate = (DateTime)newDate!;
     }
 }

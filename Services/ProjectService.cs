@@ -52,7 +52,7 @@ namespace BuildMasterPro.Services
         public async Task<List<Project>> GetProjectsAsync()
         {
             using var _context = _contextFactory.CreateDbContext();
-            Projects = await _context.Project.ToListAsync();
+            Projects = await _context.Project.Include(i => i.ProjectUsers).ToListAsync();
             return Projects;
         }
 

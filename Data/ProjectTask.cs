@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace BuildMasterPro.Data
 {
@@ -37,7 +38,7 @@ namespace BuildMasterPro.Data
         [AllowNull]
         public string? Priority { get; set; }
         public int Progress { get; set; } = 0;
-
+        [JsonIgnore]
         [ForeignKey(nameof(ProjectId))]
         public Project? Project { get; set; } = default!;
         [ForeignKey(nameof(CategoryId))]
