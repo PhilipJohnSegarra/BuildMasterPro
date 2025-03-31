@@ -1,0 +1,25 @@
+﻿
+.save-button {
+    padding: 1rem;
+    width: 100%;
+    border-radius: 5px;
+    background-color: #5A3E9F;
+    color: white;
+}
+
+    .save-button:hover {
+        background: radial-gradient(circle, #9068F2, #5A3E9F);
+    }
+
+.back-button {
+    padding: 1rem;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #5A3E9F;
+    color: #5A3E9F;
+}
+
+    .back-button:hover {
+        border-color: #9068F2;
+        color: #9068F2;
+    }
