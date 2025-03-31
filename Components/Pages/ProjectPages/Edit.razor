@@ -4,12 +4,15 @@
 @using BuildMasterPro.Data
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectUserService ProjUserService
+@inject BuildMasterPro.Services.UserService UserService
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudThemeProvider />
 
 <PageTitle>Edit</PageTitle>
-
-<h1>Edit</h1>
-
-<h2>Project</h2>
 <hr />
 @if (Project is null)
 {
@@ -18,45 +21,139 @@
 else
 {
     <div class="row">
-        <div class="col-md-4">
-            <EditForm method="post" Model="Project" OnValidSubmit="UpdateProject" FormName="edit" Enhance>
-                <DataAnnotationsValidator />
-                <ValidationSummary role="alert"/>
-                <input type="hidden" name="Project.ProjectId" value="@Project.ProjectId" />
-                <div class="mb-3">
-                    <label for="projectname" class="form-label">ProjectName:</label>
-                    <InputText id="projectname" @bind-Value="Project.ProjectName" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description:</label>
-                    <InputText id="description" @bind-Value="Project.Description" class="form-control" />
-                    <ValidationMessage For="() => Project.Description" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="startdate" class="form-label">Startdate:</label>
-                    <InputDate id="startdate" @bind-Value="Project.Startdate" class="form-control" aria-required="true"/>
-                    <ValidationMessage For="() => Project.Startdate" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="enddate" class="form-label">Enddate:</label>
-                    <InputDate id="enddate" @bind-Value="Project.Enddate" class="form-control" />
-                    <ValidationMessage For="() => Project.Enddate" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="status" class="form-label">Status:</label>
-                    <InputText id="status" @bind-Value="Project.Status" class="form-control" />
-                    <ValidationMessage For="() => Project.Status" class="text-danger" />
-                </div>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </EditForm>
+        <div class="col-md-12">
+            <MudGrid>
+                <MudItem lg="12" md="12">
+                    <MudPaper Elevation="1" Class="mud-width-full" id="edit-container"  >
+                        <MudGrid>
+                            <MudItem lg="12">
+                                <MudPaper Elevation="0" Class="mud-width-full d-flex align-center justify-center">
+                                    <h1>Edit Project</h1>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem lg="12">
+                                <MudPaper Elevation="0" Class="mud-width-full d-flex flex-column align-center justify-center">
+
+                                    <EditForm method="post" Model="Project" OnValidSubmit="UpdateProject" FormName="edit" Enhance style="width:100%;">
+                                        <MudGrid Class="mud-width-full">
+                                            <MudItem lg="12" md="12">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                                                    <DataAnnotationsValidator />
+                                                    <ValidationSummary class="text-danger" role="alert" />
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            <input type="hidden" name="Project.ProjectId" value="@Project.ProjectId" />
+
+                                            <MudItem lg="12" md="12">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                    <label class="mb-3">Project Name:</label>
+                                                    <MudTextField ShrinkLabel @bind-Value="Project.ProjectName" Variant="Variant.Outlined" Class="mud-width-full" aria-required="true"></MudTextField>
+                                                    @* <InputText id="projectname" @bind-Value="Project.ProjectName" class="form-control" aria-required="true" /> *@
+                                                    <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            <MudItem lg="12" md="12">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                    <label class="mb-3">Description:</label>
+                                                    <MudTextField ShrinkLabel @bind-Value="Project.Description" Variant="Variant.Outlined" Class="mud-width-full" Lines="3"></MudTextField>
+                                                    @* <InputText id="description" @bind-Value="Project.Description" class="form-control" /> *@
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            <MudItem lg="4" md="12">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                    <label class="mb-3">Start Date:</label>
+                                                    <MudDatePicker Date="Project.Startdate" DateChanged="OnStartDateChanged" Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Startdate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                                    @* <InputDate id="startdate" @bind-Value="Project.Startdate" class="form-control" aria-required="true" /> *@
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            <MudItem lg="4" md="12">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
+                                                    <label class="mb-3">End Date:</label>
+                                                    <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Enddate" Mask="@(new DateMask("dd.MM.yyyy"))" DateChanged="OnEndDateChanged" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
+                                                    @* <InputDate id="enddate" @bind-Value="Project.Enddate" class="form-control" /> *@
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            <MudItem lg="4" md="12" Style="width:100%;" Class="mb-5">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start mud-width-full" Style="width:100%;">
+                                                    <label class="mb-3">Status:</label>
+                                                    <MudSelect @bind-Value="Project.Status"
+                                                               Variant="Variant.Outlined" Label=" "
+                                                               style="width:100%;">
+                                                        @foreach (var state in StatusArray)
+                                                        {
+                                                            <MudSelectItem Value="state">@state</MudSelectItem>
+                                                        }
+                                                    </MudSelect>
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            <MudItem lg="6" md="12">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                                                    <button type="button" onclick="@GoBackToList" class="btn btn-outline-primary back-button">
+                                                        <i class="mdi mdi-arrow-left me-2"></i> Back to List
+                                                    </button>
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            <MudItem lg="6" md="12">
+                                                <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
+                                                    <button type="submit" class="btn btn-primary save-button">
+                                                        <i class="mdi mdi-content-save me-2"></i> Save
+                                                    </button>
+                                                </MudPaper>
+                                            </MudItem>
+
+                                            @* <div class="mb-3"> *@
+                                            @*     <label for="projectname" class="form-label">ProjectName:</label> *@
+                                            @*     <InputText id="projectname" @bind-Value="Project.ProjectName" class="form-control" aria-required="true"/> *@
+                                            @*     <ValidationMessage For="() => Project.ProjectName" class="text-danger" /> *@
+                                            @* </div> *@
+                                            @* <div class="mb-3"> *@
+                                            @*     <label for="description" class="form-label">Description:</label> *@
+                                            @*     <InputText id="description" @bind-Value="Project.Description" class="form-control" /> *@
+                                            @*     <ValidationMessage For="() => Project.Description" class="text-danger" /> *@
+                                            @* </div> *@
+                                            @* <div class="mb-3"> *@
+                                            @*     <label for="startdate" class="form-label">Startdate:</label> *@
+                                            @*     <InputDate id="startdate" @bind-Value="Project.Startdate" class="form-control" aria-required="true"/> *@
+                                            @*     <ValidationMessage For="() => Project.Startdate" class="text-danger" /> *@
+                                            @* </div> *@
+                                            @* <div class="mb-3"> *@
+                                            @*     <label for="enddate" class="form-label">Enddate:</label> *@
+                                            @*     <InputDate id="enddate" @bind-Value="Project.Enddate" class="form-control" /> *@
+                                            @*     <ValidationMessage For="() => Project.Enddate" class="text-danger" /> *@
+                                            @* </div> *@
+                                            @* <div class="mb-3"> *@
+                                            @*     <label for="status" class="form-label">Status:</label> *@
+                                            @*     <InputText id="status" @bind-Value="Project.Status" class="form-control" /> *@
+                                            @*     <ValidationMessage For="() => Project.Status" class="text-danger" /> *@
+                                            @* </div> *@
+                                            @* <div class="buttons-container"> *@
+                                            @*     <button class="back-button" @onclick="@GoBackToList">Back to list</button> *@
+                                            @*     <button type="submit" class="save-button">Save</button> *@
+                                            @* </div> *@
+
+                                            </MudGrid>
+                                        </EditForm>
+
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
         </div>
     </div>
 }
 
-<div>
-    <a href="/projects">Back to List</a>
-</div>
+@* <div> *@
+@*     <a href="/projects">Back to List</a> *@
+@* </div> *@
 
 @code {
     [SupplyParameterFromQuery]
@@ -64,6 +161,9 @@ else
 
     [SupplyParameterFromForm]
     private Project? Project { get; set; }
+
+    string statusValue = "";
+    string[] StatusArray = new string[] { "Not Started", "Ongoing" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -106,5 +206,20 @@ else
     {
         using var context = DbFactory.CreateDbContext();
         return context.Project.Any(e => e.ProjectId == projectid);
+    }
+
+    private void GoBackToList()
+    {
+        NavigationManager.NavigateTo("/projects");
+    }
+
+    private void OnStartDateChanged(DateTime? newDate)
+    {
+        Project.Startdate = (DateTime)newDate!;
+    }
+
+    private void OnEndDateChanged(DateTime? newDate)
+    {
+        Project.Enddate = (DateTime)newDate!;
     }
 }
