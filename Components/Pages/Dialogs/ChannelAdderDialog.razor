@@ -79,7 +79,7 @@
     {
         await channelService.AddNewChannelAsync(Channel);
         MudDialog!.Close(DialogResult.Ok(true));
-        NavManager.NavigateTo("projects/channels", forceLoad: true);
+        NavManager.NavigateTo("projects/channels", forceLoad:true);
     }
 
     private void Cancel() => MudDialog!.Cancel();

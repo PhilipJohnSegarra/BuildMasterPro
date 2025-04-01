@@ -15,7 +15,7 @@
         New Activity
     </TitleContent>
     <DialogContent>
-        <MudNumericField @bind-Value="ProgressValue" Label="Add to Progress" Variant="Variant.Outlined" Min="0" Max="100" />
+        <MudNumericField @bind-Value="ProgressValue" Label="Add to Progress" Variant="Variant.Outlined" Min="-100" Max="100" />
         <MudForm Model="taskActivity">
             <MudTextField Variant="Variant.Outlined" Placeholder="Title" @bind-Value="taskActivity.Name" Class="mb-1"/>
             <MudTextField Variant="Variant.Outlined" Placeholder="Write something..." Lines="5" @bind-Value="taskActivity.Content"/>
@@ -104,12 +104,17 @@
                 Currenttask.Status = "In Progress";
                 Currenttask.ActualStartDate = DateTime.UtcNow;
             }
+            else if(Currenttask.Progress < 100 && Currenttask.Status != "In Progress" || Currenttask.Status != "Not Started")
+            {
+                Currenttask.Status = "In Progress";
+            }
 
         }
         else
         {
             Currenttask.Progress = 100;
             Currenttask.Status = "Finished";
+            if (Currenttask.ActualStartDate == null) Currenttask.ActualStartDate = DateTime.UtcNow;
             Currenttask.ActualEndDate = DateTime.UtcNow;
         }
         await taskService.UpdateProjectTaskAsync(Currenttask);

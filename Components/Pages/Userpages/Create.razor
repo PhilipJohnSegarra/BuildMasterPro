@@ -247,6 +247,11 @@
 
     private async void UploadFiles2(IBrowserFile file)
     {
+        if (file == null)
+        {
+            Console.WriteLine("No file was uploaded.");
+            return;
+        }
         files.Add(file); // Store the file // Get the selected file
 
         const long maxFileSize = 5 * 1024 * 1024;

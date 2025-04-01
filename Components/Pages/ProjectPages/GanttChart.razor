@@ -1,4 +1,5 @@
-﻿@page "/gantt"
+﻿﻿
+@page "/gantt"
 @using Syncfusion.Blazor.Gantt
 @using BuildMasterPro.Data
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
@@ -7,7 +8,7 @@
     @if (TaskCollection.Count > 0)
     {
         <SfGantt DataSource="@Tasks" Height="100%" Width="100%" ScrollToTaskbarOnClick="true" RenderBaseline BaselineColor="Orange" >
-            <GanttTaskFields Id="TaskId" Name="TaskName" BaselineStartDate="ActualStartDate" BaselineEndDate="ActualEndDate" StartDate="PlannedStartDate" EndDate="PlannedEndDate">
+            <GanttTaskFields Id="TaskId" Name="TaskName" BaselineStartDate="ActualStartDate" BaselineEndDate="ActualEndDate" StartDate="PlannedStartDate" EndDate="PlannedEndDate" Progress="Progress">
             </GanttTaskFields>
             <GanttColumns>
                 <GanttColumn Field="TaskId" HeaderText="Task Id"/>

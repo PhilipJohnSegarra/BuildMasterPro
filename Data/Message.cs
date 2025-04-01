@@ -21,8 +21,10 @@ namespace BuildMasterPro.Data
         public string? ReceiverName { get; set; } = "";
         [BsonElement("message_text")]
         public string? MessageText { get; set; }
+        [BsonElement("images")]
+        public List<string>? Images { get; set; } = new();
         [BsonElement("files")]
-        public string[]? Files { get; set; }
+        public List<string>? Files { get; set; } = new();
         [BsonRepresentation(MongoDB.Bson.BsonType.DateTime)]
         [BsonElement("timestamp")]
         public DateTime? Timestamp { get; set; } = DateTime.Now;
