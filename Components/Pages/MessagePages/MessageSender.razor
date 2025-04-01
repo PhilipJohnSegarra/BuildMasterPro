@@ -13,6 +13,7 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject MessageService MessageService
 @inject UserService userService
+@inject BlobStorageService blobService
 @inject IJSRuntime JSRuntime
 
 
@@ -51,7 +52,7 @@ else
                         <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:11;">
                             @if (writeNewMessage == false)
                             {
-                                <MudText>Messages</MudText>
+                                <MudText class="PrimaryText" Style="font-weight:bold;"> Messages</MudText>
                             }
                             else
                             {
@@ -61,7 +62,7 @@ else
                                     {
                                         <MudPaper Elevation="2" Style="position:absolute;left:0;top:100%;z-index:1000;width:100%;">
                                             <MudList T="ApplicationUser" Class="MainBG">
-                                                @foreach (var user in Users.Where(x => x.IsDeleted.Equals(false) && x.Email.ToLower().Contains(TextValue.ToLower())).ToList())
+                                                @foreach (var user in Users.Where(x => x.IsDeleted.Equals(false) && x.Email.ToLower().Contains(TextValue.ToLower()) || x.FirstName.ToLower().Contains(TextValue.ToLower()) || x.LastName.ToLower().Contains(TextValue.ToLower())).ToList())
                                                 {
                                                     if (user != null)
                                                     {
@@ -71,7 +72,7 @@ else
                                             TextValue = "";
 })">
                                                             <h5>
-                                                                @user.Email
+                                                                @(string.IsNullOrEmpty(user.FirstName)? user.Email : string.Concat(user.FirstName, " ", user.LastName))
                                                             </h5>
                                                         </MudListItem>
                                                     }
@@ -88,7 +89,15 @@ else
                                     }
                                 </div>
                             }
-                            <MudIconButton OnClick="()=>{writeNewMessage = !writeNewMessage;}" Icon="@Icons.Material.Outlined.AddComment" Style="padding:3px;border-radius:0;" />
+                            @if(writeNewMessage == true)
+                            {
+                                <MudIconButton OnClick="()=>{writeNewMessage = !writeNewMessage;}" Class="PrimaryText" Icon="@Icons.Material.Outlined.Close" Style="padding:3px;border-radius:0;" />
+                            }
+                            else
+                            {
+                                <MudIconButton OnClick="()=>{writeNewMessage = !writeNewMessage;}" Class="PrimaryText" Icon="@Icons.Material.Outlined.Add" Style="padding:3px;border-radius:0;" />
+                            }
+                            
                         </MudPaper>
                         <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG pt-3 ps-0 pe-0 pb-3" Style="border-radius:0;height:100%;width:100%;z-index:8;overflow-y:auto;">
                             <MudList T="Message" Style="width:100%;">
@@ -145,20 +154,17 @@ else
             </MudItem>
             <MudItem lg="9" Style="height:100%;width:100%;">
                 <MudPaper Class="MainBG" Style="height:100%;width:100%;">
-                    <div style="display:grid;grid-template-rows:50px 1fr 70px;height:100%;width:100%;">
+                    <div style="display:grid;grid-template-rows:50px 1fr auto 70px;height:100%;width:100%;">
                         <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
                             @if(Receiver != null)
                             {
                                 <MudAvatar>
                                     <MudImage Src="@Receiver.ProfilePictureUrl" />
                                 </MudAvatar>
+                                <MudText Class="SecondaryText" Style="margin:0 auto 0 1rem;font-weight:bold;">
+                                    @(string.IsNullOrEmpty(Receiver.FirstName) ? Receiver.Email : string.Concat(Receiver.FirstName, " ", Receiver.LastName))
+                                </MudText>
                             }
-                            
-                            <MudText>
-                                @(Receiver != null ?
-                                    (Receiver.FirstName == "" && Receiver.LastName == "" ? Receiver.UserName : Receiver.FirstName + " " + Receiver.LastName)
-                                    : "")
-                            </MudText>
                             <MudIconButton Icon="@Icons.Material.Filled.Menu" Style="padding:3px;border-radius:0;" />
                         </MudPaper>
                         <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG pt-3 ps-3 pe-3 pb-3" Style="border-radius:0;height:100%;width:100%;z-index:8;overflow-y:auto;">
@@ -171,6 +177,32 @@ else
                                             <MudPaper Style="width:max-content;border-radius:10px;margin-top:5px;margin-bottom:5px;padding:1rem;"
                                                       Class="@(message.SenderID == this.CurrentUser.Id? "PrimaryBG senderStyle" : "SecondaryBG")">
                                                 <p class="MainText">@message.MessageText</p>
+                                                @if (message.Files != null && message.Files.Count > 0)
+                                                {
+                                                    <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG mt-3" Elevation="0" Style="width:max-content;max-width:100%;">
+                                                        @foreach (var file in message.Files)
+                                                        {
+                                                            <a style="padding:5px 0 5px 0;color:white;display:flex;flex-direction:row;justify-content:center;align-items:center;max-width:90%;overflow:hidden;" href="@file">@file</a>
+                                                        }
+
+                                                    </MudPaper>
+                                                }
+
+                                                @if (message.Images != null && message.Images.Count > 0)
+                                                {
+                                                    <MudGrid Style="max-width:70%;margin:1px 0 0 0;">
+                                                        @foreach (var image in message.Images)
+                                                        {
+                                                            <MudItem lg="4">
+                                                                <MudImage Src="@image" Style="max-width:100%;" />
+                                                            </MudItem>
+                                                        }
+                                                    </MudGrid>
+                                                }
+                                                else
+                                                {
+
+                                                }
                                             </MudPaper>
                                         }
                                     </MudStack>
@@ -182,10 +214,64 @@ else
                             </div>
 
                         </MudPaper>
+                        <div>
+                            @if (this.files != null || this.images != null)
+                            {
+                                <MudGrid Style="width:100%;padding:1rem;">
+                                    @if (this.files != null && this.files.Count > 0)
+                                    {
+                                        <MudItem lg="6">
+                                            @foreach (var file in this.files)
+                                            {
+                                                <MudText>
+                                                    <span><MudIcon Size="Size.Small" Icon="@Icons.Material.Outlined.AttachFile" /></span>
+                                                    @file.Name<span style="margin:0 0 0 1rem;"><MudIconButton Icon="@Icons.Material.Outlined.Cancel" Size="Size.Small" OnClick="()=>{this.files.Remove(file);}" /></span>
+                                                </MudText>
+                                            }
+                                        </MudItem>
+                                    }
+                                    @if (this.images != null && this.images.Count > 0)
+                                    {
+                                        <MudItem lg="6">
+                                            <MudGrid Style="width:100%;" Spacing="1">
+                                                @foreach (var image in this.ImageDisplayList)
+                                                {
+                                                    <MudItem lg="2">
+                                                        <MudPaper Elevation="0" Class="d-flex flex-column justify-start align-center pa-0 TransparentBG">
+                                                            <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Cancel" Class="ms-auto"
+                                                                           OnClick="()=>{this.images.Remove(image.Image);this.ImageDisplayList.Remove(image);}" />
+                                                            <MudImage Src="@image.Display" Style="max-width:100%;" />
+                                                        </MudPaper>
+
+                                                    </MudItem>
+
+                                                }
+                                            </MudGrid>
+
+                                        </MudItem>
+                                    }
+
+                                </MudGrid>
+                            }
+                        </div>
                         <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-3 pe-3" Style="border-radius:0;height:100%;width:100%;z-index:8;">
-                            <MudIconButton Icon="@Icons.Material.Filled.AttachFile" Style="padding:3px;border-radius:0;" />
-                            <MudTextField T="string" @bind-Value="MessageText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Send" OnClick="SendMessage" Style="padding:3px;border-radius:0;" />
+                            @if(Receiver != null && Receiver.IsDeleted == true)
+                            {
+                                <MudText Color="Color.Error">This user has been removed. Messaging is no longer allowed. Reach out to your supervisor for guidance.</MudText>
+                            }
+                            else
+                            {
+                                <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles">
+                                    <ActivatorContent>
+                                        <MudIconButton Class="SecondaryText"
+                                                       Icon="@Icons.Material.Filled.AttachFile">
+                                        </MudIconButton>
+                                    </ActivatorContent>
+                                </MudFileUpload>
+                                <MudTextField T="string" @bind-Value="MessageText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Send" OnClick="SendMessage" Style="padding:3px;border-radius:0;" />
+                            }
+                            
                         </MudPaper>
                     </div>
                 </MudPaper>
@@ -271,6 +357,24 @@ else
         newMessage.ReceiverPicture = Receiver.ProfilePictureUrl;
         newMessage.ReceiverName = Receiver.FirstName == "" && Receiver.LastName == "" ? Receiver.Email : Receiver.LastName + " " + Receiver.FirstName;
         newMessage.MessageText = this.MessageText;
+        if (images != null)
+        {
+            foreach (var image in images)
+            {
+                using var stream = image.OpenReadStream();
+                var newImage = await blobService.UploadFileAsync(stream, image.Name, image.ContentType);
+                newMessage.Images.Add(newImage);
+            }
+        }
+        if (files != null)
+        {
+            foreach (var file in files)
+            {
+                using var stream = file.OpenReadStream();
+                var newfile = await blobService.UploadFileAsync(stream, file.Name, file.ContentType);
+                newMessage.Files.Add(newfile);
+            }
+        }
         return newMessage;
 
     }
@@ -307,5 +411,86 @@ else
             UserMessages.Add(newMessage);
             InvokeAsync(StateHasChanged);
         }
+    }
+
+    IList<IBrowserFile> files = new List<IBrowserFile>();
+    IList<IBrowserFile> images = new List<IBrowserFile>();
+    List<_imageViewModel> ImageDisplayList = new();
+    List<string> imageUrls = new();
+    private static readonly HashSet<string> ImageExtensions = new() { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff", ".svg" };
+    private async Task UploadFiles(IReadOnlyList<IBrowserFile> uploadedFiles)
+    {
+        foreach (var file in uploadedFiles)
+        {
+            string extension = Path.GetExtension(file.Name).ToLower();
+            if (file.ContentType.StartsWith("image/") || ImageExtensions.Contains(extension))
+            {
+                images.Add(file); // Add to images list if it's an image
+                var url = await ImageDisplay(file);
+                imageUrls.Add(url);
+                var newDisplay = new _imageViewModel
+                {
+                    Image = file,
+                    Display = await ImageDisplay(file)
+                };
+                ImageDisplayList.Add(newDisplay);
+            }
+            else
+            {
+                files.Add(file); // Add to files list otherwise
+            }
+        }
+        //TODO upload the files to the server
+    }
+    private async Task<string> ImageDisplay(IBrowserFile file)
+    {
+        using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+
+        // Convert image to Base64 string
+        string base64String = Convert.ToBase64String(memoryStream.ToArray());
+        return $"data:{file.ContentType};base64,{base64String}";
+    }
+
+    //FOR DRAWER
+    private bool _openStart = false;
+    private bool _openEnd = false;
+
+    [CascadingParameter]
+    public bool Rtl { get; set; }
+
+    private void ToggleStartDrawer()
+    {
+        _openStart = !_openStart;
+    }
+
+    private void ToggleEndDrawer()
+    {
+        _openEnd = !_openEnd;
+    }
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+
+        }
+    }
+    private void UpdateUI(Channel updatedChannel)
+    {
+        if (updatedChannel.ChannelMessages != null)
+        {
+
+        }
+    }
+    public void Dispose()
+    {
+
+    }
+
+    public class _imageViewModel
+    {
+        public IBrowserFile? Image { get; set; }
+        public string? Display { get; set; }
     }
 }

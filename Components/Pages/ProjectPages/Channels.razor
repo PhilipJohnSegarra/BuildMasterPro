@@ -16,7 +16,7 @@
 @rendermode InteractiveServer
 
 <MudDialogProvider MaxWidth="MaxWidth.Medium" FullWidth="true"/>
-@if(true)
+@if (projectChannels != null && projectChannels.Count > 0)
 {
     <MudPaper Class="pa-0 TransparentBG" Elevation="0" Style="height:100%;width:100%;overflow:hidden;position:relative;">
         @if(CurrentChannel != null)
@@ -40,7 +40,7 @@
                             <MudText Style="font-weight:bold;font-size:25px;">
                                 @ProjectService.CurrentProject.ProjectName
                             </MudText>
-                            <MudIconButton OnClick="OpenDialogAsync" Icon="@Icons.Material.Outlined.NoteAdd" Style="padding:3px;border-radius:0;" />
+                            <MudIconButton OnClick="OpenDialogAsync" Icon="@Icons.Material.Outlined.Add" Style="padding:3px;border-radius:0;" />
                         </MudPaper>
                         <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG pt-3 ps-3 pe-3 pb-3" Style="border-radius:0;height:100%;width:100%;z-index:8;overflow-y:auto;">
                             @* @foreach (var i in projectChannels)
@@ -166,14 +166,13 @@
                                     {
                                         <MudItem lg="6">
                                             <MudGrid Style="width:100%;" Spacing="1">
-                                                @foreach (var image in this.images)
+                                                @foreach (var image in this.ImageDisplayList)
                                                 {
-                                                    var url = ImageDisplay(image);
                                                     <MudItem lg="2">
                                                         <MudPaper Elevation="0" Class="d-flex flex-column justify-start align-center pa-0 TransparentBG">
                                                             <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Cancel" Class="ms-auto"
-                                                            OnClick="()=>{this.images.Remove(image);}"/>
-                                                            <MudImage Src="@url" Style="max-width:100%;" />
+                                                            OnClick="()=>{this.images.Remove(image.Image);this.ImageDisplayList.Remove(image);}"/>
+                                                            <MudImage Src="@image.Display" Style="max-width:100%;" />
                                                         </MudPaper>
                                                         
                                                     </MudItem>
@@ -207,7 +206,15 @@
 }
 else
 {
-    <MudText>Loading...</MudText>
+    <MudPaper Class="pa-0 MainBG d-flex flex-column justify-center align-center" Elevation="0" Style="height:100%;width:100%;overflow:hidden;position:relative;">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        <MudText>Please wait</MudText>
+        @if (isChannelEmpty)
+        {
+            <MudButton StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenDialogAsync" Class="PrimaryText">Add New Channel</MudButton>
+        }
+        
+    </MudPaper>
 }
 
 <style>
@@ -222,6 +229,7 @@ else
     private List<ChannelMessage> Messages { get; set; } = new();
     private Channel? CurrentChannel { get; set; } = null;
     private int? projId;
+    private bool isChannelEmpty = false;
 
     private string? MessageBoxText { get; set; }
 
@@ -258,7 +266,10 @@ else
     }
     protected override async Task OnParametersSetAsync()
     {
-
+        if(projectChannels.Count <= 0)
+        {
+            isChannelEmpty = true;
+        }
     }
 
     private async Task OpenDialogAsync()
@@ -274,6 +285,7 @@ else
         // };
 
         var result = await DialogService.ShowAsync<ChannelAdderDialog>("Simple Dialog", options);
+        await InvokeAsync(StateHasChanged);
 
     }
     private async Task ScrollMessages()
@@ -346,6 +358,7 @@ else
 
     IList<IBrowserFile> files = new List<IBrowserFile>();
     IList<IBrowserFile> images = new List<IBrowserFile>();
+    List<_imageViewModel> ImageDisplayList = new();
     List<string> imageUrls = new();
     private static readonly HashSet<string> ImageExtensions = new() { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff", ".svg" };
     private async Task UploadFiles(IReadOnlyList<IBrowserFile> uploadedFiles)
@@ -356,8 +369,14 @@ else
             if (file.ContentType.StartsWith("image/") || ImageExtensions.Contains(extension))
             {
                 images.Add(file); // Add to images list if it's an image
-                string url = ImageDisplay(file);
-                imageUrls.Add(url);
+                //string url = await ImageDisplay(file);
+                //imageUrls.Add(url);
+                var newDisplay = new _imageViewModel
+                    {
+                        Image = file,
+                        Display = await ImageDisplay(file)
+                    };
+                ImageDisplayList.Add(newDisplay);
             }
             else
             {
@@ -366,12 +385,11 @@ else
         }
         //TODO upload the files to the server
     }
-    private string ImageDisplay(IBrowserFile file)
+    private async Task<string> ImageDisplay(IBrowserFile file)
     {
-        const long maxFileSize = 5 * 1024 * 1024;
         using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
         using var memoryStream = new MemoryStream();
-        stream.CopyToAsync(memoryStream);
+        await stream.CopyToAsync(memoryStream);
 
         // Convert image to Base64 string
         string base64String = Convert.ToBase64String(memoryStream.ToArray());
@@ -412,5 +430,10 @@ else
     public void Dispose()
     {
         channelService.OnChannelUpdated -= UpdateUI;
+    }
+    public class _imageViewModel
+    {
+        public IBrowserFile? Image { get; set; }
+        public string? Display { get; set; }
     }
 }

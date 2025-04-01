@@ -23,8 +23,8 @@
                       Style="height: 150px;background-image: url('Banners/Dashboard Banner.svg');
                              background-size:cover;background-repeat:no-repeat;background-position:center;">
                  <MudStack Class="ps-2" AlignItems="AlignItems.Start" Justify="Justify.Center" Style="margin:auto 0 auto 0;">
-                    <MudText class="MainText" Style="font-weight:bold;font-size:35px;margin:0;">@project.ProjectName</MudText>
-                    <MudText class="MainText" Style="font-weight:lighter;font-size:15px;margin:0;">@project.Description</MudText>
+                    <MudText class="MainText" Style="font-weight:bold;font-size:35px;margin:0;">@project.ProjectName.ToUpper()</MudText>
+                    <MudText class="MainText" Style="font-weight:lighter;font-size:15px;margin:0;">@project.Address</MudText>
                  </MudStack>
                  
             </MudPaper>
@@ -45,7 +45,6 @@
                             <th style="text-align:left;">End Date</th>
                             <th style="text-align:left;">Team Members</th>
                         </tr>
-                        
                     </thead>
                     <tbody>
                         <tr>

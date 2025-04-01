@@ -24,9 +24,8 @@
         <a href="user/create">Add User</a>
     </div>
 </div>
-<MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly" EditMode="@(_isCellEditMode ? DataGridEditMode.Cell : DataGridEditMode.Form)"
-              CanceledEditingItem="@CanceledEditingItem" CommittedItemChanges="@CommittedItemChanges"
-             Bordered="false" Dense="false" EditTrigger="@(_editTriggerRowClick ? DataGridEditTrigger.OnRowClick : DataGridEditTrigger.Manual)" Class="MainBG" Style="border:1px solid gray;border-radius:3px;overflow:auto;" Hover="true" RowClick="GoToUserDetails">
+<MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly"
+             Bordered="false" Dense="false" Class="MainBG" Style="border:1px solid gray;border-radius:3px;overflow:auto;" Hover="true" RowClick="GoToUserDetails" Loading="isLoadingUsers">
     <Columns>
         <TemplateColumn>
             <CellTemplate>
@@ -132,15 +131,12 @@
             {
                 // Delete the user
                 user.IsDeleted = true;
-                isLoadingUsers = true;
                 await _UserManager.UpdateAsync(user);
+                await InvokeAsync(StateHasChanged);
             }
             // Refresh Users
-            await GetUsers();
-            isLoadingUsers = false;
-            await InvokeAsync(StateHasChanged);
         }
-
+        
 
     }
 

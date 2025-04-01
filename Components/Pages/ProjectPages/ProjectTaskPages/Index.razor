@@ -19,87 +19,88 @@
 @* <p>
     <a href="projecttasks/create">Create New</a>
 </p> *@
-<MudStack Style="height:100%;position:relative;overflow-y:auto;">
-    <MudPaper Elevation="3" Class="mb-0 pa-0 d-flex flex-row justify-space-between align-center" Style="position:sticky;top:0;right:0;z-index:100;height:40px;">
-        <MudToolBar Dense="true" Class="pa-0">
-            @* <MudPaper Class="d-flex flex-column justify-center align-center PrimaryBG ps-8 pe-8" Elevation="0" Style="height:100%;border-radius:0;">
-                <MudText Class="MainText ma-0" style="font-size:18px;">Tasks</MudText>
-            </MudPaper> *@
-                
-            <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ms-3 me-3"
-                        OnClick="@(()=>{
-                            ProjectTask newTask = new();
-                            newTasks.Add(newTask);})">
-                New Task
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ms-3 me-3"
-                        OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen; _multiSelection = !_multiSelection;})">
-                Edit
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
-                       OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;})">
-                Select
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
-                        Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
-                        OnClick="@(async ()=>{
-                        await SaveNewTasks();
-                        })">
-                Save
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
-                        Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
-                        OnClick="@(async ()=>{
-                        newTasks = new();
-                        selectedTasks = new();
-                        })">
-                Cancel
-            </MudButton>
-            <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
-            <MudTooltip Text="@(_dense? "Density Large" : "Density Small")">
-                <MudToggleIconButton Icon="@Icons.Material.Outlined.DensitySmall"
-                                        ToggledIcon="@Icons.Material.Outlined.DensityLarge"
-                                     Size="Size.Small" Class="ms-3 me-3"
-                                        @bind-Toggled="_dense">
-                </MudToggleIconButton>
-            </MudTooltip>
-
-            <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
-            <MudButton StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3">
-                Categories
-            </MudButton>
-        </MudToolBar>
-    </MudPaper>
-    @*Task Adder*@
-    @if (newTasks.Count != 0)
-    {
-        _taskAdderOpen = true;
-        <MudPaper Class="bg-white mb-1 pt-8 pb-3">
-            <MudStack Class="p-0">
-                @foreach (var task in newTasks)
-                {
-                    <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskAdder ProjectTask="task" />
-                }
-            </MudStack>
-        </MudPaper>
-    }
-    @*Task Editor*@
-    @if (selectedTasks.Count != 0)
-    {
-        <MudPaper Class="bg-white mb-1 pt-8 pb-3">
-            <MudStack Class="p-0">
-                @foreach (var task in selectedTasks)
-                {
-                    <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskEditor ProjectTask="task" />
-                }
-            </MudStack>
-        </MudPaper>
-
-    }
+<MudStack Class="MainBG" Style="height:100%;position:relative;overflow-y:auto;border-radius:15px;">
     <MudTabs PanelClass="overflow-y-auto" Style="height:100%;" Border="true">
         <MudTabPanel Text="Tasks">
             <MudItem lg="12">
+                <MudPaper Elevation="3" Class="mb-1 pa-0 d-flex flex-row justify-space-between align-center" Style="position:sticky;top:0;right:0;z-index:100;height:40px;">
+                    <MudToolBar Dense="true" Class="pa-0">
+                        @* <MudPaper Class="d-flex flex-column justify-center align-center PrimaryBG ps-8 pe-8" Elevation="0" Style="height:100%;border-radius:0;">
+                        <MudText Class="MainText ma-0" style="font-size:18px;">Tasks</MudText>
+                        </MudPaper> *@
+
+                        <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ms-3 me-3"
+                                   OnClick="@(()=>{
+                            ProjectTask newTask = new();
+                            newTasks.Add(newTask);})">
+                            New Task
+                        </MudButton>
+                        <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ms-3 me-3"
+                                   OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen; _multiSelection = !_multiSelection;})">
+                            Edit
+                        </MudButton>
+                        <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
+                                   OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;})">
+                            Select
+                        </MudButton>
+                        <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
+                                   Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                                   OnClick="@(async ()=>{
+                        await SaveNewTasks();
+                        })">
+                            Save
+                        </MudButton>
+                        <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
+                                   Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                                   OnClick="@(async ()=>{
+                        newTasks = new();
+                        selectedTasks = new();
+                        })">
+                            Cancel
+                        </MudButton>
+                        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                        <MudTooltip Text="@(_dense? "Density Large" : "Density Small")">
+                            <MudToggleIconButton Icon="@Icons.Material.Outlined.DensitySmall"
+                                                 ToggledIcon="@Icons.Material.Outlined.DensityLarge"
+                                                 Size="Size.Small" Class="ms-3 me-3"
+                                                 @bind-Toggled="_dense">
+                            </MudToggleIconButton>
+                        </MudTooltip>
+
+                        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                        <MudButton StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3">
+                            Categories
+                        </MudButton>
+                    </MudToolBar>
+                </MudPaper>
+                @*Task Adder*@
+                @if (newTasks.Count != 0)
+                {
+                    _taskAdderOpen = true;
+                    <MudPaper Class="bg-white mb-1 pt-8 pb-3">
+                        <MudStack Class="p-0">
+                            @foreach (var task in newTasks)
+                            {
+                                <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskAdder ProjectTask="task" />
+                            }
+                        </MudStack>
+                    </MudPaper>
+                }
+                @*Task Editor*@
+                @if (selectedTasks.Count != 0)
+                {
+                    <MudPaper Class="bg-white mb-1 pt-8 pb-3">
+                        <MudStack Class="p-0">
+                            @foreach (var task in selectedTasks)
+                            {
+                                <BuildMasterPro.Components.Pages.ProjectPages.ProjectTaskPages.TaskEditor ProjectTask="task" />
+                            }
+                        </MudStack>
+                    </MudPaper>
+
+                }
                 <MudTable Items="Tasks" Hover="true"
+                          Class="MainBG"
                           T="ProjectTask"
                           MultiSelection="_multiSelection"
                           Virtualize="false"
@@ -109,7 +110,9 @@
                           @bind-SelectedItems="selectedTasks"
                           Bordered="false"
                           RowClass="NoBorder"
-                          FixedHeader="true">
+                          HeaderClass="TransparentBG"
+                          FixedHeader="true"
+                          Loading="_loading">
                     <HeaderContent>
                         <MudTh>Task</MudTh>
                         <MudTh>Planned Start Date</MudTh>
@@ -123,7 +126,7 @@
                         <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="8"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
                     </GroupHeaderTemplate>
                     <RowTemplate>
-                        <MudTd><span><MudIcon Icon="@Icons.Material.Outlined.Task">sdfs</MudIcon></span>@context.TaskName</MudTd>
+                        <MudTd><MudText Class="SecondaryText" Style="font-weight:bold;">@context.TaskName</MudText></MudTd>
                         <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
                         <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
                         <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
@@ -131,12 +134,28 @@
                         <MudTd>
                             @if (context.TaskUsers != null)
                             {
-                                <MudStack Row="true">
-                                    @foreach (var user in context.TaskUsers.Take(3))
+                                <MudStack Row="true" Style="max-width:200px;" Wrap="Wrap.Wrap">
+                                    @foreach (var user in context.TaskUsers)
                                     {
-                                        <MudAvatar Class="m-0 p-0" Style="" Color="Color.Success" Variant="Variant.Outlined" Size="Size.Small">
-                                            @(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.Email[0])
-                                        </MudAvatar>
+
+                                        <MudTooltip Class="SecondaryBG pa-3">
+                                            <ChildContent>
+                                                <a href="team" style="cursor:pointer;">
+                                                    <MudAvatar Class="m-0 p-0" Style="" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+                                                        <MudImage Src="@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.ProfilePictureUrl)" />
+                                                    </MudAvatar>
+                                                </a>
+                                                
+                                            </ChildContent>
+                                            <TooltipContent>
+                                                <MudStack Class="">
+                                                    <MudAvatar>
+                                                        <MudImage Src="@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.ProfilePictureUrl)" />
+                                                    </MudAvatar>
+                                                    <MudText Class="MainText">@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.FirstName + " " + projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.LastName)</MudText>
+                                                </MudStack>
+                                            </TooltipContent>
+                                        </MudTooltip>
                                     }
                                 </MudStack>
                             }
@@ -195,6 +214,7 @@
     bool _taskeditorOpen = false;
     bool _multiSelection = false;
     bool _dense = false;
+    bool _loading = true;
     private List<string> editEvents = new();
     private bool hover = true;
     private bool ronly = false;
@@ -219,13 +239,14 @@
         Tasks = await TaskService.GetCurrentProjtasksAsync();
         Tasks.OrderBy(p => p.TaskId);
         selectedTasks = new();
+        _loading = false;
     }
     private TableGroupDefinition<ProjectTask> _groupDefinition = new()
     {
         GroupName = "Category",
         Indentation = false,
         Expandable = true,
-        IsInitiallyExpanded = false,
+        IsInitiallyExpanded = true,
         Selector = (e) => e.TaskCategory?.CategoryName ?? "Uncategorized"
     };
 
