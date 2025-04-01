@@ -55,7 +55,7 @@
     <MudSpacer></MudSpacer>
     <MudIconButton Icon="@Icons.Material.Outlined.Notifications"/>
     <div style="width:max-content;">
-        <MudButton Variant="Variant.Filled" Class="MainBG" Style="border-radius:40px;height:40px;">
+        <MudButton OnClick="GoToProfile" Variant="Variant.Filled" Class="MainBG" Style="border-radius:40px;height:40px;">
             <ChildContent>
                 <MudAvatar Class="me-2" Size="Size.Small"><MudImage Style="width:100%;" Src="@CurrentUser.ProfilePictureUrl" /></MudAvatar>
                 <MudText>@(string.IsNullOrEmpty(CurrentUser.FirstName) ? CurrentUser.Email : string.Concat(CurrentUser.FirstName, " ", CurrentUser.LastName))</MudText>
@@ -90,6 +90,10 @@
     {
         ProjectService.PropertyChanged -= HandlePropertyChanged;
         ProjectService.UnregisterListener(StateHasChanged);
+    }
+    private void GoToProfile()
+    {
+        NavManager.NavigateTo($"/user/details?userid={CurrentUser.Id}");
     }
 
 }

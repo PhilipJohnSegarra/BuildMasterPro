@@ -62,7 +62,7 @@ else
                                     {
                                         <MudPaper Elevation="2" Style="position:absolute;left:0;top:100%;z-index:1000;width:100%;">
                                             <MudList T="ApplicationUser" Class="MainBG">
-                                                @foreach (var user in Users.Where(x => x.IsDeleted.Equals(false) && x.Email.ToLower().Contains(TextValue.ToLower()) || x.FirstName.ToLower().Contains(TextValue.ToLower()) || x.LastName.ToLower().Contains(TextValue.ToLower())).ToList())
+                                                @foreach (var user in Users.Where(x => x.FirstName.ToLower().Contains(TextValue.ToLower()) || x.LastName.ToLower().Contains(TextValue.ToLower())).ToList())
                                                 {
                                                     if (user != null)
                                                     {
@@ -268,7 +268,7 @@ else
                                         </MudIconButton>
                                     </ActivatorContent>
                                 </MudFileUpload>
-                                <MudTextField T="string" @bind-Value="MessageText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" />
+                                <MudTextField T="string" @bind-Value="MessageText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" OnKeyDown="HandleKeyDown" OnKeyUp="HandleKeyDown" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Send" OnClick="SendMessage" Style="padding:3px;border-radius:0;" />
                             }
                             
@@ -308,7 +308,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Users = await db.Users.ToListAsync();
+        Users = await userService.GetAll();
         CurrentUser = await userService.GetCurrentUserAsync();
         Sender = CurrentUser;
         Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
@@ -343,7 +343,8 @@ else
         {
             return;
         }
-
+        files = new List<IBrowserFile>();
+        images = new List<IBrowserFile>();
     }
 
     async Task<Message> ComposeMessage()
@@ -360,7 +361,7 @@ else
         {
             foreach (var image in images)
             {
-                using var stream = image.OpenReadStream();
+                using var stream = image.OpenReadStream(maxAllowedSize: 5000000);
                 var newImage = await blobService.UploadFileAsync(stream, image.Name, image.ContentType);
                 newMessage.Images.Add(newImage);
             }
@@ -369,7 +370,7 @@ else
         {
             foreach (var file in files)
             {
-                using var stream = file.OpenReadStream();
+                using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
                 var newfile = await blobService.UploadFileAsync(stream, file.Name, file.ContentType);
                 newMessage.Files.Add(newfile);
             }
@@ -472,7 +473,8 @@ else
     {
         if (e.Key == "Enter")
         {
-
+            SendMessage();
+            MessageText = "";
         }
     }
     private void UpdateUI(Channel updatedChannel)
