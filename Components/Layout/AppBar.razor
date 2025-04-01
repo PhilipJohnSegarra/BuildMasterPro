@@ -1,15 +1,17 @@
 ﻿@rendermode InteractiveServer
 @using BuildMasterPro.Services
+@using BuildMasterPro.Data
 @using System.ComponentModel
 @using Microsoft.AspNetCore.Components
 @inject ProjectService ProjectService
 @inject NavigationManager NavManager
+@inject UserService userService
 
 
 <MudThemeProvider/>
 
-<div class="main-container">
-    @* @if(ProjectService.CurrentProject != null)
+@* <div class="main-container">
+    @if(ProjectService.CurrentProject != null)
     {
         <button @onclick="@HandleProjectClick">
             <svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
@@ -21,7 +23,7 @@
     else
     {
         <a></a>
-    } *@
+    }
     <div class="logo-area">
         <div class="logo-container">
             <img id="logo" class="logo mr-2" src="/images/BlocksLogo.svg" />
@@ -30,15 +32,46 @@
     </div>
     <div class="profile-container">
         <a href=""><img id="notification" class="notification" src="/images/NotifcationsIcon.png"/></a>
-        <a href=""><img id="profile" class="profile pl-3" src="/images/profileIcon.png" /></a>
+        @if(CurrentUser != null)
+        {
+            <MudButton>
+                <ChildContent>
+                    <MudAvatar><MudImage Src="@CurrentUser.ProfilePictureUrl" /></MudAvatar>
+                    <MudText>@(string.IsNullOrEmpty(CurrentUser.FirstName) ? CurrentUser.Email : string.Concat(CurrentUser.FirstName, " ", CurrentUser.LastName))</MudText>
+                </ChildContent>
+            </MudButton>
+        }
+        
     </div>
-</div>
+</div> *@
+<MudStack Class="pt-1 pb-1 ps-8 pe-8" Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Style="width:100%;height:100%;">
+    <MudSpacer></MudSpacer>
+    <div class="logo-area">
+        <div class="logo-container">
+            <img id="logo" class="logo mr-2" src="/images/BlocksLogo.svg" />
+            <h4 class="logo-text">BuildMaster <span style="color: #5A3E9F">Pro</span></h4>
+        </div>
+    </div>
+    <MudSpacer></MudSpacer>
+    <MudIconButton Icon="@Icons.Material.Outlined.Notifications"/>
+    <div style="width:max-content;">
+        <MudButton Variant="Variant.Filled" Class="MainBG" Style="border-radius:40px;height:40px;">
+            <ChildContent>
+                <MudAvatar Class="me-2" Size="Size.Small"><MudImage Style="width:100%;" Src="@CurrentUser.ProfilePictureUrl" /></MudAvatar>
+                <MudText>@(string.IsNullOrEmpty(CurrentUser.FirstName) ? CurrentUser.Email : string.Concat(CurrentUser.FirstName, " ", CurrentUser.LastName))</MudText>
+            </ChildContent>
+        </MudButton>
+    </div>
+    
+</MudStack>
 
 @code {
+    private ApplicationUser? CurrentUser { get; set; } = new();
     protected override async Task OnInitializedAsync()
     {
         ProjectService.PropertyChanged += HandlePropertyChanged;
         ProjectService.RegisterListener(StateHasChanged);
+        CurrentUser = await userService.GetCurrentUserAsync();
     }
     private void HandlePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {

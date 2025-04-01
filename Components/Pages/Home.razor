@@ -6,8 +6,13 @@
 @using BuildMasterPro.Data
 @using BuildMasterPro.Services
 @using BuildMasterPro.Components.Pages.ProjectPages
+@using Microsoft.AspNetCore.Identity
 @inject NavigationManager NavManager
 @inject ProjectService ProjectService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject UserService userService
+
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 
@@ -21,6 +26,8 @@
     // {
     //     db = DbFactory.CreateDbContext();
     // }
+    private ApplicationUser? CurrentUser { get; set; } = new();
+    private AuthenticationState? authState;
     protected override async Task OnInitializedAsync()
     {
         ProjectService.PropertyChanged += HandlePropertyChanged;

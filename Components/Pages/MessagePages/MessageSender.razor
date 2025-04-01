@@ -38,7 +38,7 @@
 
 
 <!--Receiver-->
-@if(authState == null || Users == null)
+@if(Users == null)
 {
     <h2>Please Wait</h2>
 }
@@ -308,10 +308,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         Users = await db.Users.ToListAsync();
-        CurrentUser = await UserManager.GetUserAsync(authState.User);
-        Sender = await UserManager.GetUserAsync(authState.User);
+        CurrentUser = await userService.GetCurrentUserAsync();
+        Sender = CurrentUser;
         Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
         MessageService.SubscribeToMessages(NewMessageReceived);
 
