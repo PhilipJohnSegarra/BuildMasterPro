@@ -3,6 +3,7 @@
 @using BuildMasterPro.Data
 @using BuildMasterPro.Services
 @inject UserService userService
+@inject NavigationManager NM
 
 <MudThemeProvider/>
 <!--Profile pic Area-->
@@ -10,21 +11,45 @@
     <MudItem xs="10" Class="d-flex flex-column justify-start">
         <MudPaper Class="d-flex flex-lg-row flex-sm-column flex-xs-column justify-start pa-5" Width="100%" Style="border-radius:10px 10px 0 0;">
             <MudItem sm="12" md="6" lg="3">
-                <MudImage Alt="Profile Picture" Style="border-radius:50%;height:auto;width:100%;max-width:200px;object-position:center;object-fit:cover;" Src="@User.ProfilePictureUrl" />
+                <MudImage Alt="Profile Picture" Style="border-radius:50%;height:200px;width:200px;max-width:200px;object-position:center;object-fit:contain;" Src="@User.ProfilePictureUrl" />
             </MudItem>
             <MudItem sm="12" Style="height:100%;">
-                <MudPaper Class="d-flex flex-column justify-center pl-5" Width="100%" Height="100%" Elevation="0">
-                    <p style="max-width:300px;">Personalize your account with a photo. Your profile photo will appear on apps and devices that use your Microsoft account.</p>
-                    <MudButton Variant="Variant.Outlined" Style="max-width:150px;font-size:10px;margin:10px 0 0 0;">
-                        Change Photo
+                <MudPaper Class="d-flex flex-column justify-start" Width="100%" Height="100%" Elevation="0">
+                    <MudButton StartIcon="@Icons.Material.Outlined.Edit" OnClick="GoToEdit">
+                        Edit Profile
                     </MudButton>
                 </MudPaper>
             </MudItem>
         </MudPaper>
-        <MudPaper Class="d-flex flex-row border-t-2 align-center pl-3 pr-3 pt-1 pb-1" Style="border-radius:0 0 10px 10px;">
+        <MudPaper Class="d-flex flex-row border-t-1 align-center pa-5">
             <p style="flex:1;max-width:30%;">Full Name</p>
             <p style ="flex:1;font-weight:bold;">@(User != null ? User.LastName + ", " + User.FirstName + " " + User.MiddleMName: "null")</p>
-            <MudButton Class="PrimaryText" Variant="Variant.Text">Edit</MudButton>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-row align-center pa-5">
+            <p style="flex:1;max-width:30%;">Birth Date</p>
+            <p style="flex:1;font-weight:bold;">@(User.BirthDate.Value.ToString("MMMM dd, yyyy"))</p>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-row align-center pa-5" Style="border-radius:0 0 10px 10px;">
+            <p style="flex:1;max-width:30%;">Gender</p>
+            <p style="flex:1;font-weight:bold;">@(User.Gender)</p>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="10" Class="d-flex flex-column justify-start">
+        <MudPaper Class="d-flex flex-row border-t-1 align-center pa-5" Style="border-radius:10px 10px 0 0;">
+            <p style="flex:1;max-width:30%;">Phone Number</p>
+            <p style="flex:1;font-weight:bold;">@(User.PhoneNumber)</p>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-row align-center pa-5">
+            <p style="flex:1;max-width:30%;">Email</p>
+            <p style="flex:1;font-weight:bold;">@(User.Email)</p>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-row align-center pa-5">
+            <p style="flex:1;max-width:30%;">Job Title</p>
+            <p style="flex:1;font-weight:bold;">@(User.JobTitle)</p>
+        </MudPaper>
+        <MudPaper Class="d-flex flex-row align-center pa-5" Style="border-radius:0 0 10px 10px;">
+            <p style="flex:1;max-width:30%;">Department</p>
+            <p style="flex:1;font-weight:bold;">@(User.Department)</p>
         </MudPaper>
     </MudItem>
 </MudGrid>
@@ -40,5 +65,9 @@
     protected override async Task OnInitializedAsync()
     {
         User = await userService.Get(userid);
+    }
+    private void GoToEdit()
+    {
+        NM.NavigateTo($"/user/edit?userid={User.Id}");
     }
 }

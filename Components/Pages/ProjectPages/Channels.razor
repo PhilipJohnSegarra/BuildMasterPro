@@ -308,7 +308,7 @@ else
             {
                 foreach (var file in files)
                 {
-                    using var stream = file.OpenReadStream();
+                    using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
                     var newfile = await fileService.UploadFileAsync(stream, file.Name, file.ContentType);
                     message.Files.Add(newfile);
                 }
@@ -318,7 +318,7 @@ else
             {
                 foreach (var image in images)
                 {
-                    using var stream = image.OpenReadStream();
+                    using var stream = image.OpenReadStream(maxAllowedSize: 5000000);
                     var newImage = await fileService.UploadFileAsync(stream, image.Name, image.ContentType);
                     message.ImageArray.Add(newImage);
                 }
@@ -336,6 +336,9 @@ else
         {
             return;
         }
+
+        files = new List<IBrowserFile>();
+        images = new List<IBrowserFile>();
 
     }
 
@@ -369,8 +372,8 @@ else
             if (file.ContentType.StartsWith("image/") || ImageExtensions.Contains(extension))
             {
                 images.Add(file); // Add to images list if it's an image
-                //string url = await ImageDisplay(file);
-                //imageUrls.Add(url);
+                                  //string url = await ImageDisplay(file);
+                                  //imageUrls.Add(url);
                 var newDisplay = new _imageViewModel
                     {
                         Image = file,
@@ -417,6 +420,7 @@ else
         if (e.Key == "Enter")
         {
             SendMessage(CurrentChannel);
+            MessageBoxText = "";
         }
     }
     private void UpdateUI(Channel updatedChannel)

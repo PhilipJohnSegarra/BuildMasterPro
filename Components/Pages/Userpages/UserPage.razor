@@ -16,42 +16,49 @@
 <MudDialogProvider />
 <MudThemeProvider />
 
-<div Class="d-flex flex-row justify-space-between align-center mb-2" Style="width:100%;border:none;background-color:none;">
-    <div>
-        <p style="font-size:medium">Users</p>
-    </div>
-    <div>
-        <a href="user/create">Add User</a>
-    </div>
-</div>
-<MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly"
-             Bordered="false" Dense="false" Class="MainBG" Style="border:1px solid gray;border-radius:3px;overflow:auto;" Hover="true" RowClick="GoToUserDetails" Loading="isLoadingUsers">
-    <Columns>
-        <TemplateColumn>
-            <CellTemplate>
-                <MudAvatar>
-                    <MudImage Src="@context.Item.ProfilePictureUrl"/>
-                </MudAvatar>
-            </CellTemplate>
-        </TemplateColumn>
-        <TemplateColumn Title="Full Name">
-            <CellTemplate>
-                <MudText><span>@context.Item.LastName</span>, <span>@context.Item.FirstName</span> <span>@context.Item.MiddleMName</span></MudText>
-            </CellTemplate>
-        </TemplateColumn>
-        <PropertyColumn Property="x => x.Email" Title="Email" CellClass="row" />
-        <PropertyColumn Property="x => x.PhoneNumber" CellClass="row" />
-        <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end action-column" StickyRight="true">
-            <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => NM.NavigateTo($"/user/edit?userid={context.Item.Id}"))" />
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async()=>OnDeleteClicked(context.Item))" />
-            </CellTemplate>
-        </TemplateColumn>
-    </Columns>
-    <PagerContent>
-        <MudDataGridPager T="ApplicationUser" />
-    </PagerContent>
-</MudDataGrid>
+<MudPaper Class="pa-5" Style="height:100%;width:100%;overflow-y:auto;display:grid;grid-template-rows:50px 1fr">
+    @* <div Class="d-flex flex-row justify-space-between align-center mb-2" Style="width:100%;border:none;background-color:none;">
+        <div>
+            <p style="font-size:medium">Users</p>
+        </div>
+        <div>
+            <a href="user/create">Add User</a>
+        </div>
+    </div> *@
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+        <MudText Style="font-weight:bold;font-size:20px;">User Accounts</MudText>
+        <MudButton OnClick="GoToCreate" Variant="Variant.Filled" Size="Size.Small" Class="PrimaryBG MainText" StartIcon="@Icons.Material.Filled.Add">New User Account</MudButton>
+    </MudStack>
+    <MudDataGrid T="ApplicationUser" Items="@ColUsers" ReadOnly="@_readOnly"
+                 Bordered="false" Dense="false" Hover="true" RowClick="GoToUserDetails" Loading="isLoadingUsers" FixedHeader="true" Height="70%" Style="width:100%;" FixedFooter>
+        <Columns>
+            <TemplateColumn>
+                <CellTemplate>
+                    <MudAvatar>
+                        <MudImage Src="@context.Item.ProfilePictureUrl" />
+                    </MudAvatar>
+                </CellTemplate>
+            </TemplateColumn>
+            <TemplateColumn Title="Full Name">
+                <CellTemplate>
+                    <MudText><span>@context.Item.LastName</span>, <span>@context.Item.FirstName</span> <span>@context.Item.MiddleMName</span></MudText>
+                </CellTemplate>
+            </TemplateColumn>
+            <PropertyColumn Property="x => x.Email" Title="Email" CellClass="row" />
+            <PropertyColumn Property="x => x.PhoneNumber" CellClass="row" />
+            <TemplateColumn Hidden="@(_isCellEditMode || _readOnly || _editTriggerRowClick)" CellClass="d-flex justify-end action-column" StickyRight="true">
+                <CellTemplate>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@(async () => NM.NavigateTo($"/user/edit?userid={context.Item.Id}"))" />
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(async()=>OnDeleteClicked(context.Item))" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="ApplicationUser" />
+        </PagerContent>
+    </MudDataGrid>
+</MudPaper>
+
 
 <style>
     /* Hide the action column by default */
@@ -64,6 +71,7 @@
         opacity: 0;
         transition: opacity 0.3s ease;
         margin: 0 0 0 auto;
+        height:100%;
     }
 
     /* Show the action column on row hover */
@@ -75,6 +83,7 @@
         .mud-table-row:hover .action-column {
             visibility: visible;
             opacity: 1;
+            height: 100%;
         }
 
     .full-height-datagrid {
@@ -136,7 +145,7 @@
             }
             // Refresh Users
         }
-        
+
 
     }
 
@@ -242,5 +251,9 @@
     void CommittedItemChanges(ApplicationUser user)
     {
         _events.Insert(0, $"Event = CommittedItemChanges, Data = {System.Text.Json.JsonSerializer.Serialize(user)}");
+    }
+    void GoToCreate()
+    {
+        NM.NavigateTo("user/create");
     }
 }

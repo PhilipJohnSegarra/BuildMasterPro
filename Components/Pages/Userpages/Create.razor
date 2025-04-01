@@ -15,53 +15,13 @@
 @inject HttpClient httpClient
 @inject UserService userService
 @inject IUserStore<ApplicationUser> UserStore
+@inject ISnackbar snackbar
 
 <MudPopoverProvider />
 <MudThemeProvider />
 <MudDialogProvider/>
-
-<!-- This is the popup to create or edit a user -->
-@* <div class="modal" tabindex="-1" style="display:block" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Edit User</h3>
-                <!-- Button to close the popup -->
-            </div>
-            <!-- Edit form for the current user -->
-            <div class="modal-body">
-                <!-- Only show Id if not a new user -->
-                
-                    <input class="form-control" type="text"
-                           placeholder="UserName"
-                           @bind="OBJUser.UserName" />
-                
-                <input class="form-control" type="text"
-                       placeholder="Email"
-                       @bind="OBJUser.Email" />
-                <input class="form-control" type="password"
-                       placeholder="Password"
-                       @bind="OBJUser.PasswordHash" />
-                <select class="form-control"
-                        @bind="@CurrentUserRole">
-                    @foreach (var option in Options)
-                    {
-                        <option value="@option">
-                            @option
-                        </option>
-                    }
-                </select>
-                <br /><br />
-                <!-- Button to save the user -->
-                <button class="btn btn-primary"
-                        @onclick="CreateUser">
-                    Save
-                </button>
-                <!-- Only show delete button if not a new record -->
-            </div>
-        </div>
-    </div>
-</div> *@
+<MudSnackbarProvider />
+<MudSnackbarElement />
 
 <MudPaper Class="d-flex flex-column justify-start align-start pt-7 ps-5 pe-5 pb-5 MainBG" Style="width:100%;height:100%;overflow-y:auto;">
     <MudPaper Class="d-flex flex-column justify-start align-start pa-3 MainBG mb-7" Elevation="0" Style="width:100%;">
@@ -176,6 +136,7 @@
            string.IsNullOrEmpty(OBJUser.PasswordHash) ||
            string.IsNullOrEmpty(CurrentUserRole))
         {
+            snackbar.Add("Please fill the required fields", Severity.Error);
             return;
         }
         else
