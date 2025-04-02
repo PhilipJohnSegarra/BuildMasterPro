@@ -95,5 +95,16 @@ namespace BuildMasterPro.Services
             await context.SaveChangesAsync();
             return true;
         }
+        public async Task RemoveCategory(TaskCategory category)
+        {
+            using var context = _context.CreateDbContext();
+            var tasks = await context.ProjectTask.Where(x=>x.CategoryId == category.Id).ToListAsync();
+            foreach (var task in tasks)
+            {
+                task.CategoryId = null;
+                context.ProjectTask.Update(task);
+            }
+            await context.SaveChangesAsync();
+        }
     }
 }

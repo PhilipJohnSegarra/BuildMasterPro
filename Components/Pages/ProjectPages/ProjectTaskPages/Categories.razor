@@ -1,1 +1,68 @@
-﻿
+﻿@page "/task/categories"
+@using BuildMasterPro.Services
+@using BuildMasterPro.Data
+@using BuildMasterPro.Components.Pages.Dialogs
+@inject TaskCategoryService categoryService
+@inject ProjectService projService
+@inject ProjectTaskService taskService
+@inject NavigationManager NavManager
+@inject IDialogService DialogService
+
+<MudDialogProvider MaxWidth="MaxWidth.Small"/>
+
+
+<MudPaper Class="mud-width-full" Style="height:max-content;">
+    <MudToolBar>
+        <MudText>Categories</MudText>
+        <MudButton OnClick="OpenDialogAsync" Class="ms-auto PrimaryText" StartIcon="@Icons.Material.Outlined.Add">New Category</MudButton>
+    </MudToolBar>
+    <MudTable T="TaskCategory" Items="categories">
+        <HeaderContent>
+            <MudTh>Category</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.CategoryName</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>
+                <MudIconButton OnClick="()=>Delete(context)" Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code{
+    private List<TaskCategory>? categories { get; set; } = new();
+    private Project project { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await categoryService.GetAllByCurrentProject();
+    }
+    private async Task Delete(TaskCategory category)
+    {
+        await taskService.RemoveCategory(category);
+        await categoryService.Remove(category);
+        categories = await categoryService.GetAllByCurrentProject();
+        NavManager.Refresh();
+    }
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        // member
+
+        // var parameters = new DialogParameters<ChannelAdderDialog>
+        // {
+        //     {x => x.ProjectId, currentProject.ProjectId}
+        // };
+
+        var result = await DialogService.ShowAsync<TaskCategoryAdderDialog>("Simple Dialog", options);
+        if (result.Result.IsCompleted)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        
+
+    }
+}

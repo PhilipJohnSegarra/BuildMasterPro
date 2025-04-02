@@ -1,0 +1,62 @@
+﻿@using BuildMasterPro.Data
+@using BuildMasterPro.Services
+@inject TaskCategoryService categoryService
+@inject ProjectService projService
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<MudThemeProvider />
+
+
+<MudDialog Style="overflow:visible;" Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="dialog-background-surface py-10" ActionsClass="dialog-background-surface">
+    <TitleContent>
+        @message
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="Category">
+            <MudTextField Style="display:none;" Variant="Variant.Outlined" Placeholder="Title" @bind-Value="Category.ProjectId" Class="mb-1" />
+            <MudTextField Variant="Variant.Outlined" Placeholder="Title" @bind-Value="Category.CategoryName" Class="mb-1" />
+            <MudTextField Variant="Variant.Outlined" Placeholder="Category" Lines="3" @bind-Value="Category.Description" />
+            @* <MudSelect T="string"
+            MultiSelection="true"
+            SelectedValues="Channel.ChannelMemberIds"
+            SelectedValuesChanged="e => Channel.ChannelMemberIds = e.ToList()">
+            @foreach(var u in projectUsers)
+            {
+            <MudSelectItem Value="u.User.Id">@u.User.Email</MudSelectItem>
+            }
+            </MudSelect> *@
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code{
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    private TaskCategory Category { get; set; } = new();
+    private Project Project { get; set; } = new();
+    string message { get; set; }= "New Category";
+    protected override async Task OnInitializedAsync()
+    {
+        Project = await projService.GetCurrentProjectAsync();
+        Category.ProjectId = Project.ProjectId;
+    }
+    async Task Submit()
+    {
+        if (string.IsNullOrEmpty(Category.CategoryName))
+        {
+            message = "Category Name is required";
+            return;
+        }
+        await categoryService.AddAsync(Category);
+        NavManager.NavigateTo("/projecttasks", forceLoad: true);
+
+    }
+    void Cancel() => NavManager.NavigateTo("/projecttasks");
+
+}
