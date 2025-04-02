@@ -75,6 +75,7 @@ builder.Services.AddScoped<TaskUserService>();
 builder.Services.AddScoped<TaskActivityService>();
 builder.Services.AddScoped<ResourceService>();
 builder.Services.AddScoped<EquipmentService>();
+builder.Services.AddScoped<TaskCategoryService>();
 builder.Services.AddScoped<TaskActivityImagesService>();
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddSingleton<BlobStorageService>();

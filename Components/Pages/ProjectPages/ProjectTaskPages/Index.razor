@@ -68,7 +68,7 @@
                         </MudTooltip>
 
                         <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
-                        <MudButton StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3">
+                        <MudButton OnClick="GoToCategories" StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3">
                             Categories
                         </MudButton>
                     </MudToolBar>
@@ -98,6 +98,13 @@
                         </MudStack>
                     </MudPaper>
 
+                }
+                @*Task Categories*@
+                @if (_categoriesOpen)
+                {
+                    <MudPaper Class="TransparentBG mb-1 pt-8 pb-3">
+                        <Categories />
+                    </MudPaper>
                 }
                 <MudTable Items="Tasks" Hover="true"
                           Class="MainBG"
@@ -213,6 +220,7 @@
     bool _taskAdderOpen = false;
     bool _taskeditorOpen = false;
     bool _multiSelection = false;
+    bool _categoriesOpen = false;
     bool _dense = false;
     bool _loading = true;
     private List<string> editEvents = new();
@@ -297,7 +305,7 @@
                 await TaskUserService.AddMany(newTasks);
             }
             await InitializeProps();
-            
+
             StateHasChanged();
         }
 
@@ -306,6 +314,11 @@
     {
         var task = eventArgs.Item;
         NavManager.NavigateTo($"projecttasks/details?taskid={task.TaskId}");
+    }
+    void GoToCategories()
+    {
+        //NavManager.NavigateTo("/task/categories");
+        _categoriesOpen = !_categoriesOpen;
     }
 
 }

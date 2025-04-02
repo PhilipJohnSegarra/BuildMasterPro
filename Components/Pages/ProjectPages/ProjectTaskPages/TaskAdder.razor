@@ -6,6 +6,7 @@
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
 @inject BuildMasterPro.Services.ProjectUserService ProjUserService
+@inject BuildMasterPro.Services.TaskCategoryService categoryService
 
             <EditForm method="post" Model="ProjectTask" FormName="create" Enhance style="width:100%;padding:0;">
                 <MudGrid Class="p-0 m-0 bg-danger d-flex flex-row align-center justify-center" Style="width:100%;padding: 0 1rem 0 1rem;">
@@ -99,8 +100,7 @@
         Project = await ProjectService.GetCurrentProjectAsync();
         ProjectTask.ProjectId = Project.ProjectId;
         await TaskService.CreateProjectTaskAsync(ProjectTask);
-        using var db = DbFactory.CreateDbContext();
-        Categories = await db.TaskCategories.ToListAsync();
+        Categories = await categoryService.GetAllByCurrentProject();
         projectUsers = await ProjUserService.GetAllByCurrentProject();
     }
 
