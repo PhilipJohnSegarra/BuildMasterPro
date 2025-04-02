@@ -3,9 +3,16 @@
 @using BuildMasterPro.Data
 @using System.ComponentModel
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Authentication
 @inject ProjectService ProjectService
 @inject NavigationManager NavManager
 @inject UserService userService
+@inject AuthenticationStateProvider auth
+@inject NavigationManager NavigationManager
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
+@inject IHttpContextAccessor HttpContextAccessor
+
 
 
 <MudThemeProvider/>
@@ -54,24 +61,59 @@
     </div>
     <MudSpacer></MudSpacer>
     <MudIconButton Icon="@Icons.Material.Outlined.Notifications"/>
-    <div style="width:max-content;">
-        <MudButton OnClick="GoToProfile" Variant="Variant.Filled" Class="MainBG" Style="border-radius:40px;height:40px;">
+    <div style="width:max-content;position:relative;">
+        <MudButton OnClick="ToggleOpen" Variant="Variant.Filled" Class="MainBG" Style="border-radius:40px;height:40px;z-index:11;">
             <ChildContent>
                 <MudAvatar Class="me-2" Size="Size.Small"><MudImage Style="width:100%;" Src="@CurrentUser.ProfilePictureUrl" /></MudAvatar>
                 <MudText>@(string.IsNullOrEmpty(CurrentUser.FirstName) ? CurrentUser.Email : string.Concat(CurrentUser.FirstName, " ", CurrentUser.LastName))</MudText>
             </ChildContent>
         </MudButton>
+        @if (_open)
+        {
+            <MudPaper @ref="popOver" Class="pt-8" Style="position:absolute;top:50%;left:0;width:100%;z-index:10;border-radius:0 0 30px 30px;overflow:hidden;">
+                <MudButton OnClick="GoToProfile" Class="ml-auto mr-n3 mb-1 mud-width-full" StartIcon="@Icons.Material.Outlined.Person" Style="height:50px;">
+                    Profile
+                </MudButton>
+                @* <form action="Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <MudButton ButtonType="ButtonType.Submit" Class="ml-auto mr-n3 mb-1 mud-width-full" StartIcon="@Icons.Material.Outlined.Logout" Style="height:50px;">
+                        Log Out
+                    </MudButton>
+                </form> *@
+                @* <div class="nav-item px-3">
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                        <button type="submit" class="nav-link">
+                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                        </button>
+                    </form>
+                </div> *@
+                <MudButton OnClick="Logout" Class="ml-auto mr-n3 mb-1 mud-width-full" StartIcon="@Icons.Material.Outlined.Logout" Style="height:50px;">
+                    Log Out
+                </MudButton>
+            </MudPaper>
+        }
+        
     </div>
     
 </MudStack>
 
 @code {
     private ApplicationUser? CurrentUser { get; set; } = new();
+    MudPaper popOver;
+    private string? currentUrl;
+    private string AntiforgeryToken;
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
     protected override async Task OnInitializedAsync()
     {
         ProjectService.PropertyChanged += HandlePropertyChanged;
         ProjectService.RegisterListener(StateHasChanged);
         CurrentUser = await userService.GetCurrentUserAsync();
+
+        currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+        NavManager.LocationChanged += OnLocationChanged;
     }
     private void HandlePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -94,6 +136,28 @@
     private void GoToProfile()
     {
         NavManager.NavigateTo($"/user/details?userid={CurrentUser.Id}");
+    }
+
+    //For PopOver
+    private bool _open;
+
+    private void ToggleOpen() => _open = !_open;
+    private async Task Logout()
+    {
+        // await Task.Yield(); // This ensures the response cycle is completed
+        // var httpContext = HttpContextAccessor.HttpContext;
+
+        // if (httpContext != null)
+        // {
+        //     await httpContext.SignOutAsync();
+        //     NavManager.NavigateTo("/account/login");
+        // }
+        NavManager.NavigateTo("/Account/logout");
+    }
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
     }
 
 }

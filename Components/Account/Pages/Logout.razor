@@ -1,0 +1,39 @@
+﻿@page "/Account/logout"
+@rendermode InteractiveServer
+@using BuildMasterPro.Services
+@using BuildMasterPro.Data
+@using System.ComponentModel
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Authentication
+@inject ProjectService ProjectService
+@inject NavigationManager NavManager
+@inject UserService userService
+@inject AuthenticationStateProvider auth
+@inject NavigationManager NavigationManager
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
+@inject IHttpContextAccessor HttpContextAccessor
+
+@code {
+    private bool isLoggedOut = false;
+    public HttpContext? HttpContext { get; set; }
+
+    // This method will be called after the page has been rendered
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isLoggedOut)
+        {
+            // Sign out after the page is rendered
+            var httpContext = HttpContextAccessor.HttpContext;
+
+            if (httpContext != null)
+            {
+                await httpContext.SignOutAsync();
+                NavManager.NavigateTo("/account/login");
+            }
+
+            isLoggedOut = true; // Ensure logout only happens once
+            NavManager.NavigateTo("/account/login"); // Redirect after sign-out
+        }
+    }
+}
