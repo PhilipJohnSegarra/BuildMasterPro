@@ -7,10 +7,13 @@
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectUserService ProjUserService
 @inject BuildMasterPro.Services.UserService UserService
+@inject ISnackbar snackBar
 
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudThemeProvider />
+<MudSnackbarProvider/>
+<MudSnackbarElement/>
 
 <PageTitle>Edit</PageTitle>
 <hr />
@@ -20,93 +23,114 @@
 }
 else
 {
-    <div class="row">
-        <div class="col-md-12">
-            <MudGrid>
-                <MudItem lg="12" md="12">
-                    <MudPaper Elevation="1" Class="mud-width-full" id="edit-container"  >
-                        <MudGrid>
-                            <MudItem lg="12">
-                                <MudPaper Elevation="0" Class="mud-width-full d-flex align-center justify-center">
-                                    <h1>Edit Project</h1>
-                                </MudPaper>
-                            </MudItem>
-                            <MudItem lg="12">
-                                <MudPaper Elevation="0" Class="mud-width-full d-flex flex-column align-center justify-center">
+    <MudGrid Spacing="3">
+        <MudItem lg="6">
+            <MudPaper Class="d-flex flex-column justify-start align-start pa-5 pb-10">
+                <MudToolBar Class="mud-width-full d-flex flex-row justify-space-between">
+                    <MudText>Project Details</MudText>
+                    <MudButtonGroup Class="SecondaryText" Variant="Variant.Outlined">
+                        @if (notEditing == true)
+                        {
+                            <MudButton StartIcon="@Icons.Material.Outlined.Edit" OnClick="()=>{notEditing = !notEditing;}">Edit</MudButton>
+                        }
+                        <MudButton StartIcon="@Icons.Material.Outlined.Save" Disabled="notEditing" OnClick="UpdateProject">Save</MudButton>
+                        @if (notEditing == false)
+                        {
+                            <MudButton StartIcon="@Icons.Material.Outlined.Save" Disabled="notEditing" OnClick="()=>{notEditing = !notEditing;}">Cancel</MudButton>
+                        }
+                        
+                    </MudButtonGroup>
+                </MudToolBar>
+                <MudInputLabel Class="mt-5">Project Name</MudInputLabel>
+                <MudTextField ReadOnly="notEditing" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Project.ProjectName" />
+                <MudInputLabel Class="mt-5">Description</MudInputLabel>
+                <MudTextField ReadOnly="notEditing" Class="mud-width-full" Variant="Variant.Filled" Lines="3" @bind-Value="Project.Description" />
+                <MudInputLabel Class="mt-5">Address</MudInputLabel>
+                <MudTextField ReadOnly="notEditing" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Project.Address" />
+                <MudInputLabel Class="mt-5">Start Date</MudInputLabel>
+                <MudDatePicker ReadOnly="notEditing" Class="mud-width-full" Variant="Variant.Filled" Date="Project.Startdate" DateChanged="OnStartDateChanged" />
+                <MudInputLabel Class="mt-5">End Date</MudInputLabel>
+                <MudDatePicker ReadOnly="notEditing" Class="mud-width-full" Variant="Variant.Filled" Date="Project.Enddate" DateChanged="OnEndDateChanged" />
+            </MudPaper>
+        </MudItem>
+        <MudItem lg="6">
+            <MudPaper Class="d-flex flex-column justify-start align-start pa-5 pb-10">
+                <MudToolBar Class="mud-width-full d-flex flex-row justify-space-between">
+                    <MudText>Client Details</MudText>
+                    <MudButtonGroup Class="SecondaryText" Variant="Variant.Outlined">
+                        @if (notEditingClient == true)
+                        {
+                            <MudButton StartIcon="@Icons.Material.Outlined.Edit" OnClick="()=>{notEditingClient = !notEditingClient;}">Edit</MudButton>
+                        }
+                        <MudButton StartIcon="@Icons.Material.Outlined.Save" Disabled="notEditingClient" OnClick="SaveClient">Save</MudButton>
+                        @if (notEditingClient == false)
+                        {
+                            <MudButton StartIcon="@Icons.Material.Outlined.Save" Disabled="notEditingClient" OnClick="()=>{notEditingClient = !notEditingClient;}">Cancel</MudButton>
+                        }
+                    </MudButtonGroup>
+                </MudToolBar>
 
-                                    <EditForm method="post" Model="Project" OnValidSubmit="UpdateProject" FormName="edit" Enhance style="width:100%;">
-                                        <MudGrid Class="mud-width-full">
-                                            <MudItem lg="12" md="12">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
-                                                    <DataAnnotationsValidator />
-                                                    <ValidationSummary class="text-danger" role="alert" />
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Company Name</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Required Variant="Variant.Filled" @bind-Value="Client.CompanyName" />
 
-                                            <input type="hidden" name="Project.ProjectId" value="@Project.ProjectId" />
+                <MudInputLabel Class="mt-5">Company Email</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.CompanyEmail" />
 
-                                            <MudItem lg="12" md="12">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
-                                                    <label class="mb-3">Project Name:</label>
-                                                    <MudTextField ShrinkLabel @bind-Value="Project.ProjectName" Variant="Variant.Outlined" Class="mud-width-full" aria-required="true"></MudTextField>
-                                                    @* <InputText id="projectname" @bind-Value="Project.ProjectName" class="form-control" aria-required="true" /> *@
-                                                    <ValidationMessage For="() => Project.ProjectName" class="text-danger" />
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Company Phone (Primary)</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Required Variant="Variant.Filled" @bind-Value="Client.CompanyNumber1" />
 
-                                            <MudItem lg="12" md="12">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
-                                                    <label class="mb-3">Description:</label>
-                                                    <MudTextField ShrinkLabel @bind-Value="Project.Description" Variant="Variant.Outlined" Class="mud-width-full" Lines="3"></MudTextField>
-                                                    @* <InputText id="description" @bind-Value="Project.Description" class="form-control" /> *@
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Company Phone (Secondary)</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.CompanyNumber2" />
 
-                                            <MudItem lg="4" md="12">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
-                                                    <label class="mb-3">Start Date:</label>
-                                                    <MudDatePicker Date="Project.Startdate" DateChanged="OnStartDateChanged" Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Startdate" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
-                                                    @* <InputDate id="startdate" @bind-Value="Project.Startdate" class="form-control" aria-required="true" /> *@
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Company Address</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.CompanyAddress" />
 
-                                            <MudItem lg="4" md="12">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start justify-center mud-width-full">
-                                                    <label class="mb-3">End Date:</label>
-                                                    <MudDatePicker Label="dd/mm/yyyy" Editable="true" @bind-Value="Project.Enddate" Mask="@(new DateMask("dd.MM.yyyy"))" DateChanged="OnEndDateChanged" DateFormat="dd.MM.yyyy" Placeholder="@DateTime.Now.Date.ToShortDateString().ToString()" Variant="Variant.Outlined" />
-                                                    @* <InputDate id="enddate" @bind-Value="Project.Enddate" class="form-control" /> *@
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Company Website</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.CompanyWebsite" />
 
-                                            <MudItem lg="4" md="12" Style="width:100%;" Class="mb-5">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-start mud-width-full" Style="width:100%;">
-                                                    <label class="mb-3">Status:</label>
-                                                    <MudSelect @bind-Value="Project.Status"
-                                                               Variant="Variant.Outlined" Label=" "
-                                                               style="width:100%;">
-                                                        @foreach (var state in StatusArray)
-                                                        {
-                                                            <MudSelectItem Value="state">@state</MudSelectItem>
-                                                        }
-                                                    </MudSelect>
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Industry Type</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.IndustryType" />
 
-                                            <MudItem lg="6" md="12">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
-                                                    <button type="button" onclick="@GoBackToList" class="btn btn-outline-primary back-button">
-                                                        <i class="mdi mdi-arrow-left me-2"></i> Back to List
-                                                    </button>
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Primary Contact Name</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Required Variant="Variant.Filled" @bind-Value="Client.PersonName" />
 
-                                            <MudItem lg="6" md="12">
-                                                <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center mud-width-full">
-                                                    <button type="submit" class="btn btn-primary save-button">
-                                                        <i class="mdi mdi-content-save me-2"></i> Save
-                                                    </button>
-                                                </MudPaper>
-                                            </MudItem>
+                <MudInputLabel Class="mt-5">Primary Contact Email</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.PersonEmail" />
+
+                <MudInputLabel Class="mt-5">Primary Contact Phone</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.PersonPhone" />
+
+                <MudInputLabel Class="mt-5">Alternate Contact Name</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.AlternatePersonName" />
+
+                <MudInputLabel Class="mt-5">Alternate Contact Email</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.AlternatePersonEmail" />
+
+                <MudInputLabel Class="mt-5">Alternate Contact Phone</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.AlternatePersonPhone" />
+
+                <MudExpansionPanel Text="Legal and Compliance (Optional)" Class="mt-5" Style="max-height:max-content;width:100%;" Expanded="true" Gutters>
+                    <MudInputLabel Class="mt-5">Date Established</MudInputLabel>
+                    <MudDatePicker ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" Date="Client.DateEstablished" />
+
+                    <MudInputLabel Class="mt-5">Registration Number</MudInputLabel>
+                    <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.RegistrationNumber" />
+
+                    <MudInputLabel Class="mt-5">Tax Identification Number (TIN)</MudInputLabel>
+                    <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" @bind-Value="Client.TaxIdentificationNumber" />
+                </MudExpansionPanel>
+                
+
+                <MudInputLabel Class="mt-5">Status</MudInputLabel>
+                <MudSwitch T="bool" @bind-Value="Client.IsActive" Disabled="notEditingClient">Active</MudSwitch>
+
+                <MudInputLabel Class="mt-5">Notes</MudInputLabel>
+                <MudTextField ReadOnly="notEditingClient" Class="mud-width-full" Variant="Variant.Filled" Lines="3" @bind-Value="Client.Notes" />
+            </MudPaper>
+        </MudItem>
+
+
+    </MudGrid>
 
                                             @* <div class="mb-3"> *@
                                             @*     <label for="projectname" class="form-label">ProjectName:</label> *@
@@ -138,16 +162,7 @@ else
                                             @*     <button type="submit" class="save-button">Save</button> *@
                                             @* </div> *@
 
-                                            </MudGrid>
-                                        </EditForm>
-                                </MudPaper>
-                            </MudItem>
-                        </MudGrid>
-                    </MudPaper>
-                </MudItem>
-            </MudGrid>
-        </div>
-    </div>
+
 }
 
 @* <div> *@
@@ -161,13 +176,24 @@ else
     [SupplyParameterFromForm]
     private Project? Project { get; set; }
 
+    private Client? Client { get; set; } = new();
+
     string statusValue = "";
-    string[] StatusArray = new string[] { "Not Started", "Ongoing" };
+    string[] StatusArray = new string[] { "Not Started", "In Progress", "Finished" };
+    bool notEditing = true;
+    bool notEditingClient = true;
+    bool isClientEmpty = false;
 
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
         Project ??= await context.Project.FirstOrDefaultAsync(m => m.ProjectId == ProjectId);
+        Client = await ProjectService.GetProjectClient(Project);
+        if(Client == null)
+        {
+            isClientEmpty = true;
+            Client = new();
+        }
 
         if (Project is null)
         {
@@ -198,7 +224,8 @@ else
             }
         }
 
-        NavigationManager.NavigateTo("/projects");
+        await InvokeAsync(StateHasChanged);
+        notEditing = true;
     }
 
     private bool ProjectExists(int projectid)
@@ -220,5 +247,33 @@ else
     private void OnEndDateChanged(DateTime? newDate)
     {
         Project.Enddate = (DateTime)newDate!;
+    }
+
+    private async Task SaveClient()
+    {
+        if (isClientEmpty)
+        {
+            if (string.IsNullOrEmpty(Client.CompanyName) || string.IsNullOrEmpty(Client.CompanyNumber1) || string.IsNullOrEmpty(Client.PersonName))
+            {
+                snackBar.Add("Please provide the required fields.", severity: Severity.Warning);
+                return;
+            }
+            var newClient = await ProjectService.AddClientInformation(Client);
+            Project.ClientId = newClient.Id;
+            await ProjectService.UpdateProjectAsync(Project);
+            snackBar.Add("Created client information successfully", severity: Severity.Success);
+            notEditingClient = true;
+        }
+        else if (!isClientEmpty)
+        {
+            if (string.IsNullOrEmpty(Client.CompanyName) || string.IsNullOrEmpty(Client.CompanyNumber1) || string.IsNullOrEmpty(Client.PersonName))
+            {
+                snackBar.Add("Please provide the required fields.", severity: Severity.Warning);
+                return;
+            }
+            ProjectService.UpdateClientInformation(Client);
+            snackBar.Add("Updated client information successfully", severity: Severity.Success);
+            notEditingClient = true;
+        }
     }
 }

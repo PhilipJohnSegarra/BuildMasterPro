@@ -37,7 +37,7 @@
                 <MudPaper Class="MainBG d-flex flex-column justify-center align-center" Style="height:100%;width:100%;">
                     <div style="display:grid;grid-template-rows:50px 1fr;height:100%;width:100%;">
                         <MudPaper Elevation="1" Class="d-flex flex-row justify-space-between align-center TransparentBG ps-5 pe-5" Style="border-radius:0;height:100%;width:100%;z-index:8;">
-                            <MudText Style="font-weight:bold;font-size:25px;">
+                            <MudText Style="font-weight:bold;font-size:25px;width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                                 @ProjectService.CurrentProject.ProjectName
                             </MudText>
                             <MudIconButton OnClick="OpenDialogAsync" Icon="@Icons.Material.Outlined.Add" Style="padding:3px;border-radius:0;" />

@@ -23,6 +23,11 @@
 <MudSnackbarProvider />
 <MudSnackbarElement />
 
+@if (isLoading)
+{
+    <BuildMasterPro.Components.Pages.Dialogs.Loader/>
+}
+
 <MudPaper Class="d-flex flex-column justify-start align-start pt-7 ps-5 pe-5 pb-5 MainBG" Style="width:100%;height:100%;overflow-y:auto;">
     <MudPaper Class="d-flex flex-column justify-start align-start pa-3 MainBG mb-7" Elevation="0" Style="width:100%;">
         <MudText>New User</MudText>
@@ -83,8 +88,8 @@
         <MudItem lg="3" Class="d-flex flex-column justify-start align-center" Style="width:100%;height:100%;overflow-y:auto;">
             <MudStack>
                 <MudText Class="mb-2 SecondaryText" Style="margin:0 0 0 0;">Account Information</MudText>
-                <MudInputLabel>System Role</MudInputLabel>
-                <MudSelect Dense T="string" @bind-Value="CurrentUserRole" Required Variant="Variant.Outlined" Style="height:40px; min-width:300px;margin:0 0 1rem 0;">
+                <MudInputLabel>System Roles</MudInputLabel>
+                <MudSelect Dense T="string" @bind-SelectedValues="CurrentUserRole" MultiSelection="true" Required Variant="Variant.Outlined" Style="height:40px; min-width:300px;margin:0 0 1rem 0;">
                     @foreach (var role in Options)
                     {
                         <MudSelectItem Style="height:40px; min-width:300px;" Value="role">@role</MudSelectItem>
@@ -113,14 +118,16 @@
     private ApplicationUser OBJUser { get; set; } = new();
     private string Password = "";
     private string SelectedRole = "Users";
-    private List<string> Roles = new List<string> { "Users", "Administrators", "Project Manager" };
+    private List<string> Roles = new List<string> {"Administrators", "Project Manager", "Project Member" };
     private string ErrorMessage = "";
-    List<string> Options = new List<string>() { "Users", "Administrators", "Project Manager" };
+    List<string> Options = new List<string>() {"Administrators", "Project Manager", "Project Member" };
     List<string> GenderOptions = new List<string>() { "Male", "Female", "Prefer Not to Say" };
-    string CurrentUserRole { get; set; } = "Users";
+    IEnumerable<string> CurrentUserRole { get; set; } = new List<string>();
     string strError = "";
     string ADMINISTRATION_ROLE = "Administrators";
     IList<IBrowserFile> files = new List<IBrowserFile>();
+
+    bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -134,13 +141,14 @@
            string.IsNullOrEmpty(OBJUser.LastName) ||
            string.IsNullOrEmpty(OBJUser.Email) ||
            string.IsNullOrEmpty(OBJUser.PasswordHash) ||
-           string.IsNullOrEmpty(CurrentUserRole))
+           CurrentUserRole == null)
         {
             snackbar.Add("Please fill the required fields", Severity.Error);
             return;
         }
         else
         {
+            isLoading = true;
             var newUser = CreateUserInstance();
             var file = files.FirstOrDefault();
             if (file != null)
@@ -175,18 +183,22 @@
 
 
             // ✅ Check if the role exists, if not, create it
-            if (!await _RoleManager.RoleExistsAsync(CurrentUserRole))
+            foreach(var role in CurrentUserRole)
             {
-                await _RoleManager.CreateAsync(new IdentityRole(CurrentUserRole));
+                if (!await _RoleManager.RoleExistsAsync(role))
+                {
+                    await _RoleManager.CreateAsync(new IdentityRole(role));
+                }
             }
+
 
             // ✅ Assign the user to the role
             var createdUser = await _UserManager.FindByEmailAsync(OBJUser.Email);
-            if (user.Succeeded) await _UserManager.AddToRoleAsync(newUser, CurrentUserRole);
-            
+            if (user.Succeeded) await _UserManager.AddToRolesAsync(newUser, CurrentUserRole);
+
 
             //SAVE IMAGE IN CLOUD
-
+            isLoading = false;
             BackToUsers();
         }
 
@@ -255,6 +267,10 @@
     private void BackToUsers()
     {
         NM.NavigateTo("users");
+    }
+    async Task GoToUserDetails()
+    {
+        NM.NavigateTo($"user/details?userid={OBJUser.Id}");
     }
     private ApplicationUser CreateUserInstance()
     {

@@ -40,6 +40,7 @@ namespace BuildMasterPro.Data
         public bool IsActive { get; set; } = true;  // Whether the client is active in the system
         public string? Notes { get; set; }  // Any additional remarks about the client
 
+
         public ICollection<Project>? Projects { get; set; }
     }
 }
