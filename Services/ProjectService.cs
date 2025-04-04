@@ -103,22 +103,12 @@ namespace BuildMasterPro.Services
             return project;
         }
 
-        public async Task<Project?> UpdateProjectAsync(int id, Project updatedProject)
+        public async Task<Project?> UpdateProjectAsync(Project updatedProject)
         {
             using var _context = _contextFactory.CreateDbContext();
-            var project = await _context.Project.FirstOrDefaultAsync(i => i.ProjectId == id);
-
-            if (project == null) return null;
-
-            project.ProjectName = updatedProject.ProjectName;
-            project.Description = updatedProject.Description;
-            project.Startdate = updatedProject.Startdate;
-            project.Enddate = updatedProject.Enddate;
-            project.Status = updatedProject.Status;
-
-            _context.Entry(project).State = EntityState.Modified;
+            _context.Project.Update(updatedProject);
             await _context.SaveChangesAsync();
-            return project;
+            return updatedProject;
         }
 
         public async Task<bool> DeleteProjectAsync(int id)
@@ -131,6 +121,29 @@ namespace BuildMasterPro.Services
             _context.Project.Remove(project);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<Client?> GetProjectClient(Project project)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            var client = await _context.Clients.FirstOrDefaultAsync(i => i.Id == project.ClientId);
+            return client;
+            
+        }
+
+        public async Task<Client> AddClientInformation(Client client)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.Clients.Add(client);
+            await _context.SaveChangesAsync();
+            return client;
+        }
+        public async Task<Client> UpdateClientInformation(Client client)
+        {
+            using var _context = _contextFactory.CreateDbContext();
+            _context.Clients.Update(client);
+            await _context.SaveChangesAsync();
+            return client;
         }
     }
 }

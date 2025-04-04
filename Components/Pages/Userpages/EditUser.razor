@@ -23,6 +23,11 @@
 <MudSnackbarProvider/>
 <MudSnackbarElement />
 
+@if (isLoading)
+{
+    <BuildMasterPro.Components.Pages.Dialogs.Loader />
+}
+
 <MudPaper Class="d-flex flex-column justify-start align-start pt-7 ps-5 pe-5 pb-5 MainBG" Style="width:100%;height:100%;overflow-y:auto;">
     <MudPaper Class="d-flex flex-column justify-start align-start pa-3 MainBG mb-7" Elevation="0" Style="width:100%;">
         <MudText>Edit User</MudText>
@@ -81,7 +86,7 @@
             <MudStack>
                 <MudText Class="mb-2 SecondaryText" Style="margin:0 0 0 0;">Account Information</MudText>
                 <MudInputLabel>System Role</MudInputLabel>
-                <MudSelect Dense T="string" @bind-Value="CurrentUserRole" Required Variant="Variant.Outlined" Style="height:40px; min-width:300px;margin:0 0 1rem 0;">
+                <MudSelect Dense T="string" @bind-SelectedValues="CurrentUserRole" MultiSelection="true" Required Variant="Variant.Outlined" Style="height:40px; min-width:300px;margin:0 0 1rem 0;">
                     @foreach (var role in Options)
                     {
                         <MudSelectItem Style="height:40px; min-width:300px;" Value="role">@role</MudSelectItem>
@@ -106,15 +111,17 @@
     private ApplicationUser OBJUser { get; set; } = new();
     private string Password = "";
     private string SelectedRole = "Users";
-    private List<string> Roles = new List<string> { "Users", "Administrators", "Project Manager" };
+    private List<string> Roles = new List<string> { "Administrators", "Project Manager", "Project Member" };
     private string ErrorMessage = "";
-    List<string> Options = new List<string>() { "Users", "Administrators", "Project Manager" };
+    List<string> Options = new List<string>() { "Administrators", "Project Manager", "Project Member" };
     List<string> GenderOptions = new List<string>() { "Male", "Female", "Prefer Not to Say" };
-    string CurrentUserRole { get; set; } = "Users";
+    IEnumerable<string> CurrentUserRole { get; set; } = new List<string>();
     string strError = "";
     string ADMINISTRATION_ROLE = "Administrators";
     string newPassword { get; set; } = "";
     IList<IBrowserFile> files = new List<IBrowserFile>();
+
+    bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -122,18 +129,19 @@
         {
             // Fetch existing user details from the database
             OBJUser = await _UserManager.FindByIdAsync(userid);
-            CurrentUserRole = (await _UserManager.GetRolesAsync(OBJUser)).FirstOrDefault();
+            CurrentUserRole = (await _UserManager.GetRolesAsync(OBJUser));
             imagePreview = OBJUser.ProfilePictureUrl;
         }
     }
 
     private async Task SaveUser()
     {
+        isLoading = true;
         if (string.IsNullOrEmpty(OBJUser.FirstName) ||
            string.IsNullOrEmpty(OBJUser.LastName) ||
            string.IsNullOrEmpty(OBJUser.Email) ||
-           string.IsNullOrEmpty(CurrentUserRole)||
-           string.IsNullOrEmpty(newPassword))
+           CurrentUserRole == null ||
+           string.IsNullOrEmpty(newPassword) || newPassword == "")
         {
             snackbar.Add("Please fill the required fields", Severity.Error);
             return;
@@ -178,7 +186,7 @@
                 //             return;
                 //         }
                 //     }
-                   
+
                 // }
 
                 // Save updated user information
@@ -194,20 +202,25 @@
                 if (updateResult.Succeeded)
                 {
                     // Update roles if needed
-                    if (!await _RoleManager.RoleExistsAsync(CurrentUserRole))
+                    foreach (var role in CurrentUserRole)
                     {
-                        await _RoleManager.CreateAsync(new IdentityRole(CurrentUserRole));
+                        if (!await _RoleManager.RoleExistsAsync(role))
+                        {
+                            await _RoleManager.CreateAsync(new IdentityRole(role));
+                        }
                     }
 
                     var currentRoles = await _UserManager.GetRolesAsync(user);
                     await _UserManager.RemoveFromRolesAsync(user, currentRoles);
-                    await _UserManager.AddToRoleAsync(user, CurrentUserRole);
+                    await _UserManager.AddToRolesAsync(user, CurrentUserRole);
                 }
                 else
                 {
                     ErrorMessage = "Failed to update user details.";
                 }
             }
+            isLoading = false;
+            await GoToUserDetails();
         }
     }
 
@@ -259,5 +272,9 @@
     private void BackToUsers()
     {
         NM.NavigateTo("/users");
+    }
+    async Task GoToUserDetails()
+    {
+        NM.NavigateTo($"user/details?userid={OBJUser.Id}");
     }
 }
