@@ -41,6 +41,12 @@ namespace BuildMasterPro.Services
             _context.TaskUsers.RemoveRange(taskUsers);
             await _context.SaveChangesAsync();
         }
+        public async Task Remove(TaskUser taskUsers)
+        {
+            using var _context = _db.CreateDbContext();
+            _context.TaskUsers.Remove(taskUsers);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task<List<TaskUser>> GetByTask(ProjectTask task)
         {

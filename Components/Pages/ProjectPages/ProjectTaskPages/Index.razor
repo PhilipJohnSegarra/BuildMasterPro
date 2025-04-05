@@ -21,7 +21,7 @@
 </p> *@
 <MudStack Class="MainBG" Style="height:100%;position:relative;overflow-y:auto;border-radius:15px;">
     <MudTabs PanelClass="overflow-y-auto" Style="height:100%;" Border="true">
-        <MudTabPanel Text="Tasks">
+        <MudTabPanel Text="@taskCountString">
             <MudItem lg="12">
                 <MudPaper Elevation="3" Class="mb-1 pa-0 d-flex flex-row justify-space-between align-center" Style="position:sticky;top:0;right:0;z-index:100;height:40px;">
                     <MudToolBar Dense="true" Class="pa-0">
@@ -121,6 +121,7 @@
                           FixedHeader="true"
                           Loading="_loading">
                     <HeaderContent>
+                        <MudTh></MudTh>
                         <MudTh>Task</MudTh>
                         <MudTh>Planned Start Date</MudTh>
                         <MudTh>Planned End Date</MudTh>
@@ -133,6 +134,7 @@
                         <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="8"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
                     </GroupHeaderTemplate>
                     <RowTemplate>
+                        <MudTd>@((Tasks.IndexOf(context) + 1).ToString())</MudTd>
                         <MudTd><MudText Class="SecondaryText" Style="font-weight:bold;">@context.TaskName</MudText></MudTd>
                         <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
                         <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
@@ -172,7 +174,15 @@
                             }
 
                         </MudTd>
-                        <MudTd>@context.Status</MudTd>
+                        <MudTd>
+                            @{
+                                if (context.Status == "Not Started"){<MudChip T="string" Color="Color.Dark">@context.Status</MudChip>}
+                                else if (context.Status == "In Progress"){<MudChip T="string" Color="Color.Warning">@context.Status</MudChip>}
+                                else if (context.Status == "On Hold"){<MudChip T="string" Color="Color.Secondary">@context.Status</MudChip>}
+                                else if (context.Status == "Abandoned"){<MudChip T="string" Color="Color.Error">@context.Status</MudChip>}
+                                else if (context.Status == "Finished"){<MudChip T="string" Color="Color.Success">@context.Status</MudChip>}
+                            }
+                         </MudTd>
                     </RowTemplate>
                     <GroupFooterTemplate>
                         <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
@@ -223,6 +233,8 @@
     bool _categoriesOpen = false;
     bool _dense = false;
     bool _loading = true;
+    string taskCountString = "Tasks";
+    int taskCount = 0;
     private List<string> editEvents = new();
     private bool hover = true;
     private bool ronly = false;
@@ -248,6 +260,8 @@
         Tasks.OrderBy(p => p.TaskId);
         selectedTasks = new();
         _loading = false;
+        taskCount = Tasks.Count;
+        taskCountString = $"Tasks ({taskCount})";
     }
     private TableGroupDefinition<ProjectTask> _groupDefinition = new()
     {

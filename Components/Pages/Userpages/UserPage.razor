@@ -5,6 +5,9 @@
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
 @using Microsoft.AspNetCore.Components
+@using BuildMasterPro.Services
+@inject ProjectUserService puService
+@inject TaskUserService tuService
 @inject NavigationManager NM
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
@@ -141,6 +144,10 @@
                 // Delete the user
                 user.IsDeleted = true;
                 await _UserManager.UpdateAsync(user);
+                var projServiceUser = await puService.GetAsync(i => i.UserId == user.Id);
+                var taskUser = await tuService.GetAsync(i => i.UserId == user.Id);
+                await puService.Remove(projServiceUser);
+                await tuService.Remove(taskUser);
                 await InvokeAsync(StateHasChanged);
             }
             // Refresh Users

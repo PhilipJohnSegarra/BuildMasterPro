@@ -24,6 +24,12 @@ namespace BuildMasterPro.Services
             var result = await GetAsync(o => o.ProjectUserId == id);
             return result;
         }
+        public async Task<ProjectUser?> GetByUserId(string id)
+        {
+            using var _context = _db.CreateDbContext();
+            var result = await _context.ProjectUsers.FirstOrDefaultAsync(x=>x.UserId == id);
+            return result ?? null;
+        }
 
         public async Task<List<ProjectUser>> GetAllByCurrentProject()
         {
@@ -50,6 +56,12 @@ namespace BuildMasterPro.Services
         public async Task Update(ProjectUser oldEntity, ProjectUser newEntity)
         {
             await UpdateAsync(oldEntity, newEntity);
+        }
+        public async Task Remove(ProjectUser projUser)
+        {
+            using var _context = _db.CreateDbContext();
+            _context.ProjectUsers.Remove(projUser);
+            await _context.SaveChangesAsync();
         }
     }
 }
