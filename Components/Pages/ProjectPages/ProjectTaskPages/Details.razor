@@ -29,7 +29,7 @@
                             <MudButton>@projecttask.Status</MudButton>
                             <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "Not Started";projecttask.Progress = 0;UpdateTask();})">Mark as Not Started</MudMenuItem>
-                                <MudMenuItem OnClick="@(() => {projecttask.Status = "In Progress";projecttask.ActualStartDate = DateTime.UtcNow;UpdateTask();})">Mark as In Progress</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {projecttask.Progress -= 10;projecttask.Status = "In Progress";if(projecttask.ActualStartDate == null)projecttask.ActualStartDate = DateTime.UtcNow;UpdateTask();})">Mark as In Progress</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "On Hold";UpdateTask();})">Mark as On Hold</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "Abandoned";UpdateTask();})">Mark as Abandoned</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {
@@ -192,6 +192,10 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
             projecttask.Status = "Finished";
             if (projecttask.ActualStartDate == null) { projecttask.ActualStartDate = DateTime.UtcNow; }
             if (projecttask.ActualEndDate == null) { projecttask.ActualEndDate = DateTime.UtcNow; }
+        }
+        else if(projecttask.Status == "On Hold")
+        {
+            projecttask.Status = "On Hold";
         }
 
         await TaskService.UpdateProjectTaskAsync(projecttask);

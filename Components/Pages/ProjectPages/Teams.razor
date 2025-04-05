@@ -5,70 +5,150 @@
 @inject ProjectUserService puService
 @inject UserService Userservice
 @inject ProjectService projService
+@inject TaskUserService tuService
 @rendermode InteractiveServer
 
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudThemeProvider />
 
-<MudButton OnClick="@(()=>{_AdderOpen = !_AdderOpen;})">@(_AdderOpen ? "Close" : "Add Member")</MudButton>
+@if (loading)
+{
+    <BuildMasterPro.Components.Pages.Dialogs.Loader/>
+}
+<MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+    <MudText Style="font-size:18px;font-weight:bold;">Project Members</MudText>
+    <MudButton StartIcon="@Icons.Material.Outlined.Add" Class="PrimaryBG MainText mb-3" Variant="Variant.Filled" OnClick="@(()=>{_AdderOpen = !_AdderOpen;})" Style="border-radius:8px;">New Project Member</MudButton>
+</MudStack>
+
 @if (_AdderOpen)
 {
-    <MudList T="string">
-        @foreach(var item in UnAssigned)
-        {
-            <MudListItem T="string" Value="item.Id" OnClick="@(async()=>{
-                                                      var result = await puService.Add(new ProjectUser{UserId = item.Id, ProjectId = projService.CurrentProject.ProjectId});
-                                                      UnAssigned.Remove(item);
-                                                      Users.Add(item);
-                                                      _AdderOpen = !_AdderOpen;
-                                                      StateHasChanged();
+    <MudPaper Class="TransparentBG d-flex flex-column justify-center align-center" Style="position:fixed;top:0;left:0;height:100vh;width:100vw;z-index:12;">
+        <MudPaper Class="transparentBg" @onclick="@(()=>{_AdderOpen = !_AdderOpen;})" Style="position:absolute;width:100%;height:100%;top:0;left:0">
+
+        </MudPaper>
+        <MudPaper Class="pa-5" Style="width:60vw;height:60vh;overflow:auto;z-index:13;position:relative;">
+            <MudToolBar Class="d-flex flex-row justify-end align-center ">
+                <MudText Style="font-size:15px;margin:0 auto 0 0;">Select Project Members</MudText>
+                <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="@(()=>{_AdderOpen = !_AdderOpen;})"/>
+            </MudToolBar>
+            <MudList T="string" Style="flex-grow:1;overflow:auto;height:70%;">
+                @foreach (var item in UnAssigned)
+                {
+                    <MudListItem T="string" Value="item.Id" OnClick="@(async()=>{
+                                                      await AddNewProjUser(item);
                                                     })">
-                @item.Email
-            </MudListItem>
-        }
-    </MudList>
+
+                        
+                        <ChildContent>
+                            <div style="display:flex;flex-direction:row;justify-content:start;align-items:center;">
+                                <span style="margin:0 1rem 0 1rem;"><MudAvatar Size="Size.Small"><MudImage class="mud-width-full" Src="@item.ProfilePictureUrl" /></MudAvatar></span>
+                                @(string.IsNullOrEmpty(item.FirstName) ? item.Email : string.Concat(item.FirstName + " " + item.LastName))
+                            </div>
+                            
+                        </ChildContent>
+                    </MudListItem>
+                }
+            </MudList>
+            <MudFab Class="PrimaryBG MainText" Style="position:absolute;bottom:2rem;right:2rem;z-index:14;" OnClick="AddProjectUsers" StartIcon="@Icons.Material.Outlined.Check">
+            </MudFab>
+        </MudPaper>
+        
+
+    </MudPaper>
+    
 }
 
 <MudTable Items="Users" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
     <HeaderContent>
-        <MudTh>Email</MudTh>
+        <MudTh>Member</MudTh>
         <MudTh>Role</MudTh>
+        <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Nr">@context.Email</MudTd>
+        <MudTd DataLabel="Nr"><MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+                <MudAvatar><MudImage Class="mud-width-full" Src="@context.ProfilePictureUrl" /></MudAvatar><MudText>@(string.IsNullOrEmpty(context.FirstName) ? context.Email : string.Concat(context.FirstName + " " + context.LastName))</MudText>
+        </MudStack></MudTd>
         <MudTd DataLabel="Nr">@context.JobTitle</MudTd>
+        <MudTd><MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="async()=>{await RemoveAsync(context);}"/></MudTd>
     </RowTemplate>
 </MudTable>
+
+<style>
+    .transparentBg{
+        background-color:gray;
+        opacity:.5;
+    }
+</style>
 
 @code {
     List<ProjectUser> ProjectUsers { get; set; } = new();
     List<ApplicationUser> Users { get; set; } = new();
     List<ApplicationUser> UnAssigned { get; set; } = new();
+    List<ProjectUser> Selected { get; set; } = new();
 
     bool _AdderOpen = false;
+    bool loading = true;
 
     protected override async Task OnInitializedAsync()
     {
+        await Initilize();
+    }
+    private async Task AddProjectUsers()
+    {
+        await puService.AddMany(Selected);
+        _AdderOpen = !_AdderOpen;
+        await InvokeAsync(StateHasChanged);
+        await Initilize();
+    }
+    private async Task RemoveAsync(ApplicationUser user)
+    {
+        loading = true;
+        var projUser = await puService.GetByUserId(user.Id);
+        var taskUser = await tuService.GetAsync(i => i.UserId == user.Id);
+        await puService.Remove(projUser);
+        await tuService.Remove(taskUser);
+        await InvokeAsync(StateHasChanged);
+        await Initilize();
+    }
+    private async Task Initilize()
+    {
+        loading = true;
+
+        ProjectUsers = new();
+        Users = new();
+        UnAssigned = new();
+        Selected = new();
+
         var projectUsers = await puService.GetAll();
         var users = await Userservice.GetAll();
         var currentProj = await projService.GetCurrentProjectAsync();
         ProjectUsers = projectUsers.Where(i => i.ProjectId == currentProj.ProjectId).ToList();
 
-        foreach(var item in projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId))
+        foreach (var item in projectUsers.Where(i => i.ProjectId == projService.CurrentProject.ProjectId))
         {
-            if(item != null)
+            if (item != null)
             {
                 var user = users.SingleOrDefault(i => i.Id.Equals(item.UserId));
                 if (user != null) Users.Add(user);
             }
-            
+
         }
 
         var assignedUserIds = ProjectUsers.Select(pu => pu.UserId).ToHashSet(); // Use HashSet for faster lookups
 
         UnAssigned = users.Where(user => !assignedUserIds.Contains(user.Id)).ToList();
-
+        loading = false;
     }
 
+    private async Task AddNewProjUser(ApplicationUser item)
+    {
+        //Selected.Add(new ProjectUser { UserId = item.Id, ProjectId = projService.CurrentProject.ProjectId });
+        loading = true;
+        await puService.Add(new ProjectUser { UserId = item.Id, ProjectId = projService.CurrentProject.ProjectId });
+        UnAssigned.Remove(item);
+        Users.Add(item);
+        _AdderOpen = !_AdderOpen;
+        await Initilize();
+    }
 }
