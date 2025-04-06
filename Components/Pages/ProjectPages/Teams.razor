@@ -84,6 +84,7 @@
     List<ApplicationUser> Users { get; set; } = new();
     List<ApplicationUser> UnAssigned { get; set; } = new();
     IReadOnlyCollection<ApplicationUser> Selected { get; set; } = new List<ApplicationUser>();
+    List<TaskUser> taskUser { get; set; } = new();
 
     bool _AdderOpen = false;
     bool loading = true;
