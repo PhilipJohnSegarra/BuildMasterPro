@@ -28,32 +28,26 @@
 
         </MudPaper>
         <MudPaper Class="pa-5" Style="width:60vw;height:60vh;overflow:auto;z-index:13;position:relative;">
-            <MudToolBar Class="d-flex flex-row justify-end align-center ">
-                <MudText Style="font-size:15px;margin:0 auto 0 0;">Select Project Members</MudText>
+            <MudToolBar Class="d-flex flex-row justify-space-between align-center ">
+                <MudText Style="font-size:15px;margin:0 0 0 0;">Select Project Members</MudText>
+                <MudTextField Immediate="true" @bind-Value="filterUser" Class="my-rounded-textfield" Placeholder="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" Style="max-width:300px;font-size:15px;border-radius:40px;height:40px;margin:0 auto;" />
                 <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="@(()=>{_AdderOpen = !_AdderOpen;})"/>
             </MudToolBar>
-            <MudList T="string" Style="flex-grow:1;overflow:auto;height:70%;">
-                @foreach (var item in UnAssigned)
+            <MudList T="ApplicationUser" Style="flex-grow:1;overflow:auto;height:70%;" SelectionMode="SelectionMode.MultiSelection" @bind-SelectedValues="Selected">
+                @foreach (var item in UnAssigned.Where(i => string.IsNullOrEmpty(filterUser) || i.FirstName.ToLower().Contains(filterUser.ToLower()) || i.LastName.ToLower().Contains(filterUser.ToLower())))
                 {
-                    <MudListItem T="string" Value="item.Id" OnClick="@(async()=>{
-                                                      await AddNewProjUser(item);
-                                                    })">
-
-                        
-                        <ChildContent>
-                            <div style="display:flex;flex-direction:row;justify-content:start;align-items:center;">
-                                <span style="margin:0 1rem 0 1rem;"><MudAvatar Size="Size.Small"><MudImage class="mud-width-full" Src="@item.ProfilePictureUrl" /></MudAvatar></span>
-                                @(string.IsNullOrEmpty(item.FirstName) ? item.Email : string.Concat(item.FirstName + " " + item.LastName))
-                            </div>
-                            
-                        </ChildContent>
+                    <MudListItem T="ApplicationUser" Value="item">
+@*                         @(string.IsNullOrEmpty(item.FirstName) ? item.Email : string.Concat(item.FirstName + " " + item.LastName))
+*@                      <div style="display:flex;flex-direction:row;justify-content:start;align-items:center;">
+                            <span style="margin:0 1rem 0 1rem;"><MudAvatar Size="Size.Small"><MudImage class="mud-width-full" Src="@item.ProfilePictureUrl" /></MudAvatar></span>
+                            @(string.IsNullOrEmpty(item.FirstName) ? item.Email : string.Concat(item.FirstName + " " + item.LastName))
+                        </div>
                     </MudListItem>
                 }
             </MudList>
             <MudFab Class="PrimaryBG MainText" Style="position:absolute;bottom:2rem;right:2rem;z-index:14;" OnClick="AddProjectUsers" StartIcon="@Icons.Material.Outlined.Check">
             </MudFab>
         </MudPaper>
-        
 
     </MudPaper>
     
@@ -79,16 +73,21 @@
         background-color:gray;
         opacity:.5;
     }
+
+    .my-rounded-textfield {
+        border-radius: 12px !important;
+    }
 </style>
 
 @code {
     List<ProjectUser> ProjectUsers { get; set; } = new();
     List<ApplicationUser> Users { get; set; } = new();
     List<ApplicationUser> UnAssigned { get; set; } = new();
-    List<ProjectUser> Selected { get; set; } = new();
+    IReadOnlyCollection<ApplicationUser> Selected { get; set; } = new List<ApplicationUser>();
 
     bool _AdderOpen = false;
     bool loading = true;
+    string filterUser = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,7 +95,20 @@
     }
     private async Task AddProjectUsers()
     {
-        await puService.AddMany(Selected);
+        loading = true;
+        //await puService.AddMany(Selected);
+        List<ProjectUser> newProjUsers = new();
+        var currentProj = await projService.GetCurrentProjectAsync();
+        foreach(var user in Selected)
+        {
+            var newPU = new ProjectUser
+            {
+                UserId = user.Id,
+                ProjectId = currentProj.ProjectId
+            };
+            newProjUsers.Add(newPU);
+        }
+        await puService.AddMany(newProjUsers);
         _AdderOpen = !_AdderOpen;
         await InvokeAsync(StateHasChanged);
         await Initilize();
@@ -106,8 +118,8 @@
         loading = true;
         var projUser = await puService.GetByUserId(user.Id);
         var taskUser = await tuService.GetAsync(i => i.UserId == user.Id);
-        await puService.Remove(projUser);
-        await tuService.Remove(taskUser);
+        if(projUser != null) await puService.Remove(projUser);
+        if(taskUser != null) await tuService.Remove(taskUser);
         await InvokeAsync(StateHasChanged);
         await Initilize();
     }
@@ -118,7 +130,7 @@
         ProjectUsers = new();
         Users = new();
         UnAssigned = new();
-        Selected = new();
+        Selected = new List<ApplicationUser>();
 
         var projectUsers = await puService.GetAll();
         var users = await Userservice.GetAll();

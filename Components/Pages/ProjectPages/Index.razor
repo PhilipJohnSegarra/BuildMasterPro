@@ -22,10 +22,19 @@
 <MudDataGrid T="Project" Items="ProjectService.Projects" Bordered="false" Striped="true" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Groupable="false" Class="full-height-datagrid">
     <Columns>
         @* <HierarchyColumn T="Project"/> *@
-        <MudBlazor.PropertyColumn Property="project => project.ProjectName" CellClass="row" HeaderStyle="height:60px;width:40%;font-weight:bold;"/>
-        <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
-        <MudBlazor.PropertyColumn Property="project => project.Enddate.ToShortDateString()" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
-        <MudBlazor.PropertyColumn Property="project => project.Status" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
+        <MudBlazor.PropertyColumn Property="project => project.ProjectName" Title="Project" CellClass="row" HeaderStyle="height:60px;width:40%;font-weight:bold;"/>
+        <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" Title="Start Date" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
+        <MudBlazor.PropertyColumn Property="project => project.Enddate.ToShortDateString()" Title="End Date" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
+@*         <MudBlazor.PropertyColumn Property="project => project.Status" CellClass="row" HeaderStyle="height:60px;width:15%;font-weight:bold;" />
+ *@        <MudBlazor.TemplateColumn Title="Status" HeaderStyle="height:60px;width:40%;font-weight:bold;">
+            <CellTemplate>
+                @{
+                    if(context.Item.Startdate > DateTime.Now){<MudChip T="string" Color="Color.Dark">Not Started</MudChip>}
+                    else if (context.Item.Startdate <= DateTime.Now){<MudChip T="string" Color="Color.Warning">In Progress</MudChip>}
+                    else if (context.Item.Enddate <= DateTime.Now){<MudChip T="string" Color="Color.Success">Ended</MudChip>}
+                }
+            </CellTemplate>
+        </MudBlazor.TemplateColumn>
         <MudBlazor.TemplateColumn CellClass="d-flex justify-center " HeaderStyle="height:60px;width:5%;font-weight:bold;">
             <CellTemplate Context="context">
                 <MudTooltip Text="Edit">

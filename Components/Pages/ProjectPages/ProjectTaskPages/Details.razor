@@ -8,22 +8,64 @@
 @inject ProjectTaskService TaskService
 @inject TaskActivityService taskActService
 @inject ProjectService ProjectService
+@inject ProjectUserService puService
+@inject TaskUserService tuService;
+@inject UserService Userservice
 @inject IDialogService DialogService
 @inject TaskActivityImagesService actImagesService
+@inject IJSRuntime JS
 
 <MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.Medium" />
 <MudThemeProvider/>
 <MudPopoverProvider />
 
+@if (loading)
+{
+    <Loader/>
+}
+
+@if (_AdderOpen)
+{
+    <MudPaper Class="TransparentBG d-flex flex-column justify-center align-center" Style="position:fixed;top:0;left:0;height:100vh;width:100vw;z-index:1000;">
+        <MudPaper Class="transparentBg" @onclick="@(()=>{_AdderOpen = !_AdderOpen;})" Style="position:absolute;width:100%;height:100%;top:0;left:0">
+
+        </MudPaper>
+        <MudPaper Class="pa-5" Style="width:60vw;height:60vh;overflow:auto;z-index:13;position:relative;">
+            <MudToolBar Class="d-flex flex-row justify-space-between align-center ">
+                <MudText Style="font-size:15px;margin:0 0 0 0;">Select Project Members</MudText>
+                <MudTextField Immediate="true" @bind-Value="filterUser" Class="my-rounded-textfield" Placeholder="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" Style="max-width:300px;font-size:15px;border-radius:40px;height:40px;margin:0 auto;" />
+                <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="@(()=>{_AdderOpen = !_AdderOpen;})" />
+            </MudToolBar>
+            <MudList T="ProjectUser" Style="flex-grow:1;overflow:auto;height:70%;" SelectionMode="SelectionMode.MultiSelection" @bind-SelectedValues="Selected">
+                @foreach (var item in UnAssignedToTask.Where(i => string.IsNullOrEmpty(filterUser) || i.User.FirstName.ToLower().Contains(filterUser.ToLower()) || i.User.LastName.ToLower().Contains(filterUser.ToLower())))
+                {
+                    <MudListItem T="ProjectUser" Value="item">
+                        @*                         @(string.IsNullOrEmpty(item.FirstName) ? item.Email : string.Concat(item.FirstName + " " + item.LastName))
+                *@                      <div style="display:flex;flex-direction:row;justify-content:start;align-items:center;">
+                            <span style="margin:0 1rem 0 1rem;"><MudAvatar Size="Size.Small"><MudImage class="mud-width-full" Src="@item.User.ProfilePictureUrl" /></MudAvatar></span>
+                            @(string.IsNullOrEmpty(item.User.FirstName) ? item.User.Email : string.Concat(item.User.FirstName + " " + item.User.LastName))
+                        </div>
+                    </MudListItem>
+                }
+            </MudList>
+            <MudFab Class="PrimaryBG MainText" Style="position:absolute;bottom:2rem;right:2rem;z-index:14;" OnClick="AddTaskUsers" StartIcon="@Icons.Material.Outlined.Check">
+            </MudFab>
+        </MudPaper>
+
+    </MudPaper>
+
+}
+
 <MudPaper Class="TransparentBG" Elevation="0" Style="height:100%;">
     <MudGrid Style="height:100%;" Spacing="1">
         <MudItem xs="12" md="12" lg="8" Style="height:100%;">
             <MudPaper Class="pa-0 pt-0" Style="overflow-y:auto;height:100%;">
-                <MudToolBar Class="justify-space-between overflow-visible sticky-top pa-0" Style="width:100%;position:sticky;top: -10px;">
+                <MudToolBar Class="justify-space-between overflow-visible sticky-top pa-0" Style="width:100%;position:sticky;top: -10px;z-index:100;">
                     <MudPaper Class="pa-2 d-flex flex-row justify-space-between align-center" Style="width:100%;border-radius:0;">
+                        <MudIconButton Icon="@Icons.Material.Outlined.ArrowBack" OnClick="GoBack" />
                         <MudText Class="SecondaryText" Style="font-size:18px;font-weight:bold;">@projecttask.TaskName</MudText>
                         <MudButton OnClick="OpenDialogAsync" Class="PrimaryBG MainText customFabButton" Style="padding:4px 15px 4px 15px;margin:0 10px 0 auto;" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small">
-                            Activity
+                            New Activity
                         </MudButton>
                         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
                             <MudButton>@projecttask.Status</MudButton>
@@ -47,12 +89,13 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
                             @if (!string.IsNullOrEmpty(act.Name))
                             {
                                 <MudPaper Class="d-flex flex-row justify-space-between align-center MainBG" Elevation="0">
-                                    <MudText Style="font-size:15px;">@act.Name</MudText>
-                                    <MudText Class="ms-1" Style="color:gray;font-size:11px;">posted by @act.User.Email | @act.DateCreated.Date.ToLongDateString() - @act.DateCreated.ToLocalTime().ToShortTimeString()</MudText>
+                                    
+                                    <MudText Class="ms-1 d-flex flex-row justify-start align-center" Style="color:gray;font-size:13px;"><span style="margin-right:1rem;"><MudAvatar Size="Size.Small"><MudImage Class="mud-width-full" Src="@act.User.ProfilePictureUrl"/></MudAvatar></span> @(string.Concat(act.User.FirstName," ",act.User.LastName))</MudText>
+                                    <MudText Style="color:gray;font-size:13px;">@act.DateCreated.Date.ToLongDateString() - @act.DateCreated.ToLocalTime().ToShortTimeString()</MudText>
                                 </MudPaper>
                                 <MudDivider Class="mb-2 mt-2" />
                             }
-
+                            <MudText Style="font-size:17px;margin:1rem 0 1rem 0;font-weight:bold;">@act.Name</MudText>
                             <MudText Class="mt-3" Style="font-size:14px;">@act.Content</MudText>
                             @foreach(var item in Images)
                             {
@@ -121,14 +164,39 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
                                         <MudSlider T="int" Min="0" Max="100" @bind-Value="@projecttask.Progress" Disabled="editDetails" />
                                     </MudPaper>
                             </MudPaper>
+                            <MudSpacer/>
+                            <MudTable Style="width:100%;margin:2rem 0 0 0;" Items="taskUsers" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info">
+                                <HeaderContent>
+                                    <MudTh Class="d-flex flex-row justify-space-between align-center">Assigned to <MudIconButton Class="ms-auto" Icon="@Icons.Material.Outlined.Add" OnClick="()=>{_AdderOpen = true;}" Color="Color.Warning"/></MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd Class="d-flex flex-row justify-space-between align-center" DataLabel="Nr">
+                                        <MudStack Row Justify="Justify.FlexStart" AlignItems="AlignItems.Center">
+                                            <MudAvatar><MudImage Class="mud-width-full" Src="@context.User.ProfilePictureUrl" /></MudAvatar><MudText>@(string.IsNullOrEmpty(context.User.FirstName) ? context.User.Email : string.Concat(context.User.FirstName + " " + context.User.LastName))</MudText>
+                                        </MudStack>
+                                        <MudIconButton Size="Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="async()=>{await RemoveAsync(context);}" />
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
                             
                         </MudPaper>
                     </MudTabPanel>
-                    <MudTabPanel Text="Files">
-
-                    </MudTabPanel>
-                    <MudTabPanel Text="Resources">
-
+                    <MudTabPanel Text="Photos">
+                        <MudGrid Class="pa-3" Spacing="1">
+                            @foreach(var image in Images.Where(i=>i.TaskID == projecttask.TaskId))
+                            {
+                                if(image.ImageArray != null)
+                                foreach(var url in image.ImageArray)
+                                {
+                                    <MudItem lg="6">
+                                        <a style="width:100%;height:100px;" href="@url" target="_blank">
+                                            <MudImage ObjectFit="ObjectFit.Cover" Style="width:100%;height:200px;" Src="@url"/>
+                                        </a>
+                                    </MudItem>
+                                }
+                                
+                            }
+                        </MudGrid>
                     </MudTabPanel>
                 </MudTabs>
             </MudPaper>
@@ -137,9 +205,17 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
     </MudGrid>
 </MudPaper>
 
+
+
+
 <style>
     .customFabButton:hover{
         background-color: #FFA800;
+    }
+
+    .transparentBg {
+        background-color: gray;
+        opacity: .5;
     }
 </style>
 
@@ -151,14 +227,29 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
 
     private List<TaskActivity> taskActivities { get; set; } = new();
     private List<TaskActivityImages> Images { get; set; } = new();
+    private List<TaskUser> taskUsers { get; set; } = new();
+    private List<ProjectUser> projectUsers { get; set; } = new();
+    private List<ProjectUser> UnAssignedToTask { get; set; } = new();
 
     private bool editDetails = true;
 
+    bool loading = true;
+    bool _AdderOpen = false;
+    string filterUser = "";
+    IReadOnlyCollection<ProjectUser> Selected { get; set; } = new List<ProjectUser>();
+
     protected override async Task OnInitializedAsync()
     {
+        loading = true;
         using var context = DbFactory.CreateDbContext();
         projecttask = await TaskService.GetTaskAsync(TaskId);
         taskActivities = await taskActService.GetByTask(projecttask);
+        taskUsers = await tuService.GetByTask(projecttask);
+        projectUsers = await puService.GetAllByCurrentProject();
+        UnAssignedToTask = projectUsers
+    .Where(pu => !taskUsers.Any(tu => tu.UserId == pu.UserId))
+    .ToList();
+        
         foreach(var act in taskActivities)
         {
             Images = await actImagesService.GetAllAsync();
@@ -167,7 +258,9 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
         {
             NavigationManager.NavigateTo("notfound");
         }
+        loading = false;
     }
+
     private async Task OpenDialogAsync()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
@@ -211,5 +304,52 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
         }
         return null;
 
+    }
+    private async Task GoBack()
+    {
+        await JS.InvokeVoidAsync("history.back");
+    }
+    private async Task RemoveAsync(TaskUser user)
+    {
+        loading = true;
+        Selected = new List<ProjectUser>();
+        await tuService.Remove(user);
+        taskUsers = await tuService.GetByTask(projecttask);
+
+        Selected = new List<ProjectUser>();
+        taskUsers = await tuService.GetByTask(projecttask);
+        projectUsers = await puService.GetAllByCurrentProject();
+        UnAssignedToTask = projectUsers
+    .Where(pu => !taskUsers.Any(tu => tu.UserId == pu.UserId))
+    .ToList();
+        loading = false;
+        await InvokeAsync(StateHasChanged);
+    }
+    private async Task AddTaskUsers()
+    {
+        loading = true;
+        //await puService.AddMany(Selected);
+        List<TaskUser> newTaskUsers = new();
+        foreach (var user in Selected)
+        {
+            var newPU = new TaskUser
+                {
+                    UserId = user.UserId,
+                    TaskId = projecttask.TaskId
+                };
+            newTaskUsers.Add(newPU);
+        }
+        await tuService.AddMany(newTaskUsers);
+        _AdderOpen = !_AdderOpen;
+        taskUsers = await tuService.GetByTask(projecttask);
+        Selected = new List<ProjectUser>();
+        taskUsers = await tuService.GetByTask(projecttask);
+        projectUsers = await puService.GetAllByCurrentProject();
+        UnAssignedToTask = projectUsers
+    .Where(pu => !taskUsers.Any(tu => tu.UserId == pu.UserId))
+    .ToList();
+        loading = false;
+        await InvokeAsync(StateHasChanged);
+        
     }
 }
