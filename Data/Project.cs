@@ -20,6 +20,7 @@ namespace BuildMasterPro.Data
         public string Status { get; set; } = "Ongoing";
         public string Address {get;set;} = string.Empty;
         public int? ClientId { get; set; }
+        public bool isDeleted { get; set; } = false;
 
         [ForeignKey(nameof(ClientId))]
         public Client? Client { get; set; }

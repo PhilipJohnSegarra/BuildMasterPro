@@ -33,6 +33,7 @@ namespace BuildMasterPro.Data
 
         //NAVIGATION
         public ICollection<TaskActivity>? TaskActivities { get; set; }
+        public ICollection<TaskUser>? TaskUsers { get; set; }
 
         [NotMapped]
         public virtual IList<string>? Roles { get; set; } = new List<string>();

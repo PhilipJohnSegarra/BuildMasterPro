@@ -24,7 +24,7 @@
         <MudTabPanel Text="@taskCountString">
             <MudItem lg="12">
                 <MudPaper Elevation="3" Class="mb-1 pa-0 d-flex flex-row justify-space-between align-center" Style="position:sticky;top:0;right:0;z-index:100;height:40px;">
-                    <MudToolBar Dense="true" Class="pa-0">
+                    <MudToolBar Dense="true" Class="pa-0 mud-width-full" WrapContent="true">
                         @* <MudPaper Class="d-flex flex-column justify-center align-center PrimaryBG ps-8 pe-8" Elevation="0" Style="height:100%;border-radius:0;">
                         <MudText Class="MainText ma-0" style="font-size:18px;">Tasks</MudText>
                         </MudPaper> *@
@@ -58,7 +58,15 @@
                         })">
                             Cancel
                         </MudButton>
-                        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto auto auto 0;" />
+                        <MudChipSet T="string" @bind-SelectedValues="statusFilter" SelectionMode="SelectionMode.MultiSelection" CheckMark>
+                            <MudChip Value="@("Not Started")" Variant="Variant.Text" Color="Color.Default" />
+                            <MudChip Value="@("In Progress")" Variant="Variant.Text" Color="Color.Warning" />
+                            <MudChip Value="@("On Hold")" Variant="Variant.Text" Color="Color.Dark" />
+                            <MudChip Value="@("Abandoned")" Variant="Variant.Text" Color="Color.Error" />
+                            <MudChip Value="@("Finished")" Variant="Variant.Text" Color="Color.Success" />
+                        </MudChipSet>
+                        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto auto;" />
                         <MudTooltip Text="@(_dense? "Density Large" : "Density Small")">
                             <MudToggleIconButton Icon="@Icons.Material.Outlined.DensitySmall"
                                                  ToggledIcon="@Icons.Material.Outlined.DensityLarge"
@@ -106,7 +114,7 @@
                         <Categories />
                     </MudPaper>
                 }
-                <MudTable Items="Tasks" Hover="true"
+                <MudTable Items="Tasks.Where(i => statusFilter.Count == 0 || statusFilter.Contains(i.Status))" Hover="true"
                           Class="MainBG"
                           T="ProjectTask"
                           MultiSelection="_multiSelection"
@@ -234,6 +242,7 @@
     bool _dense = false;
     bool _loading = true;
     string taskCountString = "Tasks";
+    private IReadOnlyCollection<string> statusFilter = [];
     int taskCount = 0;
     private List<string> editEvents = new();
     private bool hover = true;
