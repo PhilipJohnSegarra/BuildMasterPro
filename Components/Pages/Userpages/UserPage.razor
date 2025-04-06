@@ -19,6 +19,10 @@
 <MudDialogProvider />
 <MudThemeProvider />
 
+@if(loading){
+    <BuildMasterPro.Components.Pages.Dialogs.Loader/>
+}
+
 <MudPaper Class="pa-5" Style="height:100%;width:100%;overflow-y:auto;display:grid;grid-template-rows:50px 1fr">
     @* <div Class="d-flex flex-row justify-space-between align-center mb-2" Style="width:100%;border:none;background-color:none;">
         <div>
@@ -123,6 +127,8 @@
     // To enable showing the Popup
     bool ShowPopup = false;
 
+    bool loading = true;
+
     [Inject] private IDialogService DialogService { get; set; }
 
     string state = "Message box hasn't been opened yet";
@@ -139,18 +145,27 @@
 
         if(state == "Deleted!")
         {
+            loading = true;
             if (user != null)
             {
+
                 // Delete the user
                 user.IsDeleted = true;
-                await _UserManager.UpdateAsync(user);
+                //user.IsActive = false;
                 var projServiceUser = await puService.GetAsync(i => i.UserId == user.Id);
                 var taskUser = await tuService.GetAsync(i => i.UserId == user.Id);
-                await puService.Remove(projServiceUser);
-                await tuService.Remove(taskUser);
-                await InvokeAsync(StateHasChanged);
+                if (projServiceUser != null) await puService.Remove(projServiceUser);
+                if (taskUser != null) await tuService.Remove(taskUser);
+                await _UserManager.UpdateAsync(user);
+                
+
             }
             // Refresh Users
+            
+            await GetUsers();
+            loading = false;
+            await InvokeAsync(StateHasChanged);
+            
         }
 
 
@@ -180,6 +195,7 @@
         // Get the current logged in user
         CurrentUser = (await authenticationStateTask).User;
         await GetUsers();
+        loading = false;
     }
     protected override async Task OnParametersSetAsync()
     {
