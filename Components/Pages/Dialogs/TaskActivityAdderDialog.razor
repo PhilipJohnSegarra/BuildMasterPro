@@ -9,8 +9,9 @@
 @inject NavigationManager NavManager
 @inject BlobStorageService blobService
 @inject TaskActivityImagesService imageService
+@inject ISnackbar snackbar
 
-<MudDialog Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="MainBG py-10" ActionsClass="dialog-background-surface">
+<MudDialog Class="blur dialog-background" TitleClass="blur PrimaryBG MainText" ContentClass="MainBG py-10" ActionsClass="dialog-background-surface">
     <TitleContent>
         New Activity
     </TitleContent>
@@ -20,12 +21,12 @@
             <MudTextField Variant="Variant.Outlined" Placeholder="Title" @bind-Value="taskActivity.Name" Class="mb-1"/>
             <MudTextField Variant="Variant.Outlined" Placeholder="Write something..." Lines="5" @bind-Value="taskActivity.Content"/>
             <MudItem lg="12">
-                <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles">
+                <MudFileUpload Class="pt-3" T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".png, .jpg">
                     <ActivatorContent>
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Primary"
                                    StartIcon="@Icons.Material.Filled.CloudUpload">
-                            Upload Here
+                            Upload Images
                         </MudButton>
                     </ActivatorContent>
                 </MudFileUpload>
@@ -94,6 +95,11 @@
 
     private async Task Submit()
     {
+        if (string.IsNullOrEmpty(taskActivity.Name))
+        {
+            snackbar.Add("Activity Title should not be empty", severity: Severity.Error);
+            return;
+        }
         taskActivity.TaskId = TaskID;
         taskActivity.ActivityUserId = CurrentUser.Id;
         if((Currenttask.Progress + ProgressValue) < 100)

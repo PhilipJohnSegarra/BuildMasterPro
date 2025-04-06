@@ -174,7 +174,10 @@ else
                                     <MudStack Style="max-height:100%;">
                                         @foreach (var message in UserMessages)
                                         {
-                                            <MudPaper Style="width:max-content;border-radius:10px;margin-top:5px;margin-bottom:5px;padding:1rem;"
+                                            <MudStack Class="d-flex flex-row" Row Justify="Justify.FlexStart">
+                                                <MudText Class="@(message.SenderID == this.CurrentUser.Id? "senderStyle" : "")" Style="font-size:10px;margin-bottom:-10px;">@message.Timestamp.Value.ToLongDateString()</MudText>
+                                            </MudStack>
+                                            <MudPaper Style="width:max-content;border-radius:10px;margin-top:5px;margin-bottom:10px;padding:1rem;max-width:100%;"
                                                       Class="@(message.SenderID == this.CurrentUser.Id? "PrimaryBG senderStyle" : "SecondaryBG")">
                                                 <p class="MainText">@message.MessageText</p>
                                                 @if (message.Files != null && message.Files.Count > 0)
@@ -190,7 +193,7 @@ else
 
                                                 @if (message.Images != null && message.Images.Count > 0)
                                                 {
-                                                    <MudGrid Style="max-width:70%;margin:1px 0 0 0;">
+                                                    <MudGrid Justify="Justify.FlexStart" Style="max-width:70%;margin:1px 0 0 0;">
                                                         @foreach (var image in message.Images)
                                                         {
                                                             <MudItem lg="4">
@@ -204,6 +207,8 @@ else
 
                                                 }
                                             </MudPaper>
+                                            
+                                            
                                         }
                                     </MudStack>
                                 }

@@ -202,7 +202,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.Equipment", b =>
@@ -239,7 +239,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasKey("EquipmentId");
 
-                    b.ToTable("Equipments");
+                    b.ToTable("Equipments", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.Project", b =>
@@ -279,7 +279,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasIndex("ClientId");
 
-                    b.ToTable("Project");
+                    b.ToTable("Project", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.ProjectEquipment", b =>
@@ -328,7 +328,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectEquipments");
+                    b.ToTable("ProjectEquipments", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.ProjectTask", b =>
@@ -383,7 +383,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectTask");
+                    b.ToTable("ProjectTask", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.ProjectUser", b =>
@@ -409,7 +409,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProjectUsers");
+                    b.ToTable("ProjectUsers", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.Resource", b =>
@@ -441,7 +441,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasKey("ResourceId");
 
-                    b.ToTable("Resource");
+                    b.ToTable("Resource", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.TaskActivity", b =>
@@ -476,7 +476,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("TaskActivities");
+                    b.ToTable("TaskActivities", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.TaskCategory", b =>
@@ -502,7 +502,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("TaskCategories");
+                    b.ToTable("TaskCategories", (string)null);
                 });
 
             modelBuilder.Entity("BuildMasterPro.Data.TaskUser", b =>
@@ -529,7 +529,7 @@ namespace BuildMasterPro.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TaskUsers");
+                    b.ToTable("TaskUsers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

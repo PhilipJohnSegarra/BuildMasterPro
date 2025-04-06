@@ -64,6 +64,7 @@
                     <MudPaper Class="pa-2 d-flex flex-row justify-space-between align-center" Style="width:100%;border-radius:0;">
                         <MudIconButton Icon="@Icons.Material.Outlined.ArrowBack" OnClick="GoBack" />
                         <MudText Class="SecondaryText" Style="font-size:18px;font-weight:bold;">@projecttask.TaskName</MudText>
+                        <MudText Style="margin:0 auto 0 auto;">Activities & Updates</MudText>
                         <MudButton OnClick="OpenDialogAsync" Class="PrimaryBG MainText customFabButton" Style="padding:4px 15px 4px 15px;margin:0 10px 0 auto;" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small">
                             New Activity
                         </MudButton>
@@ -81,7 +82,7 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
                     </MudPaper>
                 </MudToolBar>
                 <MudStack Class="pb-3 mt-3 pa-3 d-flex flex-column justify-center align-center" Elevation="0">
-                    <MudText Style="margin:0 auto 0 0;">Activities & Updates</MudText>
+                   
                     @foreach (var act in taskActivities)
                     {
                         
