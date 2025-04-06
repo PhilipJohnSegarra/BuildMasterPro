@@ -13,8 +13,6 @@
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
 @inject IHttpContextAccessor HttpContextAccessor
 
-
-
 <MudThemeProvider/>
 
 @* <div class="main-container">
@@ -61,26 +59,26 @@
     </div>
     <MudSpacer></MudSpacer>
     <MudIconButton Icon="@Icons.Material.Outlined.Notifications"/>
-    <div style="width:max-content;position:relative;">
-        <MudButton OnClick="ToggleOpen" Variant="Variant.Outlined" Class="TransparentBG" Style="border-radius:40px;height:40px;z-index:11;color:gray;border-color:gray;">
+        <MudButton OnClick="GoToProfile" Variant="Variant.Outlined" Class="TransparentBG" Style="border-radius:40px;height:40px;z-index:11;color:gray;border-color:gray;">
             <ChildContent>
                 <MudAvatar Class="me-2" Size="Size.Small"><MudImage Style="width:100%;" Src="@CurrentUser.ProfilePictureUrl" /></MudAvatar>
                 <MudText>@(string.IsNullOrEmpty(CurrentUser.FirstName) ? CurrentUser.Email : string.Concat(CurrentUser.FirstName, " ", CurrentUser.LastName))</MudText>
             </ChildContent>
         </MudButton>
-        @if (_open)
+        <MudIconButton OnClick="Logout" Icon="@Icons.Material.Outlined.Logout"/>
+        @* @if (_open)
         {
             <MudPaper @ref="popOver" Class="pt-8" Style="position:absolute;top:50%;left:0;width:100%;z-index:10;border-radius:0 0 30px 30px;overflow:hidden;">
                 <MudButton OnClick="GoToProfile" Class="ml-auto mr-n3 mb-1 mud-width-full" StartIcon="@Icons.Material.Outlined.Person" Style="height:50px;">
                     Profile
                 </MudButton>
-                @* <form action="Account/Logout" method="post">
+                <form action="Account/Logout" method="post">
                     <AntiforgeryToken />
                     <MudButton ButtonType="ButtonType.Submit" Class="ml-auto mr-n3 mb-1 mud-width-full" StartIcon="@Icons.Material.Outlined.Logout" Style="height:50px;">
                         Log Out
                     </MudButton>
-                </form> *@
-                @* <div class="nav-item px-3">
+                </form>
+                <div class="nav-item px-3">
                     <form action="Account/Logout" method="post">
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@currentUrl" />
@@ -88,14 +86,13 @@
                             <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
                         </button>
                     </form>
-                </div> *@
+                </div>
                 <MudButton OnClick="Logout" Class="ml-auto mr-n3 mb-1 mud-width-full" StartIcon="@Icons.Material.Outlined.Logout" Style="height:50px;">
                     Log Out
                 </MudButton>
             </MudPaper>
         }
-        
-    </div>
+         *@
     
 </MudStack>
 
