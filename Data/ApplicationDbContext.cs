@@ -20,6 +20,7 @@ namespace BuildMasterPro.Data
         public DbSet<TaskActivity> TaskActivities { get; set; } = default!;
         public DbSet<Equipment> Equipments { get; set; } = default!;
         public DbSet<ProjectEquipment> ProjectEquipments { get; set; } = default!;
+        public DbSet<Notification> Notifications { get; set; } = default!;
 
     }
 }

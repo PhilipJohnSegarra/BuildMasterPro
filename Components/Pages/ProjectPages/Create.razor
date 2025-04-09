@@ -7,6 +7,8 @@
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectUserService ProjUserService
 @inject BuildMasterPro.Services.UserService UserService
+@inject BuildMasterPro.Services.NotificationService notifService
+@inject BuildMasterPro.Services.EmailService emailService
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -65,7 +67,18 @@
                                                        Label="Assign Members(Optional)"
                                                        SelectedValues="@_projectViewModel.SelectedUserIds"
                                                        SelectedValuesChanged="@(e => _projectViewModel.SelectedUserIds = e.ToList())">
-                                                @foreach (var user in Users)
+                                                <MudText>Project Managers</MudText>
+                                                @foreach (var user in ProjectManagers)
+                                                {
+                                                    <MudSelectItem T="string" Value="@user.Id">
+                                                        <div style="display:flex;flex-direction:row;justify-content:start;align-items:center;">
+                                                            <span style="margin:0 1rem 0 1rem;"><MudAvatar Size="Size.Small"><MudImage class="mud-width-full" Src="@user.ProfilePictureUrl" /></MudAvatar></span>
+                                                            @(string.IsNullOrEmpty(user.FirstName) ? user.Email : string.Concat(user.FirstName + " " + user.LastName))
+                                                        </div>
+                                                    </MudSelectItem>
+                                                }
+                                                <MudText>Available Members</MudText>
+                                                @foreach (var user in ProjectMembers)
                                                 {
                                                     <MudSelectItem T="string" Value="@user.Id">
                                                         <div style="display:flex;flex-direction:row;justify-content:start;align-items:center;">
@@ -140,9 +153,13 @@
     List<ApplicationUser> Users = new();
     List<string> SelectedUsersID = new();
     List<ProjectUser> selectedUsers = new();
+    List<ApplicationUser> ProjectManagers { get; set; } = new();
+    List<ApplicationUser> ProjectMembers { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
+        ProjectMembers = await UserService.GetAllUnAssignedMembers();
+        ProjectManagers = await UserService.GetAllProjectManagers();
         Users = await UserService.GetAll();
     }
 
@@ -165,6 +182,7 @@
     {
         try
         {
+            var usersForEmailing = Users.Where(i => _projectViewModel.SelectedUserIds.Contains(i.Id));
             var savedProject = await ProjectService.CreateProjectAsync(_projectViewModel.Project!);
             foreach(var id in _projectViewModel.SelectedUserIds!)
             {
@@ -177,6 +195,23 @@
                 selectedUsers.Add(projectUser);
             }
             await ProjUserService.AddMany(selectedUsers);
+            List<Notification> NewNotifications = new();
+            foreach(var user in selectedUsers)
+            {
+                var newNotification = new Notification
+                {
+                    LinkUrl = "/",
+                    UserId = user.UserId,
+                    Title = "New Project",
+                    Message = "You have been assigned to a new project. Check it out now!"
+                };
+                NewNotifications.Add(newNotification);
+            }
+            await notifService.AddMany(NewNotifications);
+            foreach(var user in usersForEmailing)
+            {
+                await emailService.SendEmailNotif(user.Email, "New Project", "A new project has been assigned to you.");
+            }
             // 
         }
         catch (Exception e)
@@ -190,7 +225,8 @@
     public class ProjectViewModel
     {
         public Project? Project { get; set; } = new();
-        public List<string>? SelectedUserIds { get; set; } = new(); // Store selected user IDs
+        public List<string>? SelectedUserIds { get; set; } = new();
+        public List<string>? SelectedUserEmail { get; set; } = new();// Store selected user IDs
     }
 
     private void OnStartDateChanged(DateTime? newDate)
