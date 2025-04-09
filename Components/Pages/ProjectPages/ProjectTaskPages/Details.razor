@@ -71,8 +71,8 @@
                         <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
                             <MudButton>@projecttask.Status</MudButton>
                             <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
-                                <MudMenuItem OnClick="@(() => {projecttask.Status = "Not Started";projecttask.Progress = 0;UpdateTask();})">Mark as Not Started</MudMenuItem>
-                                <MudMenuItem OnClick="@(() => {if(projecttask.Progress == 100)projecttask.Progress -= 10;projecttask.Status = "In Progress";if(projecttask.ActualStartDate == null)projecttask.ActualStartDate = DateTime.UtcNow;UpdateTask();})">Mark as In Progress</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {projecttask.Status = "Not Started";if(projecttask.ActualStartDate != null)projecttask.ActualStartDate = null; projecttask.Progress = 0;UpdateTask();})">Mark as Not Started</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {if(projecttask.Progress == 100){projecttask.Progress -= 10; projecttask.ActualEndDate = null;}projecttask.Status = "In Progress";if(projecttask.ActualStartDate == null)projecttask.ActualStartDate = DateTime.UtcNow;UpdateTask();})">Mark as In Progress</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "On Hold";UpdateTask();})">Mark as On Hold</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "Abandoned";UpdateTask();})">Mark as Abandoned</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {
@@ -85,7 +85,6 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
                    
                     @foreach (var act in taskActivities)
                     {
-                        
                         <MudPaper Class="d-flex flex-column justify-start pa-6 MainBG" Elevation="2" Style="width:98%;">
                             @if (!string.IsNullOrEmpty(act.Name))
                             {
@@ -131,14 +130,23 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
                             @*BASIC DETAILS*@
                             <MudPaper Elevation="1" Class="pa-4 mt-2" Style="width:98%;border:1px solid gray;">
                                     <MudPaper Elevation="0" Style="width:100%;">
-                                        <MudToolBar Class="justify-end">
+                                        <MudToolBar Class="justify-space-between">
                                             <MudIconButton OnClick="() => {editDetails = !editDetails;}" hidden="@(editDetails == false? true : false)" Icon="@Icons.Material.Outlined.Edit" />
-                                        <MudIconButton OnClick="async() => {await UpdateTask();editDetails = !editDetails;}" hidden="@editDetails" Icon="@Icons.Material.Outlined.Save" />
-                                            <MudIconButton OnClick="() => {editDetails = !editDetails;}" hidden="@editDetails" Icon="@Icons.Material.Outlined.Cancel" />
+                                        <MudIconButton OnClick="async() => {await UpdateTask();editDetails = !editDetails;}" hidden="@editDetails" Icon="@Icons.Material.Outlined.Save" Color="Color.Tertiary"/>
+                                       
+                                            <MudIconButton OnClick="() => {editDetails = !editDetails;}" Class="me-auto" hidden="@editDetails" Icon="@Icons.Material.Outlined.Cancel" />
+                                        <MudButton Color="Color.Error" StartIcon="@Icons.Material.Outlined.Delete" OnClick="DeleteTask">Delete Task</MudButton>
                                         </MudToolBar>
                                     </MudPaper>
                                     <MudTextField Label="Name" Disabled="editDetails" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskName"/>
                                     <MudTextField Lines="3" Label="Description" Disabled="editDetails" Variant="Variant.Outlined" Style="font-size:12px;" @bind-Value="projecttask.TaskDescription"/>
+                                <AuthorizeView Roles="Administrators,Project Manager">
+                                    <MudDatePicker Clearable Disabled="editDetails" Date="projecttask.PlannedStartDate" Label="Planned Start Date:" Editable="true" DateChanged="OnPlannedStartDateChanged" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@projecttask.PlannedStartDate.ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                                    <MudDatePicker Clearable Disabled="editDetails" Date="projecttask.PlannedEndDate" Label="Planned End Date:" Editable="true" DateChanged="OnPlannedEndDateChanged" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@projecttask.PlannedEndDate.ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                                    <MudDatePicker Clearable Disabled="editDetails" Date="projecttask.ActualStartDate" Label="Actual Start Date:" Editable="true" DateChanged="OnActualStartDateChanged" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@projecttask.ActualStartDate.ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                                    <MudDatePicker Clearable Disabled="editDetails" Date="projecttask.ActualEndDate" Label="Actual End Date:" Editable="true" DateChanged="OnActualEndDateChanged" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Placeholder="@projecttask.ActualEndDate.ToString()" Variant="Variant.Outlined" Class="mud-width-full" />
+                                </AuthorizeView>
+                                
                                     @* <MudSelect Variant="Variant.Outlined" T="string" @bind-Value="projecttask.Status" Style="font-size:12px;">
                                         <MudSelectItem T="string">
                                             Not Started
@@ -250,7 +258,7 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
         UnAssignedToTask = projectUsers
     .Where(pu => !taskUsers.Any(tu => tu.UserId == pu.UserId))
     .ToList();
-        
+
         foreach(var act in taskActivities)
         {
             Images = await actImagesService.GetAllAsync();
@@ -351,6 +359,43 @@ projecttask.Status = "Finished";projecttask.Progress = 100; if(projecttask.Actua
     .ToList();
         loading = false;
         await InvokeAsync(StateHasChanged);
-        
+
+    }
+    //[Inject] private IDialogService DialogService { get; set; }
+    string state = "Message box hasn't been opened yet";
+    async Task DeleteTask()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            $"Confirm Deletion:",
+            $"Task {projecttask.TaskName} will be deleted.\nTo undo this action, please coordinate with your administrator.",
+            yesText: "Delete!", cancelText: "Cancel");
+        state = result == null ? "Canceled" : "Deleted!";
+        if (state == "Deleted!")
+        {
+            loading = true;
+            await TaskService.DeleteProjectTaskAsync(projecttask.TaskId);
+            loading = false;
+            NavigationManager.NavigateTo("/projecttasks", forceLoad: true);
+        }
+        else
+        {
+            return;
+        }
+    }
+    private void OnActualStartDateChanged(DateTime? newDate)
+    {
+        projecttask.ActualStartDate = (DateTime)newDate;
+    }
+    private void OnActualEndDateChanged(DateTime? newDate)
+    {
+        projecttask.ActualEndDate = (DateTime)newDate;
+    }
+    private void OnPlannedStartDateChanged(DateTime? newDate)
+    {
+        projecttask.PlannedStartDate = (DateTime)newDate;
+    }
+    private void OnPlannedEndDateChanged(DateTime? newDate)
+    {
+        projecttask.PlannedEndDate = (DateTime)newDate;
     }
 }

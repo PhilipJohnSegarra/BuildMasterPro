@@ -7,6 +7,7 @@
 @inject BuildMasterPro.Services.ProjectUserService ProjUserService
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
 @inject BuildMasterPro.Services.TaskUserService TaskUserService
+@inject BuildMasterPro.Services.UserService userService
 @inject NavigationManager NavManager
 @inject MudBlazor.IDialogService DialogService
 
@@ -50,6 +51,11 @@
                         })">
                             Save
                         </MudButton>
+                        <MudButton StartIcon="@Icons.Material.Outlined.Delete" Size="Size.Small" Class="ms-3 me-3"
+                                   Disabled="@(selectedTasks.Count > 0 ? false : true)"
+                                   OnClick="@(async()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;await DeleteTask();})">
+                            Delete
+                        </MudButton>
                         <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
                                    Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
                                    OnClick="@(async ()=>{
@@ -60,11 +66,12 @@
                         </MudButton>
                         <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto auto auto 0;" />
                         <MudChipSet T="string" @bind-SelectedValues="statusFilter" SelectionMode="SelectionMode.MultiSelection" CheckMark>
-                            <MudChip Value="@("Not Started")" Variant="Variant.Text" Color="Color.Default" />
-                            <MudChip Value="@("In Progress")" Variant="Variant.Text" Color="Color.Warning" />
-                            <MudChip Value="@("On Hold")" Variant="Variant.Text" Color="Color.Dark" />
-                            <MudChip Value="@("Abandoned")" Variant="Variant.Text" Color="Color.Error" />
-                            <MudChip Value="@("Finished")" Variant="Variant.Text" Color="Color.Success" />
+                            <MudChip Value="@("My Tasks")" Variant="Variant.Text" Color="Color.Info" />
+                            <MudChip Value="@("Not Started")" Variant="Variant.Text" Color="Color.Default" Disabled="@(statusFilter.Contains("My Tasks"))" />
+                            <MudChip Value="@("In Progress")" Variant="Variant.Text" Color="Color.Warning" Disabled="@(statusFilter.Contains("My Tasks"))"/>
+                            <MudChip Value="@("On Hold")" Variant="Variant.Text" Color="Color.Dark" Disabled="@(statusFilter.Contains("My Tasks"))" />
+                            <MudChip Value="@("Abandoned")" Variant="Variant.Text" Color="Color.Error" Disabled="@(statusFilter.Contains("My Tasks"))" />
+                            <MudChip Value="@("Finished")" Variant="Variant.Text" Color="Color.Success" Disabled="@(statusFilter.Contains("My Tasks"))" />
                         </MudChipSet>
                         <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto auto;" />
                         <MudTooltip Text="@(_dense? "Density Large" : "Density Small")">
@@ -114,7 +121,7 @@
                         <Categories />
                     </MudPaper>
                 }
-                <MudTable Items="Tasks.Where(i => statusFilter.Count == 0 || statusFilter.Contains(i.Status))" Hover="true"
+                <MudTable Items="@(Tasks.Where(i => statusFilter.Count == 0 || statusFilter.Contains(i.Status) || statusFilter.Contains("My Tasks") && TaskUsers.Any(x=>x.TaskId == i.TaskId) ))" Hover="true"
                           Class="MainBG"
                           T="ProjectTask"
                           MultiSelection="_multiSelection"
@@ -234,6 +241,7 @@
     private List<ProjectTask> newTasks { get; set; } = new();
     private List<ProjectUser> projectUsers { get; set; } = new();
     private HashSet<ProjectTask> selectedTasks { get; set; } = new();
+    private ApplicationUser? CurrentUser { get; set; } = new();
 
     bool _taskAdderOpen = false;
     bool _taskeditorOpen = false;
@@ -242,6 +250,7 @@
     bool _dense = false;
     bool _loading = true;
     string taskCountString = "Tasks";
+
     private IReadOnlyCollection<string> statusFilter = [];
     int taskCount = 0;
     private List<string> editEvents = new();
@@ -253,6 +262,8 @@
     private ProjectTask selectedItem1 = null;
     private ProjectTask elementBeforeEdit;
     private HashSet<ProjectTask> selectedItems1 = new HashSet<ProjectTask>();
+    private TaskUser? TaskUser = new();
+    private List<TaskUser>? TaskUsers = new();
     private TableApplyButtonPosition applyButtonPosition = TableApplyButtonPosition.End;
     private TableEditButtonPosition editButtonPosition = TableEditButtonPosition.End;
     private TableEditTrigger editTrigger = TableEditTrigger.RowClick;
@@ -261,7 +272,7 @@
     protected override async Task OnInitializedAsync()
     {
         await InitializeProps();
-        projectUsers = await ProjUserService.GetAllByCurrentProject();
+
     }
     private async Task InitializeProps()
     {
@@ -271,6 +282,11 @@
         _loading = false;
         taskCount = Tasks.Count;
         taskCountString = $"Tasks ({taskCount})";
+        projectUsers = await ProjUserService.GetAllByCurrentProject();
+        CurrentUser = await userService.GetCurrentUserAsync();
+        TaskUser = await TaskUserService.GetAsync(i => i.UserId == CurrentUser.Id);
+        TaskUsers = await TaskUserService.GetAllAsync(i => i.UserId.Equals(TaskUser.UserId));
+
     }
     private TableGroupDefinition<ProjectTask> _groupDefinition = new()
     {
@@ -285,6 +301,7 @@
     {
         if (_taskAdderOpen)
         {
+            _loading = true;
             var result = await TaskService.AddMany(newTasks);
             // foreach (var task in newTasks)
             // {
@@ -294,11 +311,13 @@
             if (result != null) newTasks = new();
             await InitializeProps();
             _taskAdderOpen = false;
+            _loading = false;
             StateHasChanged();
 
         }
         if (_taskeditorOpen)
         {
+            _loading = true;
             foreach(var task in selectedTasks)
             {
                 List<TaskUser> removableTasks = new();
@@ -328,6 +347,7 @@
                 await TaskUserService.AddMany(newTasks);
             }
             await InitializeProps();
+            _loading = false;
 
             StateHasChanged();
         }
@@ -342,6 +362,16 @@
     {
         //NavManager.NavigateTo("/task/categories");
         _categoriesOpen = !_categoriesOpen;
+    }
+    async Task DeleteTask()
+    {
+        _loading = true;
+        foreach(var task in selectedTasks)
+        {
+            await TaskService.DeleteProjectTaskAsync(task.TaskId);
+        }
+        await InitializeProps();
+        _loading = false;
     }
 
 }

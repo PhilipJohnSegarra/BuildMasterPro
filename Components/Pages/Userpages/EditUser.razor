@@ -169,7 +169,6 @@
                 user.PhoneNumber = OBJUser.PhoneNumber;
                 user.JobTitle = OBJUser.JobTitle;
                 user.Department = OBJUser.Department;
-                user.UserName = OBJUser.Email;
 
                 // Check if password is being updated
                 // if (!string.IsNullOrEmpty(OBJUser.PasswordHash))
@@ -190,6 +189,30 @@
                 // }
 
                 // Save updated user information
+                if (user != null)
+                {
+                    var setEmailResult = await _UserManager.SetEmailAsync(user, OBJUser.Email);
+
+                    if (setEmailResult.Succeeded)
+                    {
+                        // You can also update the username if you're using email as username
+                        var setUserNameResult = await _UserManager.SetUserNameAsync(user, OBJUser.Email);
+
+                        if (setUserNameResult.Succeeded)
+                        {
+                            // Optional: update other fields or return success
+                        }
+                        else
+                        {
+                            // handle username update failure
+                        }
+                    }
+                    else
+                    {
+                        // handle email update failure
+                        
+                    }
+                }
                 var updateResult = await _UserManager.UpdateAsync(user);
                 var resetToken =
                     await _UserManager.GeneratePasswordResetTokenAsync(user);

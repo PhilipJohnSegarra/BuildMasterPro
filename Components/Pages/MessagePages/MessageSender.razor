@@ -14,6 +14,8 @@
 @inject MessageService MessageService
 @inject UserService userService
 @inject BlobStorageService blobService
+@inject EmailService emailService
+@inject NotificationService notifService
 @inject IJSRuntime JSRuntime
 
 
@@ -297,6 +299,8 @@ else
 
 @code {
     //For left side
+    [Parameter]
+    public string? ReceiverId { get; set; }
     private AuthenticationState? authState;
     private ApplicationUser? CurrentUser { get; set; } = new();
     private ApplicationUser? Receiver { get; set; } = null;
@@ -319,6 +323,10 @@ else
         Sender = CurrentUser;
         Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
         MessageService.SubscribeToMessages(NewMessageReceived);
+        if(ReceiverId != null)
+        {
+            Receiver = Users.FirstOrDefault(i=>i.Id == ReceiverId);
+        }
 
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -328,17 +336,25 @@ else
 
     async Task SendMessage()
     {
-        if (!string.IsNullOrEmpty(MessageText))
+        if (!string.IsNullOrEmpty(MessageText) || files.Count > 0 || images.Count > 0)
         {
             var message = await ComposeMessage();
             if (message != null && Receiver != null)
             {
                 await MessageService.SendMessageAsync(message);
-                MessageText = "";
                 await MessageService.GetLatestMessagesForUser(CurrentUser);
                 Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
                 UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, this.Receiver);
+                await emailService.SendEmailNotif(Receiver.Email, "New Message", $"{string.Concat(Sender.FirstName, " ", Sender.LastName)} sent you a message: {MessageText}");
                 await ScrollMessages();
+                var newNotif = new Notification
+                {
+                    UserId = Receiver.Id,
+                    Title = $"New Message from {string.Concat(Sender.FirstName, " ", Sender.LastName)}",
+                    Message = "Click to view messages",
+                        LinkUrl = $"/newMessage?ReceiverId={Receiver.Id}"
+                };
+                await notifService.AddNotification(newNotif);
             }
             else
             {
@@ -351,6 +367,7 @@ else
         }
         files = new List<IBrowserFile>();
         images = new List<IBrowserFile>();
+        MessageText = "";
     }
 
     async Task<Message> ComposeMessage()
