@@ -110,7 +110,6 @@
         var deleteAction = await ProjectService.DeleteProjectAsync(project.ProjectId);
         if (deleteAction == true)
         {
-            ProjectService.CurrentProject = null;
             NavigationManager.NavigateTo("/", forceLoad: true);
 
         }

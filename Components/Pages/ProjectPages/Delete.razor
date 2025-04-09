@@ -93,7 +93,7 @@
         }
 
         await ProjectService.DeleteProjectAsync(project.ProjectId);
-        NavigationManager.NavigateTo("/projects");
+        NavigationManager.NavigateTo("/", forceLoad:true);
     }
     public void Dispose()
     {
