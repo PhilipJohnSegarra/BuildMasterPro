@@ -4,21 +4,25 @@
 @using BuildMasterPro.Data
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> signInManager
 @inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavManager
+
 
 @code {
     private bool isLoggedOut = false;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender && !isLoggedOut)
+        if (true)
         {
             var httpContext = HttpContextAccessor.HttpContext;
 
             if (httpContext != null)
             {
-                await httpContext.SignOutAsync();
+                //await httpContext.SignOutAsync();
+                await signInManager.SignOutAsync();
                 isLoggedOut = true;
                 NavManager.NavigateTo("/account/login", forceLoad: true);
             }

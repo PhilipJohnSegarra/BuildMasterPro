@@ -4,6 +4,7 @@
 @using System.ComponentModel
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
 @inject ProjectService ProjectService
 @inject NavigationManager NavManager
 @inject UserService userService
@@ -142,7 +143,7 @@
     private async Task Logout()
     {
         // await Task.Yield(); // This ensures the response cycle is completed
-        // var httpContext = HttpContextAccessor.HttpContext;
+        var httpContext = HttpContextAccessor.HttpContext;
 
         // if (httpContext != null)
         // {
@@ -150,6 +151,8 @@
         //     NavManager.NavigateTo("/account/login");
         // }
         NavManager.NavigateTo("/Account/logout");
+        //await signInManager.SignOutAsync();
+        //NavigationManager.NavigateTo("/", forceLoad: true);
     }
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {

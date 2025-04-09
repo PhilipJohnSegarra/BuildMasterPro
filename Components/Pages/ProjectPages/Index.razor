@@ -20,7 +20,11 @@
 
 <PageTitle>Index</PageTitle>
 
-<h4 style="margin:0 0 1rem 0;">PROJECTS</h4>
+<MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Style="margin:.5rem 0 1rem 0;">
+    <h4 style="margin:auto 0 auto 0;">PROJECTS</h4>
+    <MudTextField Variant="Variant.Outlined" Placeholder="Filter by name" Style="max-width:300px;margin:0 0 0 auto;height:35px;" @bind-Value="filterProject" Immediate />
+</MudStack>
+
 
         <CascadingAuthenticationState>
             @if (authenticationState != null)
@@ -30,7 +34,7 @@
                 if (user.IsInRole("Administrators") || user.IsInRole("Project Manager"))
                 {
                     <AuthorizeView Roles="Administrators">
-                        <MudDataGrid T="Project" Items="Projects" Bordered="false" Striped="true" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Groupable="false" Class="full-height-datagrid">
+                        <MudDataGrid T="Project" Items="Projects.Where(i=> string.IsNullOrEmpty(filterProject) || i.ProjectName.ToLower().Contains(filterProject.ToLower()))" Bordered="false" Striped="true" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Groupable="false" Class="full-height-datagrid">
                             <Columns>
                                 <MudBlazor.PropertyColumn Property="project => project.ProjectName" Title="Project" CellClass="row" HeaderStyle="height:60px;width:40%;font-weight:bold;" />
                                 <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" Title="Start Date" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
@@ -74,7 +78,7 @@
                 else
                 {
                     <AuthorizeView Roles="Project Manager, Project Member">
-                        <MudDataGrid T="Project" Items="ProjectUserProjects" Bordered="false" Striped="true" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Groupable="false" Class="full-height-datagrid">
+                <MudDataGrid T="Project" Items="ProjectUserProjects.Where(i=> string.IsNullOrEmpty(filterProject) || i.ProjectName.Contains(filterProject))" Bordered="false" Striped="true" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Groupable="false" Class="full-height-datagrid">
                             <Columns>
                                 <MudBlazor.PropertyColumn Property="project => project.ProjectName" Title="Project" CellClass="row" HeaderStyle="height:60px;width:40%;font-weight:bold;" />
                                 <MudBlazor.PropertyColumn Property="project => project.Startdate.ToShortDateString()" Title="Start Date" CellClass="row" HeaderStyle="height:60px;width:20%;font-weight:bold;" />
@@ -97,20 +101,24 @@
                                         }
                                     </CellTemplate>
                                 </MudBlazor.TemplateColumn>
-                                <MudBlazor.TemplateColumn CellClass="d-flex justify-center " HeaderStyle="height:60px;width:5%;font-weight:bold;">
-                                    <CellTemplate Context="contxt">
-                                        <MudTooltip Text="Edit">
-                                            <MudIconButton Class="action-column" Icon="@Icons.Material.Filled.Edit" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(contxt.Item);
-                                                                                    NavManager.NavigateTo($"projects/edit?projectid={contxt.Item.ProjectId}");
-                                                                                    })" />
-                                        </MudTooltip>
-                                        <MudTooltip Text="Delete">
-                                            <MudIconButton Class="action-column" Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(contxt.Item);
-                                                                                    NavManager.NavigateTo($"projects/delete?projectid={contxt.Item.ProjectId}");
-                                                                                    })" />
-                                        </MudTooltip>
-                                    </CellTemplate>
-                                </MudBlazor.TemplateColumn>
+                                <AuthorizeView Roles="Project Manager" Context="txt">
+                                    <MudBlazor.TemplateColumn CellClass="d-flex justify-center " HeaderStyle="height:60px;width:5%;font-weight:bold;">
+
+                                        <CellTemplate Context="contxt">
+                                            <MudTooltip Text="Edit">
+                                                <MudIconButton Class="action-column" Icon="@Icons.Material.Filled.Edit" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(contxt.Item);
+                                                                                            NavManager.NavigateTo($"projects/edit?projectid={contxt.Item.ProjectId}");
+                                                                                            })" />
+                                            </MudTooltip>
+                                            <MudTooltip Text="Delete">
+                                                <MudIconButton Class="action-column" Icon="@Icons.Material.Filled.Delete" OnClick="@(async ()=>{await ProjectService.SetCurrentProjectAsync(contxt.Item);
+                                                                                            NavManager.NavigateTo($"projects/delete?projectid={contxt.Item.ProjectId}");
+                                                                                            })" />
+                                            </MudTooltip>
+                                        </CellTemplate>
+                                    </MudBlazor.TemplateColumn>
+                                </AuthorizeView>
+                                
                             </Columns>
                         </MudDataGrid>
                     </AuthorizeView>
@@ -187,6 +195,7 @@
     private AuthenticationState? authenticationState;
 
     bool userIsAdmin = true;
+    string filterProject = "";
 
     protected override async Task OnInitializedAsync()
     {
