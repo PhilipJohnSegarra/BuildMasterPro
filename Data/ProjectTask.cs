@@ -38,6 +38,7 @@ namespace BuildMasterPro.Data
         [AllowNull]
         public string? Priority { get; set; }
         public int Progress { get; set; } = 0;
+        public bool IsDeleted { get; set; } = false;
         [JsonIgnore]
         [ForeignKey(nameof(ProjectId))]
         public Project? Project { get; set; } = default!;

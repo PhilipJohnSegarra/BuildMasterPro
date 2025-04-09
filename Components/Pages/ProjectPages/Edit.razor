@@ -2,12 +2,14 @@
 @page "/projects/edit"
 @using Microsoft.EntityFrameworkCore
 @using BuildMasterPro.Data
+@using BuildMasterPro.Components.Pages.Dialogs
 @inject IDbContextFactory<BuildMasterPro.Data.ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
 @inject BuildMasterPro.Services.ProjectService ProjectService
 @inject BuildMasterPro.Services.ProjectUserService ProjUserService
 @inject BuildMasterPro.Services.UserService UserService
 @inject ISnackbar snackBar
+@inject IDialogService DialogService
 
 <MudPopoverProvider />
 <MudDialogProvider />
@@ -51,6 +53,8 @@ else
                 <MudDatePicker ReadOnly="notEditing" Class="mud-width-full" Variant="Variant.Filled" Date="Project.Startdate" DateChanged="OnStartDateChanged" />
                 <MudInputLabel Class="mt-5">End Date</MudInputLabel>
                 <MudDatePicker ReadOnly="notEditing" Class="mud-width-full" Variant="Variant.Filled" Date="Project.Enddate" DateChanged="OnEndDateChanged" />
+
+                <MudButton Class="mt-5 mud-width-full" OnClick="OpenDialogAsync" Color="Color.Error">Delete Project</MudButton>
             </MudPaper>
         </MudItem>
         <MudItem lg="6">
@@ -275,5 +279,19 @@ else
             snackBar.Add("Updated client information successfully", severity: Severity.Success);
             notEditingClient = true;
         }
+    }
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        // member
+
+        var parameters = new DialogParameters<ProjectDeleterDialog>
+        {
+            {x => x.projectid, Project.ProjectId}
+        };
+
+        var result = await DialogService.ShowAsync<ProjectDeleterDialog>("Simple Dialog", options);
+        await InvokeAsync(StateHasChanged);
+
     }
 }

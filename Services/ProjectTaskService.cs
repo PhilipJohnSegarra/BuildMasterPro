@@ -40,7 +40,7 @@ namespace BuildMasterPro.Services
         {
             using var context = _context.CreateDbContext();
             var currProj = await _projectService.GetCurrentProjectAsync();
-            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == currProj.ProjectId)
+            this.CurrentProjectTasks = await context.ProjectTask.Where(i => i.ProjectId == currProj.ProjectId && i.IsDeleted.Equals(false))
                 .Include(p => p.TaskCategory)
                 .Include(p => p.TaskUsers)
                 .OrderBy(p => p.TaskCategory.Id)
@@ -91,7 +91,8 @@ namespace BuildMasterPro.Services
             {
                 return false;
             }
-            context.Remove(task);
+            task.IsDeleted = true;
+            context.Entry(task).CurrentValues.SetValues(task);
             await context.SaveChangesAsync();
             return true;
         }

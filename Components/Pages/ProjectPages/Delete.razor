@@ -88,6 +88,7 @@
             foreach (ProjectTask task in Tasks)
             {
                 await TaskService.DeleteProjectTaskAsync(task.TaskId);
+                await TaskService.DeleteProjectTaskAsync(task.TaskId);
             }
         }
 

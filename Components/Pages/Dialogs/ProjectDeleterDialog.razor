@@ -1,0 +1,134 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using BuildMasterPro.Data
+@using System.ComponentModel
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject BuildMasterPro.Services.ProjectService ProjectService
+@inject BuildMasterPro.Services.ProjectTaskService TaskService
+@inject ISnackbar snackBar
+
+
+<MudThemeProvider />
+
+ <MudDialog Style="overflow:visible;" Class="blur dialog-background" TitleClass="blur dialog-background-title" ContentClass="dialog-background-surface py-10" ActionsClass="dialog-background-surface">
+     <TitleContent>
+         New Channel
+     </TitleContent>
+     <DialogContent>
+        <h1>Delete</h1>
+
+        <p>Are you sure you want to delete this?</p>
+        <div>
+            <h2>Project</h2>
+            <hr />
+            @if (project is null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <dl class="row">
+                    <dt class="col-sm-2">ProjectName</dt>
+                    <dd class="col-sm-10">@project.ProjectName</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-2">Description</dt>
+                    <dd class="col-sm-10">@project.Description</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-2">Startdate</dt>
+                    <dd class="col-sm-10">@project.Startdate</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-2">Enddate</dt>
+                    <dd class="col-sm-10">@project.Enddate</dd>
+                </dl>
+                <dl class="row">
+                    <dt class="col-sm-2">Status</dt>
+                    <dd class="col-sm-10">@project.Status</dd>
+                </dl>
+                <EditForm method="post" Model="project" OnValidSubmit="DeleteProject" FormName="delete" Enhance>
+                    <button type="submit" class="btn btn-danger" disabled="@(project is null)">Delete</button> |
+                    <a href="/projects">Back to List</a>
+                </EditForm>
+            }
+        </div>
+
+     </DialogContent>
+     <DialogActions>
+         <MudButton OnClick="Cancel">Cancel</MudButton>
+         <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+     </DialogActions>
+ </MudDialog>
+
+@code {
+    private Project? project = new();
+
+    private List<ProjectTask> Tasks { get; set; } = new();
+
+    [CascadingParameter]
+    private MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public int projectid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // ProjectService.PropertyChanged += HandlePropertyChanged;
+        // ProjectService.RegisterListener(StateHasChanged);
+        // project = await ProjectService.GetProjectAsync(projectid);
+        // await ProjectService.SetCurrentProjectAsync(project);
+        // Tasks = await TaskService.GetCurrentProjtasksAsync();
+        project = await ProjectService.GetCurrentProjectAsync();
+        Tasks = await TaskService.GetCurrentProjtasksAsync();
+
+        if (project is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private void HandlePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ProjectService.CurrentProject))
+        {
+            InvokeAsync(StateHasChanged); // Trigger re-render
+        }
+    }
+
+    private async Task DeleteProject()
+    {
+        if (Tasks != null)
+        {
+            foreach (ProjectTask task in Tasks)
+            {
+                await TaskService.DeleteProjectTaskAsync(task.TaskId);
+                await TaskService.DeleteProjectTaskAsync(task.TaskId);
+            }
+        }
+
+        var deleteAction = await ProjectService.DeleteProjectAsync(project.ProjectId);
+        if (deleteAction == true)
+        {
+            ProjectService.CurrentProject = null;
+            NavigationManager.NavigateTo("/", forceLoad: true);
+
+        }
+        else
+        {
+            snackBar.Add("Delete Unsuccessful, Please try again later.", severity: Severity.Warning);
+        }
+        NavigationManager.NavigateTo("/projects");
+    }
+    public void Dispose()
+    {
+        ProjectService.PropertyChanged -= HandlePropertyChanged;
+        ProjectService.UnregisterListener(StateHasChanged);
+    }
+    private async Task Submit()
+    {
+        await DeleteProject();
+    }
+
+    private void Cancel() => MudDialog!.Cancel();
+}
