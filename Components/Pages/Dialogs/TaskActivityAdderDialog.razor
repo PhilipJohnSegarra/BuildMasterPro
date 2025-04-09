@@ -133,7 +133,7 @@
             taskActImages.TaskID = Currenttask.TaskId;
             foreach (var file in files)
             {
-                using var stream = file.OpenReadStream(); // ✅ Correct way to get Stream
+                using var stream = file.OpenReadStream(maxAllowedSize: 5000000); // ✅ Correct way to get Stream
                 string imageUrl = await blobService.UploadFileAsync(stream, file.Name, file.ContentType); // Upload to Azure
                 taskActImages.ImageArray.Add(imageUrl);
             }
@@ -151,6 +151,7 @@
     IList<IBrowserFile> files = new List<IBrowserFile>();
     private void UploadFiles(IReadOnlyList<IBrowserFile> files)
     {
+        this.files = new List<IBrowserFile>();
         foreach (var file in files)
         {
             this.files.Add(file);

@@ -72,7 +72,7 @@
                             <MudButton>@projecttask.Status</MudButton>
                             <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Style="align-self: auto;">
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "Not Started";projecttask.Progress = 0;UpdateTask();})">Mark as Not Started</MudMenuItem>
-                                <MudMenuItem OnClick="@(() => {projecttask.Progress -= 10;projecttask.Status = "In Progress";if(projecttask.ActualStartDate == null)projecttask.ActualStartDate = DateTime.UtcNow;UpdateTask();})">Mark as In Progress</MudMenuItem>
+                                <MudMenuItem OnClick="@(() => {if(projecttask.Progress == 100)projecttask.Progress -= 10;projecttask.Status = "In Progress";if(projecttask.ActualStartDate == null)projecttask.ActualStartDate = DateTime.UtcNow;UpdateTask();})">Mark as In Progress</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "On Hold";UpdateTask();})">Mark as On Hold</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {projecttask.Status = "Abandoned";UpdateTask();})">Mark as Abandoned</MudMenuItem>
                                 <MudMenuItem OnClick="@(() => {
