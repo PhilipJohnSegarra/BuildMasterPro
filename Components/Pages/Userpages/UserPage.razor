@@ -139,7 +139,7 @@
         var user = await _UserManager.FindByIdAsync(User.Id);
         bool? result = await DialogService.ShowMessageBox(
             $"Confirm Deletion:",
-            $"ID:{user.Id}\nUser:{user.UserName}\nEmail:{user.Email}",
+            $"ID:{user.Id}\nUser:{string.Concat(user.FirstName, " ", user.LastName)}\nEmail:{user.Email}",
             yesText: "Delete!", cancelText: "Cancel");
         state = result == null ? "Canceled" : "Deleted!";
 

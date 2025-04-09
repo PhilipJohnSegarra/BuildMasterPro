@@ -77,7 +77,10 @@
                                 @foreach (var user in projectUsers)
                                 {
                                     <MudSelectItem T="ProjectUser" Class="mud-width-full" Value="@user">
-                                        @user.User.Email
+                        <div style="display:flex;flex-direction:row;justify-content:start;align-items:center;">
+                            <span style="margin:0 1rem 0 1rem;"><MudAvatar Size="Size.Small"><MudImage class="mud-width-full" Src="@user.User.ProfilePictureUrl" /></MudAvatar></span>
+                            @(string.IsNullOrEmpty(user.User.FirstName) ? user.User.Email : string.Concat(user.User.FirstName + " " + user.User.LastName))
+                        </div>
                                     </MudSelectItem>
                                 }
                             </MudSelect>
