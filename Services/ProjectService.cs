@@ -118,7 +118,8 @@ namespace BuildMasterPro.Services
 
             if (project == null) return false;
 
-            _context.Project.Remove(project);
+            project.isDeleted = true;
+            _context.Entry(project).CurrentValues.SetValues(project);
             await _context.SaveChangesAsync();
             return true;
         }

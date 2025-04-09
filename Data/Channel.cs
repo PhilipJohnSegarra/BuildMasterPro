@@ -19,6 +19,8 @@ namespace BuildMasterPro.Data
         public string? Category { get; set; }
         [BsonElement("channel_projectId")]
         public int? ProjectId { get; set; }
+        [BsonElement("channel_isdeleted")]
+        public bool IsDeleted { get; set; } = false;
 
     }
 }
