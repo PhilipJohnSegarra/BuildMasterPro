@@ -35,7 +35,7 @@
 
                 if (user.IsInRole("Administrators") || user.IsInRole("Project Manager"))
                 {
-                    <AuthorizeView Roles="Administrators">
+                    <AuthorizeView Roles="Administrators,Project Manager">
                         <MudDataGrid T="Project" Items="Projects.Where(i=> string.IsNullOrEmpty(filterProject) || i.ProjectName.ToLower().Contains(filterProject.ToLower()))" Bordered="false" Striped="true" Dense="true" RowClick="GoToProject" Hover="true" Style="height:89%;" Groupable="false" Class="full-height-datagrid" Loading="loading">
                             <Columns>
                                 <MudBlazor.PropertyColumn Property="project => project.ProjectName" Title="Project" CellClass="row" HeaderStyle="height:60px;width:40%;font-weight:bold;" />
