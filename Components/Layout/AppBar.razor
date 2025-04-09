@@ -10,6 +10,7 @@
 @inject UserService userService
 @inject AuthenticationStateProvider auth
 @inject NavigationManager NavigationManager
+@inject NotificationService notifService
 @inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
 @inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
 @inject IHttpContextAccessor HttpContextAccessor
@@ -59,7 +60,7 @@
         </div>
     </div>
     <MudSpacer></MudSpacer>
-    <MudIconButton Icon="@Icons.Material.Outlined.Notifications"/>
+    <MudIconButton OnClick="()=>{_open = !_open;}" Icon="@Icons.Material.Outlined.Notifications"/>
         <MudButton OnClick="GoToProfile" Variant="Variant.Outlined" Class="TransparentBG" Style="border-radius:40px;height:40px;z-index:11;color:gray;border-color:gray;">
             <ChildContent>
                 <MudAvatar Class="me-2" Size="Size.Small"><MudImage Style="width:100%;" Src="@CurrentUser.ProfilePictureUrl" /></MudAvatar>
@@ -96,6 +97,23 @@
          *@
     
 </MudStack>
+<MudDrawer @bind-Open="@_open" Width="400px" Height="100%" Anchor="Anchor.End" Elevation="1" Variant="@DrawerVariant.Temporary">
+    <MudDrawerHeader>
+        <MudText Typo="Typo.h6">Notifications</MudText>
+    </MudDrawerHeader>
+    <MudList T="string">
+        @foreach(var notification in notifications)
+        {
+            <MudListItem Text="@notification.Title" Icon="@Icons.Material.Filled.Inbox" SecondaryText="@notification.Message"/>
+        }
+        @* <MudListItem Text="Inbox" Icon="@Icons.Material.Filled.Inbox" />
+        <MudListItem Text="Sent" Icon="@Icons.Material.Filled.Send" />
+        <MudListItem Text="Drafts" Disabled="true" IconColor="Color.Info" Icon="@Icons.Material.Filled.Drafts" />
+        <MudDivider />
+        <MudListItem Text="Trash" SecondaryText="Removed e-mails" />
+        <MudListItem Text="Spam" SecondaryText="E-mails from common providers" /> *@
+    </MudList>
+</MudDrawer>
 
 @code {
     private ApplicationUser? CurrentUser { get; set; } = new();
@@ -104,11 +122,13 @@
     private string AntiforgeryToken;
     [CascadingParameter]
     public HttpContext? HttpContext { get; set; }
+    private List<Notification> notifications { get; set; } = new();
     protected override async Task OnInitializedAsync()
     {
         ProjectService.PropertyChanged += HandlePropertyChanged;
         ProjectService.RegisterListener(StateHasChanged);
         CurrentUser = await userService.GetCurrentUserAsync();
+        notifications = await notifService.GetAllByCurrentUser(CurrentUser.Id);
 
         currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
         NavManager.LocationChanged += OnLocationChanged;

@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace BuildMasterPro.Services
 {
@@ -15,9 +16,10 @@ namespace BuildMasterPro.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ProtectedSessionStorage _sessionStorage;
         private readonly AuthenticationStateProvider _authStateProvider;
+        private readonly ProjectUserService _projectUserService;
         public ApplicationUser? CurrentUser { get; set; }
         private ApplicationUser _cachedUser = new();
-        public UserService(IDbContextFactory<ApplicationDbContext> db, UserManager<ApplicationUser> userManager, ProtectedSessionStorage sessionStorage, AuthenticationStateProvider authStateProvider) : base(db)
+        public UserService(IDbContextFactory<ApplicationDbContext> db, UserManager<ApplicationUser> userManager, ProtectedSessionStorage sessionStorage, AuthenticationStateProvider authStateProvider, ProjectUserService projectUserService) : base(db)
         {
             _db = db;
             _userManager = userManager;
@@ -25,6 +27,7 @@ namespace BuildMasterPro.Services
             _authStateProvider = authStateProvider;
 
             Task.Run(async () => await SetCurrentUserAsync());
+            _projectUserService = projectUserService;
         }
 
         public async Task<List<ApplicationUser>> GetAll()
@@ -89,6 +92,42 @@ namespace BuildMasterPro.Services
                 return CurrentUser;
             }
             return new ApplicationUser();
+        }
+
+        public async Task<List<ApplicationUser>> GetAllUnAssignedMembers()
+        {
+            List<ApplicationUser> result = new List<ApplicationUser>();
+            using var context = await _db.CreateDbContextAsync();
+            var usersInRole = await (from user in context.Users
+                                     join userRole in context.UserRoles on user.Id equals userRole.UserId
+                                     join role in context.Roles on userRole.RoleId equals role.Id
+                                     where role.Name == "Project Member"
+                                     select user)
+                                     .ToListAsync();
+
+            var assignedUsers = await _projectUserService.GetAll();
+
+            foreach(var user in usersInRole)
+            {
+                var isAssigned = assignedUsers.FirstOrDefault(i => i.UserId == user.Id);
+                if (isAssigned == null)
+                {
+                    result.Add(user);
+                }
+            }
+            return result;
+        }
+
+        public async Task<List<ApplicationUser>> GetAllProjectManagers()
+        {
+            using var context = await _db.CreateDbContextAsync();
+            var usersInRole = await (from user in context.Users
+                                     join userRole in context.UserRoles on user.Id equals userRole.UserId
+                                     join role in context.Roles on userRole.RoleId equals role.Id
+                                     where role.Name == "Project Manager"
+                                     select user)
+                                     .ToListAsync();
+            return usersInRole;
         }
     }
 }
