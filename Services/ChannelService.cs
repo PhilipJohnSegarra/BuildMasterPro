@@ -88,5 +88,16 @@ namespace BuildMasterPro.Services
                 }
             }
         }
+        public async Task<bool> UpdateChannelDetailsAsync(string channelId, string newName, string newDescription, string newCategory)
+        {
+            var filter = Builders<Channel>.Filter.Eq(c => c.ChannelId, channelId);
+            var update = Builders<Channel>.Update
+                .Set(c => c.ChannelName, newName)
+                .Set(c => c.ChannelDescription, newDescription)
+                .Set(c => c.Category, string.IsNullOrEmpty(newCategory) ? null : newCategory);
+
+            var result = await _channels.UpdateOneAsync(filter, update);
+            return result.ModifiedCount > 0;
+        }
     }
 }
