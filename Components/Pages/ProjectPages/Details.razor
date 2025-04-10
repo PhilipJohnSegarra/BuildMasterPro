@@ -68,7 +68,10 @@
                         </tr>
                     </tbody>
                 </table>
-                <MudIconButton Class="mt-auto ms-auto" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small" OnClick="GoToProjectDetails"/>
+                <AuthorizeView Roles="Administrators,Project Manager">
+                    <MudIconButton Class="mt-auto ms-auto" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small" OnClick="GoToProjectDetails" />
+                </AuthorizeView>
+                
             </MudPaper>
         </MudItem>
         <MudItem xs="12" sm="5">
@@ -129,7 +132,9 @@
             <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-start overflow-auto" Style="height: 370px;position:relative;">
                 <MudToolBar Class="mud-width-full align-center justify-space-between sticky-top" Style="position:sticky top;">
                     <MudText>Tasks</MudText>
-                    <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Filled.AddCircle" OnClick="GoToTasks"/>
+                    <AuthorizeView Roles="Administrators,Project Manager">
+                        <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Filled.AddCircle" OnClick="GoToTasks" />
+                    </AuthorizeView>
                 </MudToolBar>
                 <MudTable T="ProjectTask" Items="Tasks" Hover Class="mud-width-full" Style="flex-grow:1">
                     <HeaderContent>
@@ -147,7 +152,9 @@
             <MudPaper Elevation="2" Class="pa-4 d-flex flex-column align-center justify-start overflow-auto" Style="height: 370px;">
                 <MudToolBar Class="mud-width-full align-center justify-space-between">
                     <MudText>Members</MudText>
-                    <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Filled.AddCircle" OnClick="GoToTeam"/>
+                    <AuthorizeView Roles="Administrators,Project Manager">
+                        <MudIconButton Color="Color.Warning" Icon="@Icons.Material.Filled.AddCircle" OnClick="GoToTeam" />
+                    </AuthorizeView>
                 </MudToolBar>
                 <MudTable T="ProjectUser" Items="Members" Hover Class="mud-width-full" Style="flex-grow:1">
                     <HeaderContent>
