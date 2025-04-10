@@ -14,6 +14,10 @@
 @inject NavigationManager NavManager
 @inject BlobStorageService fileService
 @rendermode InteractiveServer
+@inject ISnackbar snackbar
+
+<MudThemeProvider/>
+<MudSnackbarProvider/>
 
 <MudDialogProvider MaxWidth="MaxWidth.Medium" FullWidth="true"/>
 @if (projectChannels != null && projectChannels.Count > 0)
@@ -21,13 +25,19 @@
     <MudPaper Class="pa-0 TransparentBG" Elevation="0" Style="height:100%;width:100%;overflow:hidden;position:relative;">
         @if(CurrentChannel != null)
         {
-            <MudDrawer @bind-Open="@_openEnd" Fixed="false" Anchor="Anchor.End" Elevation="0" Variant="@DrawerVariant.Temporary">
+            <MudDrawer @bind-Open="@_openEnd" Class="d-flex flex-column justify-start align-center" Fixed="false" Width="400px" Anchor="Anchor.End" Elevation="0" Variant="@DrawerVariant.Temporary">
                 <MudDrawerHeader>
                     <MudText Typo="Typo.h6">@CurrentChannel.ChannelName</MudText>
                 </MudDrawerHeader>
-                <MudNavMenu>
-                    <MudTextField T="string" @bind-Value="@CurrentChannel.ChannelName"/>
-                    <MudTextField T="string" @bind-Value="@CurrentChannel.ChannelDescription"/>
+                <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" Class="mb-4">
+                    <MudButton StartIcon="@Icons.Material.Outlined.Edit" OnClick="()=>{isEditing=!isEditing;}" Color="Color.Warning">Edit</MudButton>
+                    <MudButton StartIcon="@Icons.Material.Outlined.Save" OnClick="UpdateChannel" Disabled="!isEditing" Color="Color.Info">Save</MudButton>
+                    <MudButton StartIcon="@Icons.Material.Outlined.Delete" OnClick="DeleteChannel" Color="Color.Error">Delete Channel</MudButton>
+                </MudButtonGroup>
+                <MudNavMenu Style="width:90%;">
+                    <MudTextField Label="Channel Name" Variant="Variant.Outlined" Disabled="!isEditing" T="string" @bind-Value="@CurrentChannel.ChannelName"/>
+                    <MudTextField Label="Channel Description" Variant="Variant.Outlined" Disabled="!isEditing" T="string" @bind-Value="@CurrentChannel.ChannelDescription" />
+                    <MudTextField Label="Category" Variant="Variant.Outlined" Disabled="!isEditing" T="string" @bind-Value="@CurrentChannel.Category" />
                 </MudNavMenu>
             </MudDrawer>
         }
@@ -112,7 +122,15 @@
                                                         <MudPaper Class="d-flex flex-column justify-start align-start TransparentBG mt-3" Elevation="0" Style="width:max-content;max-width:100%;">
                                                             @foreach (var file in message.Files)
                                                             {
-                                                                <a style="padding:5px 0 5px 0;color:white;display:flex;flex-direction:row;justify-content:center;align-items:center;max-width:90%;overflow:hidden;" href="@file">@file</a>
+                                                                <a style="padding: 5px 10px;
+                                                                    color: black;
+border-radius:15px;
+                                                                    max-width: 400px;
+                                                                    overflow: hidden;
+                                                                    text-overflow: ellipsis;
+                                                                    white-space: nowrap;
+margin:10px 0 0 0;
+background-color:white;" href="@file"><span><MudIcon Size="Size.Small" Style="color:black;" Icon="@Icons.Material.Outlined.Attachment"></MudIcon></span>@file</a>
                                                             }
 
                                                         </MudPaper>
@@ -195,7 +213,7 @@
                                     </MudIconButton>
                                 </ActivatorContent>
                             </MudFileUpload>
-                            <MudTextField T="string" @bind-Value="MessageBoxText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" OnKeyDown="HandleKeyDown" OnKeyUp="HandleKeyDown" />
+                            <MudTextField T="string" @bind-Value="MessageBoxText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" OnKeyUp="HandleKeyDown" />
                             <MudIconButton Icon="@Icons.Material.Filled.Send" OnClick="async()=>{await SendMessage(CurrentChannel);}" Style="padding:3px;border-radius:0;" />
                         </MudPaper>
                     </div>
@@ -207,9 +225,12 @@
 else
 {
     <MudPaper Class="pa-0 MainBG d-flex flex-column justify-center align-center" Elevation="0" Style="height:100%;width:100%;overflow:hidden;position:relative;">
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-        <MudText>Please wait</MudText>
-        @if (isChannelEmpty)
+        @if (isLoading)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            <MudText>Please wait</MudText>
+        }        
+        else if (isChannelEmpty)
         {
             <MudButton StartIcon="@Icons.Material.Outlined.Add" OnClick="OpenDialogAsync" Class="PrimaryText">Add New Channel</MudButton>
         }
@@ -230,6 +251,8 @@ else
     private Channel? CurrentChannel { get; set; } = null;
     private int? projId;
     private bool isChannelEmpty = false;
+    private bool isEditing = false;
+    bool isLoading = true;
 
     private string? MessageBoxText { get; set; }
 
@@ -238,6 +261,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
         authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         CurrentUser = await UserManager.GetUserAsync(authState.User);
         var proj = await ProjectService.GetCurrentProjectAsync();
@@ -257,8 +281,9 @@ else
 
             }
         }
-
+        isLoading = false;
         channelService.OnChannelUpdated += UpdateUI;
+
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -294,51 +319,59 @@ else
     }
     private async Task SendMessage(Channel channel)
     {
-        if(!string.IsNullOrEmpty(MessageBoxText) && CurrentChannel != null)
+        try
         {
-            ChannelMessage message = new()
+            if (!string.IsNullOrEmpty(MessageBoxText) || files.Count > 0 || images.Count > 0 && CurrentChannel != null)
             {
-                Message = MessageBoxText,
-                SenderID = CurrentUser.Id,
-                SenderName = CurrentUser.FirstName != null && CurrentUser.LastName != null ? CurrentUser.FirstName + " " + CurrentUser.LastName : CurrentUser.Email,
-                SenderImage = CurrentUser.ProfilePictureUrl
-            };
+                ChannelMessage message = new()
+                    {
+                        Message = MessageBoxText,
+                        SenderID = CurrentUser.Id,
+                        SenderName = CurrentUser.FirstName != null && CurrentUser.LastName != null ? CurrentUser.FirstName + " " + CurrentUser.LastName : CurrentUser.Email,
+                        SenderImage = CurrentUser.ProfilePictureUrl
+                    };
 
-            if(files != null)
-            {
-                foreach (var file in files)
+                if (files != null)
                 {
-                    using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
-                    var newfile = await fileService.UploadFileAsync(stream, file.Name, file.ContentType);
-                    message.Files.Add(newfile);
+                    foreach (var file in files)
+                    {
+                        using var stream = file.OpenReadStream(maxAllowedSize: 5000000);
+                        var newfile = await fileService.UploadFileAsync(stream, file.Name, file.ContentType);
+                        message.Files.Add(newfile);
+                    }
                 }
+
+                if (images != null)
+                {
+                    foreach (var image in images)
+                    {
+                        using var stream = image.OpenReadStream(maxAllowedSize: 5000000);
+                        var newImage = await fileService.UploadFileAsync(stream, image.Name, image.ContentType);
+                        message.ImageArray.Add(newImage);
+                    }
+                }
+
+
+                await channelService.AddMessageAsync(channel.ChannelId, message);
+                CurrentChannel = await channelService.GetChannelByIdAsync(channel.ChannelId);
+                MessageBoxText = "";
+                this.files = new List<IBrowserFile>();
+                this.images = new List<IBrowserFile>();
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                return;
             }
 
-            if(images != null)
-            {
-                foreach (var image in images)
-                {
-                    using var stream = image.OpenReadStream(maxAllowedSize: 5000000);
-                    var newImage = await fileService.UploadFileAsync(stream, image.Name, image.ContentType);
-                    message.ImageArray.Add(newImage);
-                }
-            }
-
-
-            await channelService.AddMessageAsync(channel.ChannelId, message);
-            CurrentChannel = await channelService.GetChannelByIdAsync(channel.ChannelId);
-            MessageBoxText = "";
-            this.files = new List<IBrowserFile>();
-            this.images = new List<IBrowserFile>();
-            await InvokeAsync(StateHasChanged);
+            files = new List<IBrowserFile>();
+            images = new List<IBrowserFile>();
         }
-        else
+        catch
         {
-            return;
+            snackbar.Add("Files and Images must not exceed 5mb.", severity: Severity.Warning);
         }
-
-        files = new List<IBrowserFile>();
-        images = new List<IBrowserFile>();
+        
 
     }
 
@@ -439,5 +472,53 @@ else
     {
         public IBrowserFile? Image { get; set; }
         public string? Display { get; set; }
+    }
+    async Task UpdateChannel()
+    {
+
+        await channelService.UpdateChannelDetailsAsync(CurrentChannel.ChannelId, CurrentChannel.ChannelName, CurrentChannel.ChannelDescription, CurrentChannel.Category);
+        isEditing = !isEditing;
+        await InvokeAsync(StateHasChanged);
+    }
+    //[Inject] private IDialogService DialogService { get; set; }
+    string state = "Message box hasn't been opened yet";
+    // async Task DeleteTask()
+    // {
+    //     bool? result = await DialogService.ShowMessageBox(
+    //         $"Confirm Deletion:",
+    //         $"Task {projecttask.TaskName} will be deleted.\nTo undo this action, please coordinate with your administrator.",
+    //         yesText: "Delete!", cancelText: "Cancel");
+    //     state = result == null ? "Canceled" : "Deleted!";
+    //     if (state == "Deleted!")
+    //     {
+    //         loading = true;
+    //         await TaskService.DeleteProjectTaskAsync(projecttask.TaskId);
+    //         loading = false;
+    //         NavigationManager.NavigateTo("/projecttasks", forceLoad: true);
+    //     }
+    //     else
+    //     {
+    //         return;
+    //     }
+    // }
+    async Task DeleteChannel()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            $"Confirm Deletion:",
+            $"{CurrentChannel.ChannelName} will be deleted. This can't be undone.",
+            yesText: "Delete!", cancelText: "Cancel");
+        state = result == null ? "Canceled" : "Deleted!";
+        if (state == "Deleted!")
+        {
+            isLoading = true;
+            await channelService.DeleteChannelByIdAsync(CurrentChannel.ChannelId);
+            isEditing = !isEditing;
+            isLoading = false;
+            NavManager.Refresh(forceReload:true);
+        }
+        else
+        {
+            return;
+        }
     }
 }

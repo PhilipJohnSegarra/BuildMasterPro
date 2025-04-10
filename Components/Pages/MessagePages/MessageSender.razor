@@ -16,12 +16,14 @@
 @inject BlobStorageService blobService
 @inject EmailService emailService
 @inject NotificationService notifService
+@inject ISnackbar snackBar
 @inject IJSRuntime JSRuntime
 
 
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudThemeProvider />
+<MudSnackbarProvider/>
 <!--Sender-->
 @* <h3>Choose Sender (Development Purposes)</h3>
 <MudSelect @bind-Value="@Receiver"
@@ -276,7 +278,7 @@ else
                                         </MudIconButton>
                                     </ActivatorContent>
                                 </MudFileUpload>
-                                <MudTextField T="string" @bind-Value="MessageText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" OnKeyDown="HandleKeyDown" OnKeyUp="HandleKeyDown" />
+                                <MudTextField T="string" @bind-Value="MessageText" Style="flex-grow: 1;max-height:45px;border-radius:40px;" Variant="Variant.Outlined" OnKeyUp="HandleKeyDown" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Send" Color="Color.Primary" OnClick="SendMessage" Style="padding:3px;border-radius:0;" />
                             }
                             
@@ -336,38 +338,46 @@ else
 
     async Task SendMessage()
     {
-        if (!string.IsNullOrEmpty(MessageText) || files.Count > 0 || images.Count > 0)
+        try
         {
-            var message = await ComposeMessage();
-            if (message != null && Receiver != null)
+            if (!string.IsNullOrEmpty(MessageText) || files.Count > 0 || images.Count > 0)
             {
-                await MessageService.SendMessageAsync(message);
-                await MessageService.GetLatestMessagesForUser(CurrentUser);
-                Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
-                UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, this.Receiver);
-                await emailService.SendEmailNotif(Receiver.Email, "New Message", $"{string.Concat(Sender.FirstName, " ", Sender.LastName)} sent you a message: {MessageText}");
-                await ScrollMessages();
-                var newNotif = new Notification
+                var message = await ComposeMessage();
+                if (message != null && Receiver != null)
                 {
-                    UserId = Receiver.Id,
-                    Title = $"New Message from {string.Concat(Sender.FirstName, " ", Sender.LastName)}",
-                    Message = "Click to view messages",
-                        LinkUrl = $"/newMessage?ReceiverId={Receiver.Id}"
-                };
-                await notifService.AddNotification(newNotif);
+                    await MessageService.SendMessageAsync(message);
+                    await MessageService.GetLatestMessagesForUser(CurrentUser);
+                    Messages = await MessageService.GetLatestMessagesForUser(CurrentUser);
+                    UserMessages = await MessageService.GetAllMessagesForUsers(CurrentUser, this.Receiver);
+                    await emailService.SendEmailNotif(Receiver.Email, "New Message", $"{string.Concat(Sender.FirstName, " ", Sender.LastName)} sent you a message: {MessageText}");
+                    await ScrollMessages();
+                    var newNotif = new Notification
+                        {
+                            UserId = Receiver.Id,
+                            Title = $"New Message from {string.Concat(Sender.FirstName, " ", Sender.LastName)}",
+                            Message = "Click to view messages",
+                            LinkUrl = $"/newMessage?ReceiverId={Receiver.Id}"
+                        };
+                    await notifService.AddNotification(newNotif);
+                }
+                else
+                {
+                    return;
+                }
             }
             else
             {
                 return;
             }
+            files = new List<IBrowserFile>();
+            images = new List<IBrowserFile>();
+            MessageText = "";
         }
-        else
+        catch
         {
-            return;
+            snackBar.Add("Files and images must not exceed 5mb.", severity:Severity.Warning);
         }
-        files = new List<IBrowserFile>();
-        images = new List<IBrowserFile>();
-        MessageText = "";
+        
     }
 
     async Task<Message> ComposeMessage()
