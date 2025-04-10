@@ -5,7 +5,11 @@
 @inject BuildMasterPro.Services.ProjectTaskService TaskService
 
 <MudPaper Elevation="1" Class="pa-0" Style="height:100%;">
-    @if (TaskCollection.Count > 0)
+    @if (isLoading)
+    {
+        <BuildMasterPro.Components.Pages.Dialogs.Loader/>
+    }
+    else if (TaskCollection.Count > 0 && isLoading == false)
     {
         <SfGantt DataSource="@Tasks" Height="100%" Width="100%" ScrollToTaskbarOnClick="true" RenderBaseline BaselineColor="Orange" >
             <GanttTaskFields Id="TaskId" Name="TaskName" BaselineStartDate="ActualStartDate" BaselineEndDate="ActualEndDate" StartDate="PlannedStartDate" EndDate="PlannedEndDate" Progress="Progress">
@@ -17,6 +21,7 @@
                 <GanttColumn Field="PlannedEndDate" HeaderText="Planned End date" />
                 <GanttColumn Field="ActualStartDate" HeaderText="Actual Start Date" />
                 <GanttColumn Field="ActualEndDate" HeaderText="Actual End date" />
+                <GanttColumn Field="Progress" HeaderText="Progress"/>
             </GanttColumns>
         </SfGantt>
     }
@@ -29,6 +34,8 @@
 
     [Parameter]
     public List<ProjectTask> Tasks { get; set; } = new();
+
+    bool isLoading = true;
     protected override async Task OnInitializedAsync()
     {
 
@@ -48,6 +55,7 @@
                     }
             );
         }
+        isLoading = false;
     }
 
     public class TaskData
