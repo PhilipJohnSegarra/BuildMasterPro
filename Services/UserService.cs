@@ -101,7 +101,7 @@ namespace BuildMasterPro.Services
             var usersInRole = await (from user in context.Users
                                      join userRole in context.UserRoles on user.Id equals userRole.UserId
                                      join role in context.Roles on userRole.RoleId equals role.Id
-                                     where role.Name == "Project Member"
+                                     where role.Name == "Project Member" && user.IsDeleted == false
                                      select user)
                                      .ToListAsync();
 
@@ -124,7 +124,7 @@ namespace BuildMasterPro.Services
             var usersInRole = await (from user in context.Users
                                      join userRole in context.UserRoles on user.Id equals userRole.UserId
                                      join role in context.Roles on userRole.RoleId equals role.Id
-                                     where role.Name == "Project Manager"
+                                     where role.Name == "Project Manager" && user.IsDeleted == false
                                      select user)
                                      .ToListAsync();
             return usersInRole;

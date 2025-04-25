@@ -29,44 +29,45 @@
                         @* <MudPaper Class="d-flex flex-column justify-center align-center PrimaryBG ps-8 pe-8" Elevation="0" Style="height:100%;border-radius:0;">
                         <MudText Class="MainText ma-0" style="font-size:18px;">Tasks</MudText>
                         </MudPaper> *@
-
-                        <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ms-3 me-3"
-                                   OnClick="@(()=>{
+                        <AuthorizeView Roles="Administrators,Project Manager">
+                            <MudButton StartIcon="@Icons.Material.Outlined.Add" Size="Size.Small" Class="ms-3 me-3"
+                                       OnClick="@(()=>{
                             ProjectTask newTask = new();
                             newTasks.Add(newTask);})">
-                            New Task
-                        </MudButton>
-                        <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ms-3 me-3"
-                                   OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen; _multiSelection = !_multiSelection;})">
-                            Edit
-                        </MudButton>
-                        <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
-                                   OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;})">
-                            Select
-                        </MudButton>
-                        <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
-                                   Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
-                                   OnClick="@(async ()=>{
+                                New Task
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" Class="ms-3 me-3"
+                                       OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen; _multiSelection = !_multiSelection;})">
+                                Edit
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Outlined.SelectAll" Size="Size.Small" Class="ms-3 me-3"
+                                       OnClick="@(()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;})">
+                                Select
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Outlined.Save" Size="Size.Small" Class="ms-3 me-3"
+                                       Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                                       OnClick="@(async ()=>{
                         await SaveNewTasks();
                         })">
-                            Save
-                        </MudButton>
-                        <MudButton StartIcon="@Icons.Material.Outlined.Delete" Size="Size.Small" Class="ms-3 me-3"
-                                   Disabled="@(selectedTasks.Count > 0 ? false : true)"
-                                   OnClick="@(async()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;await DeleteTask();})">
-                            Delete
-                        </MudButton>
-                        <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
-                                   Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
-                                   OnClick="@(async ()=>{
+                                Save
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Outlined.Delete" Size="Size.Small" Class="ms-3 me-3"
+                                       Disabled="@(selectedTasks.Count > 0 ? false : true)"
+                                       OnClick="@(async()=>{_taskeditorOpen = !_taskeditorOpen;_multiSelection = !_multiSelection;await DeleteTask();})">
+                                Delete
+                            </MudButton>
+                            <MudButton StartIcon="@Icons.Material.Outlined.Cancel" Size="Size.Small" Class="ms-3 me-3"
+                                       Disabled="@(newTasks.Count > 0  || selectedTasks.Count > 0 ? false : true)"
+                                       OnClick="@(async ()=>{
                         newTasks = new();
                         selectedTasks = new();
                         })">
-                            Cancel
-                        </MudButton>
-                        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto auto auto 0;" />
+                                Cancel
+                            </MudButton>
+                            <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto auto auto 0;" />
+                        </AuthorizeView>
                         <MudChipSet T="string" @bind-SelectedValues="statusFilter" SelectionMode="SelectionMode.MultiSelection" CheckMark>
-                            <MudChip Value="@("My Tasks")" Variant="Variant.Text" Color="Color.Info" />
+                            @* <MudChip Value="@("My Tasks")" Variant="Variant.Text" Color="Color.Info" /> *@
                             <MudChip Value="@("Not Started")" Variant="Variant.Text" Color="Color.Default" Disabled="@(statusFilter.Contains("My Tasks"))" />
                             <MudChip Value="@("In Progress")" Variant="Variant.Text" Color="Color.Warning" Disabled="@(statusFilter.Contains("My Tasks"))"/>
                             <MudChip Value="@("On Hold")" Variant="Variant.Text" Color="Color.Dark" Disabled="@(statusFilter.Contains("My Tasks"))" />
@@ -81,11 +82,13 @@
                                                  @bind-Toggled="_dense">
                             </MudToggleIconButton>
                         </MudTooltip>
-
-                        <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
-                        <MudButton OnClick="GoToCategories" StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3">
-                            Categories
-                        </MudButton>
+                        <AuthorizeView Roles="Administrators,Project Manager">
+                            <MudDivider Vertical="true" FlexItem="true" Style="height:70%;margin:auto 0 auto 0;" />
+                            <MudButton OnClick="GoToCategories" StartIcon="@Icons.Material.Outlined.Category" Size="Size.Small" Class="ps-3 pe-3">
+                                Categories
+                            </MudButton>
+                        </AuthorizeView>
+                        
                     </MudToolBar>
                 </MudPaper>
                 @*Task Adder*@
@@ -121,88 +124,107 @@
                         <Categories />
                     </MudPaper>
                 }
-                <MudTable Items="@(Tasks.Where(i => statusFilter.Count == 0 || statusFilter.Contains(i.Status) || statusFilter.Contains("My Tasks") && TaskUsers.Any(x=>x.TaskId == i.TaskId) ))" Hover="true"
-                          Class="MainBG"
-                          T="ProjectTask"
-                          MultiSelection="_multiSelection"
-                          Virtualize="false"
-                          Dense="_dense"
-                          GroupBy="_groupDefinition"
-                          OnRowClick="GoToTask"
-                          @bind-SelectedItems="selectedTasks"
-                          Bordered="false"
-                          RowClass="NoBorder"
-                          HeaderClass="TransparentBG"
-                          FixedHeader="true"
-                          Loading="_loading">
-                    <HeaderContent>
-                        <MudTh></MudTh>
-                        <MudTh>Task</MudTh>
-                        <MudTh>Planned Start Date</MudTh>
-                        <MudTh>Planned End Date</MudTh>
-                        <MudTh>Actual Start Date</MudTh>
-                        <MudTh>Actual End Date</MudTh>
-                        <MudTh>AssignedTo</MudTh>
-                        <MudTh>Status</MudTh>
-                    </HeaderContent>
-                    <GroupHeaderTemplate>
-                        <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="8"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
-                    </GroupHeaderTemplate>
-                    <RowTemplate>
-                        <MudTd>@((Tasks.IndexOf(context) + 1).ToString())</MudTd>
-                        <MudTd><MudText Class="SecondaryText" Style="font-weight:bold;">@context.TaskName</MudText></MudTd>
-                        <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
-                        <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
-                        <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
-                        <MudTd>@context.ActualEndDate?.Date.ToShortDateString()</MudTd>
-                        <MudTd>
-                            @if (context.TaskUsers != null)
-                            {
-                                <MudStack Row="true" Style="max-width:200px;" Wrap="Wrap.Wrap">
-                                    @foreach (var user in context.TaskUsers)
+               
+                    <MudTable Items="@(Tasks.Where(i => statusFilter.Count == 0 || statusFilter.Contains(i.Status)))" Hover="true"
+                              Class="MainBG"
+                              T="ProjectTask"
+                              MultiSelection="_multiSelection"
+                              Virtualize="false"
+                              Dense="_dense"
+                              GroupBy="_groupDefinition"
+                              OnRowClick="GoToTask"
+                              @bind-SelectedItems="selectedTasks"
+                              Bordered="false"
+                              RowClass="NoBorder"
+                              HeaderClass="TransparentBG"
+                              FixedHeader="true"
+                              Loading="_loading">
+                        <HeaderContent>
+                            <MudTh></MudTh>
+                            <MudTh>Task</MudTh>
+                            <MudTh>Planned Start Date</MudTh>
+                            <MudTh>Planned End Date</MudTh>
+                            <MudTh>Actual Start Date</MudTh>
+                            <MudTh>Actual End Date</MudTh>
+                            <MudTh>AssignedTo</MudTh>
+                            <MudTh>Status</MudTh>
+                        </HeaderContent>
+                        <GroupHeaderTemplate>
+                            <MudTh Class="mud-table-cell-custom-group SecondaryBG" colspan="8"><h4 class="MainText">@($"{context.GroupName}: {context.Key}")</h4></MudTh>
+                        </GroupHeaderTemplate>
+                        <RowTemplate>
+                            <MudTd>@((Tasks.IndexOf(context) + 1).ToString())</MudTd>
+                            <MudTd><MudText Class="SecondaryText" Style="font-weight:bold;">@context.TaskName</MudText></MudTd>
+                            <MudTd>@context.PlannedStartDate.Date.ToShortDateString()</MudTd>
+                            <MudTd>@context.PlannedEndDate.Date.ToShortDateString()</MudTd>
+                            <MudTd>@context.ActualStartDate?.Date.ToShortDateString()</MudTd>
+                            <MudTd>@context.ActualEndDate?.Date.ToShortDateString()</MudTd>
+                            <MudTd>
+                                @if (context.TaskUsers != null)
+                                {
+                                    <MudStack Row="true" Style="max-width:200px;" Wrap="Wrap.Wrap">
+                                        @foreach (var user in context.TaskUsers)
+                                        {
+
+                                            <MudTooltip Class="SecondaryBG pa-3">
+                                                <ChildContent>
+                                                    <a href="team" style="cursor:pointer;">
+                                                        <MudAvatar Class="m-0 p-0" Style="" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
+                                                            <MudImage Src="@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.ProfilePictureUrl)" />
+                                                        </MudAvatar>
+                                                    </a>
+
+                                                </ChildContent>
+                                                <TooltipContent>
+                                                    <MudStack Class="">
+                                                        <MudAvatar>
+                                                            <MudImage Src="@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.ProfilePictureUrl)" />
+                                                        </MudAvatar>
+                                                        <MudText Class="MainText">@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.FirstName + " " + projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.LastName)</MudText>
+                                                    </MudStack>
+                                                </TooltipContent>
+                                            </MudTooltip>
+                                        }
+                                    </MudStack>
+                                }
+                                else
+                                {
+                                    <MudText>UnAssigned</MudText>
+                                }
+
+                            </MudTd>
+                            <MudTd>
+                                @{
+                                    if (context.Status == "Not Started")
                                     {
-
-                                        <MudTooltip Class="SecondaryBG pa-3">
-                                            <ChildContent>
-                                                <a href="team" style="cursor:pointer;">
-                                                    <MudAvatar Class="m-0 p-0" Style="" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small">
-                                                        <MudImage Src="@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.ProfilePictureUrl)" />
-                                                    </MudAvatar>
-                                                </a>
-                                                
-                                            </ChildContent>
-                                            <TooltipContent>
-                                                <MudStack Class="">
-                                                    <MudAvatar>
-                                                        <MudImage Src="@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.ProfilePictureUrl)" />
-                                                    </MudAvatar>
-                                                    <MudText Class="MainText">@(projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.FirstName + " " + projectUsers.SingleOrDefault(i => i.UserId == user.UserId).User.LastName)</MudText>
-                                                </MudStack>
-                                            </TooltipContent>
-                                        </MudTooltip>
+                                        <MudChip T="string" Color="Color.Dark">@context.Status</MudChip>
                                     }
-                                </MudStack>
-                            }
-                            else
-                            {
-                                <MudText>UnAssigned</MudText>
-                            }
-
-                        </MudTd>
-                        <MudTd>
-                            @{
-                                if (context.Status == "Not Started"){<MudChip T="string" Color="Color.Dark">@context.Status</MudChip>}
-                                else if (context.Status == "In Progress"){<MudChip T="string" Color="Color.Warning">@context.Status</MudChip>}
-                                else if (context.Status == "On Hold"){<MudChip T="string" Color="Color.Secondary">@context.Status</MudChip>}
-                                else if (context.Status == "Abandoned"){<MudChip T="string" Color="Color.Error">@context.Status</MudChip>}
-                                else if (context.Status == "Finished"){<MudChip T="string" Color="Color.Success">@context.Status</MudChip>}
-                            }
-                         </MudTd>
-                    </RowTemplate>
-                    <GroupFooterTemplate>
-                        <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
-                    </GroupFooterTemplate>
-                </MudTable>
+                                    else if (context.Status == "In Progress")
+                                    {
+                                        <MudChip T="string" Color="Color.Warning">@context.Status</MudChip>
+                                    }
+                                    else if (context.Status == "On Hold")
+                                    {
+                                        <MudChip T="string" Color="Color.Secondary">@context.Status</MudChip>
+                                    }
+                                    else if (context.Status == "Abandoned")
+                                    {
+                                        <MudChip T="string" Color="Color.Error">@context.Status</MudChip>
+                                    }
+                                    else if (context.Status == "Finished")
+                                    {
+                                        <MudChip T="string" Color="Color.Success">@context.Status</MudChip>
+                                    }
+                                }
+                            </MudTd>
+                        </RowTemplate>
+                        <GroupFooterTemplate>
+                            <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer" colspan="7"></MudTh>
+                        </GroupFooterTemplate>
+                    </MudTable>
+                
+                
+                
             </MudItem>
         </MudTabPanel>
         <MudTabPanel Text="Gantt Chart">
@@ -284,8 +306,8 @@
         taskCountString = $"Tasks ({taskCount})";
         projectUsers = await ProjUserService.GetAllByCurrentProject();
         CurrentUser = await userService.GetCurrentUserAsync();
-        TaskUser = await TaskUserService.GetAsync(i => i.UserId == CurrentUser.Id);
-        TaskUsers = await TaskUserService.GetAllAsync(i => i.UserId.Equals(TaskUser.UserId));
+        // TaskUser = await TaskUserService.GetAsync(i => i.UserId == CurrentUser.Id);
+        // TaskUsers = await TaskUserService.GetAllAsync(i => i.UserId.Equals(TaskUser.UserId));
 
     }
     private TableGroupDefinition<ProjectTask> _groupDefinition = new()
